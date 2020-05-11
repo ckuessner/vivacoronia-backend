@@ -1,0 +1,15 @@
+{
+  "name": "vivacoronia-backend",
+  "version": "0.0.1",
+  "description": "Backend for Corona Tracing App",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@git.rwth-aachen.de:iptk/ss20/team-foxtrot/backend.git"
+  },
+  "author": "Team Foxtrot @ IPTK TU Darmstat",
+  "license": "ISC"
+}
