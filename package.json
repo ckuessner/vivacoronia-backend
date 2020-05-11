@@ -2,14 +2,33 @@
   "name": "vivacoronia-backend",
   "version": "0.0.1",
   "description": "Backend for Corona Tracing App",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "tsc && node build/index.js",
+    "watch": "nodemon -w ./src -x \"ts-node src/index.ts\"",
+    "tsc": "tsc",
+    "lint": "eslint . --ext .ts"
   },
   "repository": {
     "type": "git",
     "url": "git@git.rwth-aachen.de:iptk/ss20/team-foxtrot/backend.git"
   },
   "author": "Team Foxtrot @ IPTK TU Darmstat",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
+    "mongodb": "^3.5.7"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.6",
+    "@types/node": "^13.13.5",
+    "@typescript-eslint/eslint-plugin": "^2.31.0",
+    "@typescript-eslint/parser": "^2.31.0",
+    "eslint": "^7.0.0",
+    "nodemon": "^2.0.3",
+    "ts-node": "^8.10.1",
+    "typescript": "^3.8.3"
+  }
 }
