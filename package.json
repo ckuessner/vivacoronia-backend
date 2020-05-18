@@ -6,10 +6,10 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "tsc && node build/index.js",
-    "watch": "nodemon -w ./src -x \"ts-node src/index.ts\"",
+    "watch": "nodemon",
     "tsc": "tsc",
     "lint": "eslint . --ext .ts",
-    "mongodb": "docker-compose up -d"
+    "dev": "docker-compose up -d"
   },
   "repository": {
     "type": "git",
