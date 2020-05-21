@@ -13,7 +13,8 @@ Afterwards you can start the server with:
 docker-compose up
 ```
 
-The server should restart automatically, when a `.ts` file in `src/` is saved.
+The server should restart automatically, when a `.ts`, `.json` and `.yaml`
+files change.
 
 The application should be running on port `3000` over plain HTTP.
 
