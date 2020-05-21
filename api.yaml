@@ -8,7 +8,7 @@ servers:
 paths:
   /locations/:
     get:
-      description: Returns the list of all locations
+      description: Returns the list of all location records of all users
       responses:
         "200":
           description: JSON array with GeoJSON Points
@@ -17,14 +17,14 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/GeoJSONPoint"
+                  $ref: "#/components/schemas/LocationRecord"
               examples:
                 twoelems:
-                  $ref: "#/components/examples/geoJsonPoint2DArrayExample"
+                  $ref: "#/components/examples/locationRecordArray"
 
   /locations/{userId}/:
     get:
-      description: Returns the list of locations the user has visited
+      description: Returns the list of locations the specified user
       responses:
         "200":
           description: JSON array with GeoJSON Points
@@ -33,10 +33,10 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/GeoJSONPoint"
+                  $ref: "#/components/schemas/LocationRecord"
               examples:
                 twoelems:
-                  $ref: "#/components/examples/geoJsonPoint2DArrayExample"
+                  $ref: "#/components/examples/locationRecordArray"
                 empty:
                   $ref: "#/components/examples/emptyArrayExample"
 
@@ -48,7 +48,7 @@ paths:
             schema:
               type: array
               items:
-                $ref: "#/components/schemas/GeoJSONPoint"
+                $ref: "#/components/schemas/GeoJSONPoint2D"
             examples:
               twoelems:
                 $ref: "#/components/examples/geoJsonPoint2DArrayExample"
@@ -65,16 +65,51 @@ paths:
 
 components:
   schemas:
-    GeoJSONPoint:
+    LocationRecord:
       type: object
-      description: GeoJSON Point2D
+      description: Location record with GeoJSON Point2D
       example:
+        userId: 42
+        time: "2020-05-21T21:39:08+02:00"
         location:
           type: "Point"
           coordinates:
             - 8.454
             - 50.225
       properties:
+        userId:
+          $ref: "#/components/schemas/userId"
+        time:
+          type: string
+          format: date-time
+        location:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+                - Point
+            coordinates:
+              type: array
+              items:
+                type: number
+                maxItems: 2
+                minItems: 2
+
+    GeoJSONPoint2D:
+      type: object
+      description: GeoJSON Point2D
+      example:
+        time: "2020-05-21T21:39:08+02:00"
+        location:
+          type: "Point"
+          coordinates:
+            - 8.454
+            - 50.225
+      properties:
+        time:
+          type: string
+          format: date-time
         location:
           type: object
           properties:
@@ -95,14 +130,34 @@ components:
 
   examples:
     geoJsonPoint2DArrayExample:
-      summary: Array with two GeoJSON Point2D records
+      summary: Array with two GeoJSON Point2D ojects
       value:
-        - location:
+        - time: 2020-05-21T19:39:08.000Z
+          location:
             type: "Point"
             coordinates:
               - -122.96
               - 50.114
-        - location:
+        - time: 2020-04-12T21:50:42.000Z
+          location:
+            type: "Point"
+            coordinates:
+              - 8.454
+              - 50.225
+
+    locationRecordArray:
+      summary: Array with two GeoJSON location records, including userId
+      value:
+        - userId: 42
+          time: 2020-05-21T19:39:08.000Z
+          location:
+            type: "Point"
+            coordinates:
+              - -122.96
+              - 50.114
+        - userId: 42
+          time: 2020-04-12T21:50:42.000Z
+          location:
             type: "Point"
             coordinates:
               - 8.454

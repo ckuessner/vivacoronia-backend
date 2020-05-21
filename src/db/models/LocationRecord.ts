@@ -6,6 +6,10 @@ const LocationRecordSchema: Schema = new Schema({
         type: Number,
         required: true
     },
+    time: {
+        type: Date,
+        required: true
+    },
     location: {
         type: {
             type: String,
@@ -14,13 +18,19 @@ const LocationRecordSchema: Schema = new Schema({
         },
         coordinates: {
             type: [Number],
-            required: true
+            required: true,
+            validate: {
+                validator: function (v: Array<number>): boolean {
+                    return v.length == 2
+                }
+            }
         }
     }
 })
 
 export interface ILocationRecord extends Document {
     userId: number;
+    time: Date;
     location: {
         type: 'Point';
         coordinates: Array<number>;
