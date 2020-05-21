@@ -18,6 +18,10 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/GeoJSONPoint"
+              examples:
+                twoelems:
+                  $ref: "#/components/examples/geoJsonPoint2DArrayExample"
+
   /locations/{userId}/:
     get:
       description: Returns the list of locations the user has visited
@@ -30,15 +34,24 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/GeoJSONPoint"
-                  /locations/{userId}/:
+              examples:
+                twoelems:
+                  $ref: "#/components/examples/geoJsonPoint2DArrayExample"
+                empty:
+                  $ref: "#/components/examples/emptyArrayExample"
+
     post:
       description: "Adds location records"
       requestBody:
         content:
           application/json:
             schema:
-              type: object
-              $ref: "#/components/schemas/GeoJSONPoint"
+              type: array
+              items:
+                $ref: "#/components/schemas/GeoJSONPoint"
+            examples:
+              twoelems:
+                $ref: "#/components/examples/geoJsonPoint2DArrayExample"
       responses:
         "201":
           description: Created
@@ -49,6 +62,7 @@ paths:
         description: The id of the user
         schema:
           $ref: "#/components/schemas/userId"
+
 components:
   schemas:
     GeoJSONPoint:
@@ -58,8 +72,8 @@ components:
         location:
           type: "Point"
           coordinates:
-            - 8.68
-            - 50.10
+            - 8.454
+            - 50.225
       properties:
         location:
           type: object
@@ -74,6 +88,35 @@ components:
                 type: number
                 maxItems: 2
                 minItems: 2
+
     userId:
       type: integer
       format: int64
+
+  examples:
+    geoJsonPoint2DArrayExample:
+      summary: Array with two GeoJSON Point2D records
+      value:
+        - location:
+            type: "Point"
+            coordinates:
+              - -122.96
+              - 50.114
+        - location:
+            type: "Point"
+            coordinates:
+              - 8.454
+              - 50.225
+
+    geoJsonPoint2DExample:
+      summary: GeoJSON Point2D record
+      value:
+        location:
+          type: "Point"
+          coordinates:
+            - -122.96
+            - 50.114
+
+    emptyArrayExample:
+      summary: Empty Array
+      value: []
