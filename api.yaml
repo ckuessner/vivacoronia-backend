@@ -6,6 +6,18 @@ servers:
   - url: "http://localhost:3000"
     description: Development server
 paths:
+  /locations/:
+    get:
+      description: Returns the list of all locations
+      responses:
+        "200":
+          description: JSON array with GeoJSON Points
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GeoJSONPoint"
   /locations/{userId}/:
     get:
       description: Returns the list of locations the user has visited
@@ -18,6 +30,7 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/GeoJSONPoint"
+                  /locations/{userId}/:
     post:
       description: "Adds location records"
       requestBody:
@@ -27,8 +40,8 @@ paths:
               type: object
               $ref: "#/components/schemas/GeoJSONPoint"
       responses:
-        "200":
-          description: OK
+        "201":
+          description: Created
     parameters:
       - name: userId
         in: path

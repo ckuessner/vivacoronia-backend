@@ -1,6 +1,6 @@
 import LocationRecord, { ILocationRecord } from "./models/LocationRecord";
 
-async function addSingleLocationRecord(userId: ILocationRecord['userId'], location: ILocationRecord['location']): Promise<ILocationRecord> {
+export async function addSingleLocationRecord(userId: ILocationRecord['userId'], location: ILocationRecord['location']): Promise<ILocationRecord> {
     return LocationRecord.create({
         userId,
         location
@@ -11,11 +11,10 @@ async function addSingleLocationRecord(userId: ILocationRecord['userId'], locati
     });
 }
 
-async function getAllLocationRecordsOfUser(userId: ILocationRecord['userId']): Promise<ILocationRecord[]> {
+export async function getAllLocationRecordsOfUser(userId: ILocationRecord['userId']): Promise<ILocationRecord[]> {
     return LocationRecord.find({ userId: userId })
 }
 
-export {
-    addSingleLocationRecord,
-    getAllLocationRecordsOfUser
+export async function getAllLocationRecords(): Promise<ILocationRecord[]> {
+    return LocationRecord.find()
 }
