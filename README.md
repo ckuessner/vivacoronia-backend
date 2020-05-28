@@ -1,5 +1,13 @@
 # Backend
 
+## Production setup
+To start the application in production mode run:
+
+```bash
+npm run prod
+```
+
+## Development setup
 To start the application for the first time, just run:
 
 ```bash
