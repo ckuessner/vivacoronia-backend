@@ -1,0 +1,177 @@
+openapi: 3.0.2
+info:
+  title: Tracing App Backend API
+  version: 0.0.1
+servers:
+  - url: "http://localhost:3000"
+    description: Development server
+paths:
+  /locations/:
+    get:
+      description: Returns the list of all location records of all users
+      responses:
+        "200":
+          description: JSON array with GeoJSON Points
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LocationRecord"
+              examples:
+                twoelems:
+                  $ref: "#/components/examples/locationRecordArray"
+
+  /locations/{userId}/:
+    get:
+      description: Returns the list of locations the specified user
+      responses:
+        "200":
+          description: JSON array with GeoJSON Points
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LocationRecord"
+              examples:
+                twoelems:
+                  $ref: "#/components/examples/locationRecordArray"
+                empty:
+                  $ref: "#/components/examples/emptyArrayExample"
+
+    post:
+      description: "Adds location records"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/GeoJSONPoint2D"
+            examples:
+              twoelems:
+                $ref: "#/components/examples/geoJsonPoint2DArrayExample"
+      responses:
+        "201":
+          description: Created
+    parameters:
+      - name: userId
+        in: path
+        required: true
+        description: The id of the user
+        schema:
+          $ref: "#/components/schemas/userId"
+
+components:
+  schemas:
+    LocationRecord:
+      type: object
+      description: Location record with GeoJSON Point2D
+      example:
+        userId: 42
+        time: "2020-05-21T21:39:08+02:00"
+        location:
+          type: "Point"
+          coordinates:
+            - 8.454
+            - 50.225
+      properties:
+        userId:
+          $ref: "#/components/schemas/userId"
+        time:
+          type: string
+          format: date-time
+        location:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+                - Point
+            coordinates:
+              type: array
+              items:
+                type: number
+                maxItems: 2
+                minItems: 2
+
+    GeoJSONPoint2D:
+      type: object
+      description: GeoJSON Point2D
+      example:
+        time: "2020-05-21T21:39:08+02:00"
+        location:
+          type: "Point"
+          coordinates:
+            - 8.454
+            - 50.225
+      properties:
+        time:
+          type: string
+          format: date-time
+        location:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+                - Point
+            coordinates:
+              type: array
+              items:
+                type: number
+                maxItems: 2
+                minItems: 2
+
+    userId:
+      type: integer
+      format: int64
+
+  examples:
+    geoJsonPoint2DArrayExample:
+      summary: Array with two GeoJSON Point2D ojects
+      value:
+        - time: 2020-05-21T19:39:08.000Z
+          location:
+            type: "Point"
+            coordinates:
+              - -122.96
+              - 50.114
+        - time: 2020-04-12T21:50:42.000Z
+          location:
+            type: "Point"
+            coordinates:
+              - 8.454
+              - 50.225
+
+    locationRecordArray:
+      summary: Array with two GeoJSON location records, including userId
+      value:
+        - userId: 42
+          time: 2020-05-21T19:39:08.000Z
+          location:
+            type: "Point"
+            coordinates:
+              - -122.96
+              - 50.114
+        - userId: 42
+          time: 2020-04-12T21:50:42.000Z
+          location:
+            type: "Point"
+            coordinates:
+              - 8.454
+              - 50.225
+
+    geoJsonPoint2DExample:
+      summary: GeoJSON Point2D record
+      value:
+        location:
+          type: "Point"
+          coordinates:
+            - -122.96
+            - 50.114
+
+    emptyArrayExample:
+      summary: Empty Array
+      value: []
