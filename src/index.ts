@@ -5,6 +5,7 @@ import swaggerUi from 'swagger-ui-express'
 import fs from 'fs'
 import path from "path";
 import yaml from "js-yaml";
+import https from "https";
 
 const app = express();
 
@@ -28,7 +29,19 @@ try {
 require('./db/connection')
 
 // Start HTTP Server
-const portNumber: number = process.env.PORT ? parseInt(process.env.PORT) : 3000
-app.listen(portNumber, () => {
-  console.log('Server listening on port ' + portNumber + '.');
+const httpPort: number = process.env.PORT ? parseInt(process.env.PORT) : 3000
+app.listen(httpPort, () => {
+  console.log('HTTP server listening on port ' + httpPort + '.');
+});
+
+// Start HTTPS Server
+const httpsPort: number = process.env.HTTPS_PORT ? parseInt(process.env.HTTPS_PORT) : 3443
+const keyLocation = process.env.KEY_LOCATION || '/keys/server.key'
+const certLocation = process.env.CERT_LOCATION || '/keys/server.crt'
+const key = fs.readFileSync(keyLocation, 'utf-8')
+const cert = fs.readFileSync(certLocation, 'utf-8')
+
+const httpsServer = https.createServer({ key, cert }, app)
+httpsServer.listen(httpsPort, () => {
+  console.log('HTTPS server listening on port ' + httpsPort + '.');
 });
