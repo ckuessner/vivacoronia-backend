@@ -1,5 +1,12 @@
 import { Request, Response } from "express";
+import { getInfectionStatusOfUser } from "../db/infection";
 import InfectionRecord from "../db/models/InfectionRecord";
+
+export async function getInfection(req: Request, res: Response): Promise<void> {
+    const userId: number = parseInt(req.params.userId)
+    const latestInfection = (await getInfectionStatusOfUser(userId, { '_id': 0, '__v': 0, 'userId': 0 }))[0];
+    res.json(latestInfection);
+}
 
 export async function postInfection(req: Request, res: Response): Promise<void> {
     const userId: number = parseInt(req.params.userId)
