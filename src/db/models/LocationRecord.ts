@@ -21,8 +21,12 @@ const LocationRecordSchema: Schema = new Schema({
             required: true,
             validate: {
                 validator: function (v: Array<number>): boolean {
-                    return v.length == 2
-                }
+                    if (v.length != 2) return false
+                    const lon = v[0]
+                    const lat = v[1]
+                    return lon >= -180 && lon <= 180 && lat >= -90 && lat <= 90
+                },
+                message: (v: any): string => `${v.value} is not a valid GeoJSON Point2D!`
             }
         }
     }

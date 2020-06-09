@@ -12,7 +12,13 @@ export async function postLocationRecords(req: Request, res: Response): Promise<
             req.body.forEach((record: any) => {
                 record.userId = userId
             });
-            await LocationRecord.create(req.body)
+            try {
+                await LocationRecord.create(req.body)
+            } catch (e) {
+                console.error("Could not create location record from POST body: ", e)
+                res.sendStatus(400)
+                return
+            }
             res.sendStatus(201)
         } catch (error) {
             console.error(error)
