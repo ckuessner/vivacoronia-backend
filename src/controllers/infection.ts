@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { getInfectionStatusOfUser } from "../db/infection";
 import InfectionRecord from "../db/models/InfectionRecord";
+import validateSignature from "../validators/rsaSignatureValidator";
 
 export async function getInfection(req: Request, res: Response): Promise<void> {
     const userId: number = parseInt(req.params.userId)
@@ -15,14 +16,15 @@ export async function postInfection(req: Request, res: Response): Promise<void> 
         res.sendStatus(400)
     } else {
         try {
-            // Set userId of each field to userId of request
-            req.body.userId = userId;
-
-            // TODO verify signature
-            // ...
+            const signature = req.body.signature
             delete req.body.signature;
 
-            console.log(req.body)
+            if (!validateSignature(req.body, signature)) {
+                res.status(400).send("Signature doesn't match content")
+                return;
+            }
+
+            req.body.userId = userId;
             await InfectionRecord.create(req.body)
 
             // TODO invoke infection status calculation and notifications in new thread
