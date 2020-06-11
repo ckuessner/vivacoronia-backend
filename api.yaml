@@ -16,6 +16,34 @@ tags:
     description: Manage product offers, needs, store inventories and available categories
 
 paths:
+  /createUserId/:
+    post:
+      description: Returns a new unique userId
+      requestBody:
+        description: Password for user account
+        content:
+          application/json:
+            schema:
+              type: object
+              items:
+                $ref: "#/components/schemas/Password"
+            examples:
+              exPassw:
+                $ref: "#/components/examples/exPassword"
+      responses:
+        "200":
+          description: Unique userId
+          content:
+            application/json:
+              schema:
+                type: object
+                items:
+                  $ref: "#/components/schemas/UserId"
+              examples:
+                newUser:
+                  $ref: "#/components/examples/newUserId"
+
+
 
   /locations/:
     get:
@@ -280,11 +308,33 @@ paths:
 
 components:
   schemas:
+    UserId:
+      type: object
+      description: Schema for user id object
+      example:
+        userID: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
+        time: "2020-05-21T21:39:08+02:00"
+      properties:
+        userId:
+          $ref: "#components/schemas/userId"
+        time:
+          type: string
+          format: date-time
+
+    Password:
+      type: object
+      description: schema for password string
+      example:
+        password: "abc123!ZY_5"
+      properties:
+        password:
+          $ref: "#/components/schemas/password"
+
     LocationRecord:
       type: object
       description: Location record with location and userId
       example:
-        userId: 42
+        userId: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
         time: "2020-05-21T21:39:08+02:00"
         location:
           type: "Point"
@@ -339,9 +389,10 @@ components:
           - 50.114
 
     userId:
-      type: integer
-      format: int64
-      example: 42
+      type: string
+
+    password:
+      type: string
 
     lat_long:
       type: number
@@ -466,6 +517,19 @@ components:
   examples:
     locationArrayExample:
       summary: Array with two location ojects
+    newUserId:
+      summary: Json Object with the new user id and the creation time
+      value:
+        userId: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
+        time: "2020-06-11T17:51:30.000Z"
+
+    exPassword:
+      summary: Json object with the password string for a user account
+      value:
+        password: "abc123!ZY_5"
+
+    geoJsonPoint2DArrayExample:
+      summary: Array with two GeoJSON Point2D ojects
       value:
         - time: 2020-05-21T19:39:08.000Z
           location:
@@ -483,14 +547,14 @@ components:
     locationRecordArray:
       summary: Array with two locations including userId, i.e. two location records
       value:
-        - userId: 42
+        - userId: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
           time: 2020-05-21T19:39:08.000Z
           location:
             type: "Point"
             coordinates:
               - -122.96
               - 50.114
-        - userId: 42
+        - userId: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ5"
           time: 2020-04-12T21:50:42.000Z
           location:
             type: "Point"

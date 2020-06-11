@@ -3,8 +3,12 @@ import * as infectionController from "./controllers/infection";
 import locationsController from "./controllers/locations";
 import contactController from "./controllers/contacts";
 import tradingController from "./controllers/trading";
+import * as userAccountsController from "./controllers/userAccounts"
+
 
 export const router = Router();
+
+router.post('/createUserId/', userAccountsController.createNewUserId)
 
 router.get('/infection/:userId/', infectionController.getInfection)
 router.post('/infection/:userId/', infectionController.postInfection)
