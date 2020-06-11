@@ -4,10 +4,14 @@ services:
   app:
     ports:
       - 3000:3000
+      - 3443:3443
     depends_on:
       - mongo
     environment:
       MONGODB_CONNECTION_STRING: "mongodb://root:insecure_password@mongo"
+    volumes:
+      - ./docker/dev.key:/keys/server.key
+      - ./docker/dev.crt:/keys/server.crt
 
   mongo:
     image: mongo

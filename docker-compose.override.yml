@@ -4,6 +4,6 @@ services:
   app:
     build:
       context: .
-      dockerfile: Dockerfile.dev
+      dockerfile: docker/Dockerfile.dev
     volumes:
       - ./:/usr/src/app
