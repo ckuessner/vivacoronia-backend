@@ -11,7 +11,6 @@ export async function getInfection(req: Request, res: Response): Promise<void> {
 
 export async function postInfection(req: Request, res: Response): Promise<void> {
     const userId: number = parseInt(req.params.userId)
-    console.log(userId)
     if (isNaN(userId)) {
         res.sendStatus(400)
     } else {
@@ -25,14 +24,21 @@ export async function postInfection(req: Request, res: Response): Promise<void> 
             }
 
             req.body.userId = userId;
-            await InfectionRecord.create(req.body)
+
+            try {
+                await InfectionRecord.create(req.body)
+            } catch (error) {
+                console.error('Could not create infection record:', error);
+                res.sendStatus(400);
+                return;
+            }
 
             // TODO invoke infection status calculation and notifications in new thread
 
             res.sendStatus(201)
         } catch (error) {
-            console.error(error)
-            res.sendStatus(400)
+            console.error(error);
+            res.sendStatus(400);
         }
     }
 }
