@@ -1,0 +1,18 @@
+{
+    "configurations": [
+    {
+        "address": "localhost",
+        "localRoot": "${workspaceFolder}/src",
+        "name": "Attach to app",
+        "port": 9229,
+        "remoteRoot": "/usr/src/app/src",
+        "restart": true,
+        "request": "attach",
+        "skipFiles": [
+            "<node_internals>/**"
+        ],
+        "type": "node",
+        "smartStep": true,
+    }
+    ]
+}
