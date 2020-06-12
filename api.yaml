@@ -73,6 +73,17 @@ paths:
           $ref: "#/components/schemas/userId"
 
   /infection/{userId}/:
+    get:
+      tags: [Infections]
+      description: Get the latest infection status of the specified user, ordered by date of test
+      responses:
+        "200":
+          description: Returns the data of the latest infection status containing Status, approximated infection time and time of test
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetInfectionRecordDto"
+
     post:
       tags: [Infections]
       description: Update the infection status of the specified user
@@ -81,10 +92,11 @@ paths:
         content: 
           application/json:
             schema: 
-              $ref: "#/components/schemas/InfectionRecordDto"
+              $ref: "#/components/schemas/PostInfectionRecordDto"
       responses:
         "201":
           description: Created
+
     parameters:
       - name: userId
         in: path
@@ -159,9 +171,26 @@ components:
       type: integer
       format: int64
 
-    InfectionRecordDto:
+    GetInfectionRecordDto:
       type: object
-      description: Object with data for updating an infection status. May contain additional properties
+      description: Object with data containing an infection status.
+      example:
+        newStatus: "infected"
+        dateOfTest: "2020-05-12T00:00:00.000Z"
+        occuredDateEstimation: "2020-05-11T00:00:00.000Z"
+      properties:
+        newStatus: 
+          type: string
+        dateOfTest:
+          type: string
+          format: date-time
+        occuredDateEstimation:
+          type: string
+          format: date-time
+
+    PostInfectionRecordDto:
+      type: object
+      description: Object with data for updating an infection status.
       example:
         newStatus: "infected"
         dateOfTest: "2020-05-12T00:00:00.000Z"

@@ -14,9 +14,9 @@ function loadKeyFromFile(filename: string): RSAKey {
     return publicKey;
 }
 
-export default function validate(receivedObject: any, signature: string): boolean {
+export default function validate(data: object, signature: string): boolean {
     const publicKey = loadKeyFromFile('public_key');
-    const dataString = JSON.stringify(receivedObject, Object.keys(receivedObject).sort())
+    const dataString = JSON.stringify(data, Object.keys(data).sort())
     const isValid = publicKey.verify(dataString, signature);
     return isValid == 1;
 }

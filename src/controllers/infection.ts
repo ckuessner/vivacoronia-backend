@@ -16,7 +16,7 @@ export async function postInfection(req: Request, res: Response): Promise<void> 
         res.sendStatus(400)
     } else {
         try {
-            const signature = req.body.signature
+            const signature = req.body.signature;
             delete req.body.signature;
 
             if (!validateSignature(req.body, signature)) {
