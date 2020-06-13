@@ -5,9 +5,16 @@ info:
 servers:
   - url: "http://localhost:3000"
     description: Development server
+tags:
+  - name: Location Tracking
+    description: Manage location tracking data
+  - name: Infections
+    description: Manage infections status
+
 paths:
   /locations/:
     get:
+      tags: [Location Tracking]
       description: Returns the list of all location records of all users
       responses:
         "200":
@@ -24,6 +31,7 @@ paths:
 
   /locations/{userId}/:
     get:
+      tags: [Location Tracking]
       description: Returns the list of locations the specified user
       responses:
         "200":
@@ -41,6 +49,7 @@ paths:
                   $ref: "#/components/examples/emptyArrayExample"
 
     post:
+      tags: [Location Tracking]
       description: "Adds location records"
       requestBody:
         content:
@@ -63,6 +72,40 @@ paths:
         schema:
           $ref: "#/components/schemas/userId"
 
+  /infection/{userId}/:
+    get:
+      tags: [Infections]
+      description: Get the latest infection status of the specified user, ordered by date of test
+      responses:
+        "200":
+          description: Returns the data of the latest infection status containing Status, approximated infection time and time of test
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetInfectionRecordDto"
+
+    post:
+      tags: [Infections]
+      description: Update the infection status of the specified user
+      requestBody:
+        required: true
+        content: 
+          application/json:
+            schema: 
+              $ref: "#/components/schemas/PostInfectionRecordDto"
+      responses:
+        "201":
+          description: Created
+
+    parameters:
+      - name: userId
+        in: path
+        required: true
+        description: The id of the user
+        schema:
+          $ref: "#/components/schemas/userId"
+
+    
 components:
   schemas:
     LocationRecord:
@@ -127,6 +170,45 @@ components:
     userId:
       type: integer
       format: int64
+
+    GetInfectionRecordDto:
+      type: object
+      description: Object with data containing an infection status.
+      example:
+        newStatus: "infected"
+        dateOfTest: "2020-05-12T00:00:00.000Z"
+        occuredDateEstimation: "2020-05-11T00:00:00.000Z"
+      properties:
+        newStatus: 
+          type: string
+        dateOfTest:
+          type: string
+          format: date-time
+        occuredDateEstimation:
+          type: string
+          format: date-time
+
+    PostInfectionRecordDto:
+      type: object
+      description: Object with data for updating an infection status.
+      example:
+        newStatus: "infected"
+        dateOfTest: "2020-05-12T00:00:00.000Z"
+        occuredDateEstimation: "2020-05-11T00:00:00.000Z"
+        signature: "1234567890abcdef"
+      properties:
+        newStatus: 
+          type: string
+        dateOfTest:
+          type: string
+          format: date-time
+        occuredDateEstimation:
+          type: string
+          format: date-time
+        signature:
+          format: string
+
+        
 
   examples:
     geoJsonPoint2DArrayExample:
