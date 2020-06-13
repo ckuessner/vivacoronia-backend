@@ -14,7 +14,6 @@
         "rootDir": "./src",
         "outDir": "./build",
         "sourceMap": true,
-        //"watch": true,
         "strict": true, /* Enable all strict type-checking options. */
         "noUnusedLocals": true /* Report errors on unused locals. */,
         "noUnusedParameters": true /* Report errors on unused parameters. */,
