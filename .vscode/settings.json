@@ -16,5 +16,6 @@
         },
         "editor.autoIndent": "full",
         "editor.formatOnSave": true
-    }
+    },
+    "files.insertFinalNewline": true
 }
