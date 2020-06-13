@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import * as locationsDb from "../db/locations";
-import LocationRecord, { ILocationRecord } from "../db/models/LocationRecord";
+import { ILocationRecord } from "../db/models/LocationRecord";
 
 export async function postLocationRecords(req: Request, res: Response): Promise<void> {
     const userId: number = parseInt(req.params.userId)
@@ -13,7 +13,7 @@ export async function postLocationRecords(req: Request, res: Response): Promise<
                 record.userId = userId
             });
             try {
-                await LocationRecord.create(req.body)
+                await locationsDb.addLocationRecords(req.body)
             } catch (e) {
                 console.error("Could not create location record from POST body: ", e)
                 res.sendStatus(400)
