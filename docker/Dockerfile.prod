@@ -5,6 +5,7 @@ WORKDIR /usr/src/app
 COPY --chown=node:node package*.json api.yaml tsconfig.json /usr/src/app/
 COPY --chown=node:node src /usr/src/app/src/
 COPY --chown=node:node res /usr/src/app/res/
+COPY --chown=node:node patches /usr/src/app/patches/
 
 USER node
 ENV NODE_ENV=production
