@@ -29,6 +29,6 @@ export async function getAllLocationRecordsOfUser(userId: ILocationRecord['userI
     return LocationRecord.find({ userId: userId })
 }
 
-export async function getAllLocationRecords(): Promise<ILocationRecord[]> {
+export async function getAllLocationRecords(): Promise<Array<ILocationRecord>> {
     return LocationRecord.find()
 }
