@@ -1,4 +1,5 @@
 import LocationRecord, { ILocationRecord } from "./models/LocationRecord"
+import ContactRecord, { IContactRecord } from "./models/ContactRecord"
 
 const EXPOSURE_MAX_DISTANCE = 10 // In meters
 const TIME_RANGE_PER_LOCATIONRECORD = 5 * 10000 // In milliseconds
@@ -7,7 +8,19 @@ function timeStampsToString(start: bigint, end: bigint): string {
     return `${(end - start) / BigInt(1000000)}ms`
 }
 
-export async function findOverlappingUsers(userId: number, infectionDate: Date): Promise<Array<ILocationRecord>> {
+async function createContactRecords(
+    infectedUserId: number,
+    userId: number,
+    locationRecord: ILocationRecord): Promise<IContactRecord> {
+
+    return ContactRecord.create({
+        userId,
+        infectedUserId,
+        locationRecord: locationRecord._id
+    })
+}
+
+async function findContacts(userId: number, infectionDate: Date): Promise<Array<IContactRecord>> {
     const TIME_DISTANCE = TIME_RANGE_PER_LOCATIONRECORD / 2;
 
     const timeStart = process.hrtime.bigint()
@@ -55,6 +68,14 @@ export async function findOverlappingUsers(userId: number, infectionDate: Date):
         " | aggregate ", timeStampsToString(timeBeforeAggregate, timeBeforeFlat),
         " | flat ", timeStampsToString(timeBeforeFlat, timeEnd))
 
-    return contactRecords
+    const contactPromises = contactRecords.map((locationRecord: ILocationRecord) => {
+        return createContactRecords(userId, locationRecord.userId, locationRecord)
+    })
+    return Promise.all(contactPromises)
 }
 
+export async function getAllContactRecords(): Promise<Array<IContactRecord>> {
+    return ContactRecord.find()
+}
+
+export default { findContacts, getAllContactRecords }
