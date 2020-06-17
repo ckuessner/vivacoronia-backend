@@ -40,8 +40,10 @@ export async function postInfection(req: Request, res: Response): Promise<void> 
             return;
         }
 
-        // Start contact tracing for new infection in background
-        contacts.startContactTracing(infectionRecord)
+        if (infectionRecord.newStatus === "infected") {
+            // Start contact tracing for new infection in background
+            contacts.startContactTracing(infectionRecord)
+        }
 
         res.sendStatus(201);
     } catch (error) {
