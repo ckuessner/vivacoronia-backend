@@ -9,7 +9,7 @@ export async function createNewUserId(req: Request, res: Response): Promise<void
 
   if (password == "") {
     console.error("Invalid Password, is empty")
-    res.sendStatus(200)
+    res.sendStatus(400)
     return
   }
 
@@ -20,4 +20,12 @@ export async function createNewUserId(req: Request, res: Response): Promise<void
     "timeCreated": record.timeCreated
   }
   res.json(json)
+}
+
+export async function newJSONWebToken(req: Request, res: Response): Promise<void> {
+  console.log(req.body)
+  // TODO get a userID and passwort, check userID and password
+
+  // TODO create a new web token and send in as a request
+  res.sendStatus(400)
 }

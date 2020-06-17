@@ -9,6 +9,7 @@ import * as userAccountsController from "./controllers/userAccounts"
 export const router = Router();
 
 router.post('/createUserId/', userAccountsController.createNewUserId)
+router.post('/newJSONWebToken/:userId/', userAccountsController.newJSONWebToken)
 
 router.get('/infection/:userId/', infectionController.getInfection)
 router.post('/infection/:userId/', infectionController.postInfection)

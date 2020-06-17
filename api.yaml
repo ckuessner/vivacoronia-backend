@@ -18,6 +18,7 @@ tags:
 paths:
   /createUserId/:
     post:
+      tags: [User Creation and Authentication]
       description: Returns a new unique userId
       requestBody:
         description: Password for user account
@@ -43,6 +44,39 @@ paths:
                 newUser:
                   $ref: "#/components/examples/newUserId"
 
+  /newJSONWebToken/{userId}/:
+    post:
+      tags: [User Creation and Authentication]
+      description: Returns a new JWT for a specific userId
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              items:
+                $ref: "#/components/schemas/Password"
+            examples:
+              exPassw:
+                $ref: "#components/examples/exPassword"
+      responses:
+        "200":
+          description: JSON Web Token
+          content:
+            application/json:
+              schema:
+                type: string
+                items:
+                  "#components/schemas/JWT"
+              examples:
+                newJWT:
+                  $ref: "#/components/examples/newJWT"
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: The id of the user
+          schema:
+            $ref: "#/components/schemas/userId"
 
 
   /locations/:
@@ -321,6 +355,19 @@ components:
           type: string
           format: date-time
 
+    JWT:
+      type: object
+      description: example JWT
+      example:
+        jwt: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+        expiry: "2020-05-21T21:39:08+02:00"
+      properties:
+        jwt:
+          type: string
+        expiry:
+          type: string
+          format: date-time
+
     Password:
       type: object
       description: schema for password string
@@ -522,6 +569,10 @@ components:
       value:
         userId: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
         time: "2020-06-11T17:51:30.000Z"
+
+    newJWT:
+      value:
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
 
     exPassword:
       summary: Json object with the password string for a user account
