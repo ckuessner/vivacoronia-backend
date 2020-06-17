@@ -8,7 +8,7 @@
     "test": "jest",
     "watch": "nodemon",
     "tsc": "tsc",
-    "lint": "eslint . --ext .ts",
+    "lint": "eslint ./src/ --ext .ts",
     "dev": "docker-compose build && docker-compose up -d",
     "prod": "docker-compose -f docker-compose.yml -f docker-compose.prod.yml build && docker-compose -f docker-compose.yml -f docker-compose.prod.yml up",
     "postinstall": "patch-package"
@@ -47,12 +47,11 @@
   },
   "jest": {
     "transform": {
-      ".(ts|tsx)": "ts-jest"
+      ".ts": "ts-jest"
     },
-    "testRegex": "(/__tests__/.*|\\.(test|spec))\\.(ts|tsx|js)$",
+    "testRegex": "\\/__tests__\\/.+\\.(test|spec)\\.ts$",
     "moduleFileExtensions": [
       "ts",
-      "tsx",
       "js"
     ],
     "verbose": true
