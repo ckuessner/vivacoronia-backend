@@ -9,16 +9,25 @@ function loadKeyFromFile(filename: string): String {
   return fileContent;
 }
 
-export function generateJWT(header: String, payload: String): String {
+export function generateJWT(userId: String): String {
   const privateKey = loadKeyFromFile('private_key');
 
-  // https://kjur.github.io/jsrsasign/api/symbols/KJUR.crypto.Signature.html
-  var sig = new KJUR.crypto.Signature({ "alg": "SHA256withRSA" })
-  sig.init(privateKey.toString())
-  sig.updateString(header + "." + payload)
-  var hSigVal = sig.sign()
+  // Header
+  var oHeader = {
+    alg: 'RS256',
+    typ: 'JWT'
+  }
 
-  return header + "." + payload + "." + hSigVal
+  // Payload
+  var oPayload = {
+    sub: userId,
+    exp: KJUR.jws.IntDate.get('now + 1day')
+  }
+
+  // Sign JWT
+  var sJWT = KJUR.jws.JWS.sign("RS256", oHeader, oPayload, privateKey.toString());
+
+  return sJWT
 }
 
 export function validateJWT(token: String, userId: String): boolean {
