@@ -2,7 +2,7 @@ import LocationRecord, { ILocationRecord } from "./models/LocationRecord"
 import ContactRecord, { IContactRecord } from "./models/ContactRecord"
 
 const EXPOSURE_MAX_DISTANCE = 10 // In meters
-const TIME_RANGE_PER_LOCATIONRECORD = 5 * 10000 // In milliseconds
+const TIME_RANGE_PER_LOCATIONRECORD = 20 * 1000 // In milliseconds
 
 function timeStampsToString(start: bigint, end: bigint): string {
     return `${(end - start) / BigInt(1000000)}ms`
