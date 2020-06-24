@@ -1,7 +1,8 @@
 import { Request, Response } from "express";
 import { getInfectionStatusOfUser } from "../db/infection";
-import InfectionRecord from "../db/models/InfectionRecord";
+import InfectionRecord, { IInfectionRecord } from "../db/models/InfectionRecord";
 import validateSignature from "../validators/rsaSignatureValidator";
+import contacts from "./contacts";
 
 export async function getInfection(req: Request, res: Response): Promise<void> {
     const userId: number = parseInt(req.params.userId);
@@ -30,15 +31,19 @@ export async function postInfection(req: Request, res: Response): Promise<void> 
 
         req.body.userId = userId;
 
+        let infectionRecord: IInfectionRecord;
         try {
-            await InfectionRecord.create(req.body);
+            infectionRecord = await InfectionRecord.create(req.body);
         } catch (error) {
             console.error('Could not create infection record:', error);
             res.sendStatus(400);
             return;
         }
 
-        // TODO invoke infection status calculation and notifications in new thread
+        if (infectionRecord.newStatus === "infected") {
+            // Start contact tracing for new infection in background
+            contacts.startContactTracing(infectionRecord)
+        }
 
         res.sendStatus(201);
     } catch (error) {

@@ -14,8 +14,10 @@ services:
       - ./docker/dev.crt:/keys/server.crt
 
   mongo:
-    image: mongo
+    image: mongo:4.2
     restart: always
+    ports:
+      - 27017:27017
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: insecure_password

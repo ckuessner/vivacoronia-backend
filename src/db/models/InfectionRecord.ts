@@ -8,6 +8,7 @@ const InfectionRecordSchema: Schema = new Schema({
     },
     newStatus: {
         type: String,
+        enum: ["infected", "recovered"],
         required: true
     },
     dateOfTest: {
@@ -21,7 +22,7 @@ const InfectionRecordSchema: Schema = new Schema({
 
 export interface IInfectionRecord extends Document {
     userId: number;
-    newStatus: string;
+    newStatus: "infected" | "recovered";
     dateOfTest: Date;
     occuredDateEstimation?: Date;
 }
