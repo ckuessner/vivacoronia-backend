@@ -3,6 +3,8 @@ import { getInfectionStatusOfUser } from "../db/infection";
 import InfectionRecord, { IInfectionRecord } from "../db/models/InfectionRecord";
 import validateSignature from "../validators/rsaSignatureValidator";
 import contacts from "./contacts";
+import { validateJWT } from "../validators/jsonWebTokenValidator";
+import { isString } from "util";
 
 export async function getInfection(req: Request, res: Response): Promise<void> {
     const userId: String = req.params.userId;
@@ -21,6 +23,18 @@ export async function postInfection(req: Request, res: Response): Promise<void> 
     if (typeof body.signature !== 'string') {
         res.sendStatus(400);
         return;
+    }
+
+    if (!isString(req.headers.jwt)) {
+        res.status(400).send("Invalid JWT format")
+        return
+    }
+    const token: String = req.headers.jwt;
+
+    if (!validateJWT(token, userId)) {
+        // invalid token
+        res.status(400).send("Invalid JWT or userID")
+        return
     }
 
     try {

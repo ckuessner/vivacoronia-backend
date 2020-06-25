@@ -7,7 +7,7 @@ export async function createNewUserId(req: Request, res: Response): Promise<void
   const password: String = req.body.password
 
   if (password == "") {
-    res.sendStatus(400)
+    res.sendStatus(400).send("Invalid password")
     return
   }
 
@@ -38,6 +38,6 @@ export async function newJSONWebToken(req: Request, res: Response): Promise<void
   }
   else {
     // password is not correct for user or no such userId 
-    res.sendStatus(401)
+    res.sendStatus(400).send("password does not match to userId")
   }
 }

@@ -1,9 +1,24 @@
 import { Request, Response } from "express";
 import * as locationsDb from "../db/locations";
 import { ILocationRecord } from "../db/models/LocationRecord";
+import { validateJWT } from "../validators/jsonWebTokenValidator";
+import { isString } from "util";
 
 async function postLocationRecords(req: Request, res: Response): Promise<void> {
     const userId: String = req.params.userId
+
+    if (!isString(req.headers.jwt)) {
+        res.status(400).send("Invalid JWT format")
+        return
+    }
+    const token: String = req.headers.jwt;
+
+    if (!validateJWT(token, userId)) {
+        // invalid token
+        res.status(400).send("Invalid JWT or userID")
+        return
+    }
+
     if (!Array.isArray(req.body)) {
         res.sendStatus(400)
     } else {
