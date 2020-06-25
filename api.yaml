@@ -152,19 +152,24 @@ paths:
               type: array
               items:
                 $ref: "#/components/schemas/location"
-              examples:
-                twoelems:
-                  $ref: "#/components/examples/locationArrayExample"
+            examples:
+              twoelems:
+                $ref: "#/components/examples/locationArrayExample"
       responses:
         "201":
           description: Created
-      parameters:
-        - name: userId
-          in: path
-          required: true
-          description: The id of the user
-          schema:
-            $ref: "#/components/schemas/userId"
+    parameters:
+      - name: userId
+        in: path
+        required: true
+        description: The id of the user
+        schema:
+          $ref: "#/components/schemas/userId"
+      - name: jwt
+        in: header
+        schema:
+          type: string
+        required: true
 
   /infection/{userId}/:
     get:
@@ -198,6 +203,11 @@ paths:
         description: The id of the user
         schema:
           $ref: "#/components/schemas/userId"
+      - name: jwt
+        in: header
+        schema:
+          type: string
+        required: true
 
   /contacts/:
     get:

@@ -38,6 +38,6 @@ export async function newJSONWebToken(req: Request, res: Response): Promise<void
   }
   else {
     // password is not correct for user or no such userId 
-    res.sendStatus(400)
+    res.sendStatus(401)
   }
 }
