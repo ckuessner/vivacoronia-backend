@@ -500,10 +500,10 @@ components:
         locationRecord:
           $ref: "#/components/schemas/LocationRecord"
       example:
-        userId: 42
-        infectedUserId: 1234
+        userId: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpabcJ9"
+        infectedUserId: "fDthGGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
         locationRecord:
-          userId: 42
+          userId: "fDthGGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
           time: "2020-05-21T21:39:08+02:00"
           location:
             type: Point

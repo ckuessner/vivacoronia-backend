@@ -2,7 +2,7 @@ import mongoose, { Document, Schema } from "mongoose";
 
 const InfectionRecordSchema: Schema = new Schema({
     userId: {
-        type: Number,
+        type: String,
         required: true
     },
     newStatus: {
@@ -20,7 +20,7 @@ const InfectionRecordSchema: Schema = new Schema({
 })
 
 export interface IInfectionRecord extends Document {
-    userId: number;
+    userId: String;
     newStatus: "infected" | "recovered";
     dateOfTest: Date;
     occuredDateEstimation?: Date;

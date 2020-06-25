@@ -2,11 +2,11 @@ import mongoose, { Schema, Document } from "mongoose";
 
 const ContactRecordSchema: Schema = new Schema({
     userId: {
-        type: Number,
+        type: String,
         required: true
     },
     infectedUserId: {
-        type: Number,
+        type: String,
         required: true
     },
     locationRecord: {
@@ -20,8 +20,8 @@ const ContactRecordSchema: Schema = new Schema({
 ContactRecordSchema.index({ infectedUserId: 1, locationRecord: 1 }, { unique: true })
 
 export interface IContactRecord extends Document {
-    userId: number;
-    infectedUserId: number;
+    userId: String;
+    infectedUserId: String;
     /**
      * The locationRecord of the person that comes in contact with the infected person.
      */

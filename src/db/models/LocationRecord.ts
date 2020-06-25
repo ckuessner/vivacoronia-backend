@@ -25,7 +25,7 @@ export const Point2DSchema: Schema = new Schema({
 
 const LocationRecordSchema: Schema = new Schema({
     userId: {
-        type: Number,
+        type: String,
         required: true
     },
     time: {
@@ -40,7 +40,7 @@ const LocationRecordSchema: Schema = new Schema({
 })
 
 export interface ILocationRecord extends Document {
-    userId: number;
+    userId: String;
     time: Date;
     location: {
         type: 'Point';
