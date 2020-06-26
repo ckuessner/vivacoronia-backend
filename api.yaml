@@ -139,6 +139,11 @@ paths:
         schema:
           type: string
         required: true
+      - name: adminjwt
+        in: header
+        schema:
+          type: string
+        required: true
 
   /locations/{userId}/:
     get:

@@ -41,6 +41,7 @@ export function generateAdminJWT(): String {
 
   // Payload
   var oPayload = {
+    sub: "admin",
     exp: KJUR.jws.IntDate.get('now + 1day')
   }
 
@@ -55,15 +56,19 @@ export function validateJWT(token: String, userId: String): boolean {
   // https://kjur.github.io/jsrsasign/api/symbols/KJUR.jws.IntDate.html
   const pubkey = loadKeyFromFile("public_key")
 
-  var isValid = KJUR.jws.JWS.verifyJWT(token.toString(), pubkey.toString(), {
-    alg: ['RS256'],
-    iss: [],
-    sub: [userId.toString()],
-    verifyAt: KJUR.jws.IntDate.getNow(),
-    aud: []
-  });
-
-  return isValid
+  try {
+    return KJUR.jws.JWS.verifyJWT(token.toString(), pubkey.toString(), {
+      alg: ['RS256'],
+      iss: [],
+      sub: [userId.toString()],
+      verifyAt: KJUR.jws.IntDate.getNow(),
+      aud: []
+    });
+  } catch (error) {
+    // if token is invalid it raises an TypeError, maybe this is a bug...
+    console.error(error)
+    return false
+  }
 }
 
 export function validateAdminJWT(token: String): boolean {
@@ -71,13 +76,17 @@ export function validateAdminJWT(token: String): boolean {
   // https://kjur.github.io/jsrsasign/api/symbols/KJUR.jws.IntDate.html
   const pubkey = loadKeyFromFile("public_key")
 
-  var isValid = KJUR.jws.JWS.verifyJWT(token.toString(), pubkey.toString(), {
-    alg: ['RS256'],
-    iss: [],
-    sub: [],
-    verifyAt: KJUR.jws.IntDate.getNow(),
-    aud: []
-  });
-
-  return isValid
+  try {
+    return KJUR.jws.JWS.verifyJWT(token.toString(), pubkey.toString(), {
+      alg: ['RS256'],
+      iss: [],
+      sub: ['admin'],
+      verifyAt: KJUR.jws.IntDate.getNow(),
+      aud: []
+    });
+  } catch (error) {
+    // if token is invalid it raises an TypeError, maybe this is a bug...
+    console.error(error)
+    return false
+  }
 }
