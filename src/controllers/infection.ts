@@ -10,8 +10,12 @@ export async function getInfection(req: Request, res: Response): Promise<void> {
         res.sendStatus(400);
         return;
     }
-    const latestInfection = (await getInfectionStatusOfUser(userId))[0];
-    res.json(latestInfection);
+    const latestInfection = (await getInfectionStatusOfUser(userId));
+    if (latestInfection.length == 0) {
+        res.sendStatus(404);
+        return;
+    }
+    res.json(latestInfection[0]);
 }
 
 export async function postInfection(req: Request, res: Response): Promise<void> {
