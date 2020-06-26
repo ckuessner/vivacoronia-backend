@@ -10,6 +10,7 @@ export const router = Router();
 
 router.post('/createUserId/', userAccountsController.createNewUserId)
 router.post('/newJSONWebToken/:userId/', userAccountsController.newJSONWebToken)
+router.post('/newAdminToken/', userAccountsController.newAdminToken)
 
 router.get('/infection/:userId/', infectionController.getInfection)
 router.post('/infection/:userId/', infectionController.postInfection)

@@ -1,13 +1,14 @@
 import { Request, Response } from "express";
 import * as userAccountDb from "../db/userAccounts";
 import { IUserAccountRecord } from "../db/models/UserAccountRecord";
-import { generateJWT } from "../validators/jsonWebTokenValidator";
+import { generateJWT, generateAdminJWT } from "../validators/jsonWebTokenValidator";
 
 export async function createNewUserId(req: Request, res: Response): Promise<void> {
   const password: String = req.body.password
 
   if (password == "") {
-    res.sendStatus(400).send("Invalid password")
+    console.error("Invalid password")
+    res.sendStatus(400)
     return
   }
 
@@ -38,6 +39,29 @@ export async function newJSONWebToken(req: Request, res: Response): Promise<void
   }
   else {
     // password is not correct for user or no such userId 
-    res.sendStatus(400).send("password does not match to userId")
+    console.error("No such userId or incorrect password")
+    res.sendStatus(400)
+  }
+}
+
+export async function newAdminToken(req: Request, res: Response): Promise<void> {
+  const password: String = req.body.password
+
+  const validator: boolean = await userAccountDb.validateAdminPassword(password)
+
+  if (validator) {
+
+    var token: String = generateAdminJWT()
+
+    const json = {
+      "jwt": token
+    }
+
+    res.json(json)
+  }
+  else {
+    // password is not correct
+    console.error("incorrect password")
+    res.sendStatus(400)
   }
 }

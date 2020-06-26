@@ -4,6 +4,8 @@ import { IContactRecord } from "../db/models/ContactRecord";
 import { IInfectionRecord } from "../db/models/InfectionRecord";
 import tracing from "../db/contacts";
 import notifications from "./notifications"
+import { validateAdminJWT } from "../validators/jsonWebTokenValidator";
+import { isString } from "util";
 
 const TWO_WEEKS_MS = 14 * 24 * 60 * 60 * 1000
 

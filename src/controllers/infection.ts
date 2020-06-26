@@ -26,14 +26,16 @@ export async function postInfection(req: Request, res: Response): Promise<void> 
     }
 
     if (!isString(req.headers.jwt)) {
-        res.status(400).send("Invalid JWT format")
+        console.error("Invalid JWT format")
+        res.status(400)
         return
     }
     const token: String = req.headers.jwt;
 
     if (!validateJWT(token, userId)) {
         // invalid token
-        res.status(400).send("Invalid JWT or userID")
+        console.error("Invalid JWT or userID")
+        res.status(400)
         return
     }
 
