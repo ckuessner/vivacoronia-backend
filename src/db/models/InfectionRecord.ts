@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/interface-name-prefix */
 import mongoose, { Document, Schema } from "mongoose";
 
 const InfectionRecordSchema: Schema = new Schema({

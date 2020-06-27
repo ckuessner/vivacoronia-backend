@@ -20,24 +20,28 @@ export async function getInfection(req: Request, res: Response): Promise<void> {
 
 export async function postInfection(req: Request, res: Response): Promise<void> {
     const userId: number = parseInt(req.params.userId);
-    if (isNaN(userId)) {
+    const body = req.body as Record<string, unknown>
+
+    if (isNaN(userId) || typeof body.signature !== 'string') {
         res.sendStatus(400);
         return;
     }
+
     try {
-        const signature = req.body.signature;
-        delete req.body.signature;
+        const signature = body.signature;
+        delete body.signature;
 
         if (!validateSignature(req.body, signature)) {
             res.status(400).send("Signature doesn't match content");
             return;
         }
 
-        req.body.userId = userId;
+        body.userId = userId;
 
         let infectionRecord: IInfectionRecord;
         try {
-            infectionRecord = await InfectionRecord.create(req.body);
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            infectionRecord = await InfectionRecord.create(body as any);
         } catch (error) {
             console.error('Could not create infection record:', error);
             res.sendStatus(400);
@@ -46,7 +50,7 @@ export async function postInfection(req: Request, res: Response): Promise<void> 
 
         if (infectionRecord.newStatus === "infected") {
             // Start contact tracing for new infection in background
-            contacts.startContactTracing(infectionRecord)
+            void contacts.startContactTracing(infectionRecord)
         }
 
         res.sendStatus(201);

@@ -25,7 +25,7 @@ try {
   const swaggerApiJson = yaml.safeLoad(swaggerApiYaml, {
     filename: 'api.yaml',
   });
-  app.use('/swagger/', swaggerUi.serve, swaggerUi.setup(swaggerApiJson));
+  app.use('/swagger/', swaggerUi.serve, swaggerUi.setup(swaggerApiJson as swaggerUi.JsonObject));
 } catch (e) {
   console.error('Could not start swagger-ui\n', e);
 }
@@ -36,7 +36,7 @@ require('./db/connection');
 // Start HTTP Server
 const httpPort: number = process.env.PORT ? parseInt(process.env.PORT) : 3000;
 app.listen(httpPort, () => {
-  console.log('HTTP server listening on port ' + httpPort + '.');
+  console.log('HTTP server listening on port ', httpPort, '.');
 });
 
 // Start HTTPS Server
@@ -50,5 +50,5 @@ const cert = fs.readFileSync(certLocation, 'utf-8');
 
 const httpsServer = https.createServer({ key, cert }, app);
 httpsServer.listen(httpsPort, () => {
-  console.log('HTTPS server listening on port ' + httpsPort + '.');
+  console.log('HTTPS server listening on port ', httpsPort, '.');
 });
