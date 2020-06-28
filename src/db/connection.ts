@@ -4,6 +4,6 @@ const connectionString: string = process.env.MONGODB_CONNECTION_STRING || 'mongo
 
 const opts = { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true }
 
-mongoose.connect(connectionString, opts)
+void mongoose.connect(connectionString, opts)
 mongoose.connection.on('error', console.error.bind(console, 'connection error:'));
 mongoose.connection.once('open', () => console.log('connected to db'))

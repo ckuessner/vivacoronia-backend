@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/interface-name-prefix */
 import mongoose, { Schema, Document } from "mongoose";
 
 const ContactRecordSchema: Schema = new Schema({

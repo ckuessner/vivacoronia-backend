@@ -9,9 +9,10 @@ async function postLocationRecords(req: Request, res: Response): Promise<void> {
     } else {
         try {
             // Set userId of each field to userId of request
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            req.body.forEach((record: any) => {
-                record.userId = userId
+            req.body.forEach((record: unknown) => {
+                if (typeof record == 'object' && record !== null) {
+                    Object.defineProperty(record, 'userId', userId)
+                }
             });
             try {
                 await locationsDb.addLocationRecords(req.body)

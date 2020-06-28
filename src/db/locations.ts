@@ -14,10 +14,8 @@ interface LocationFieldInput {
 
 export async function addLocationRecords(locationRecords: LocationRecordInput[]): Promise<ILocationRecord> {
     return LocationRecord.create(
-        // There is an error in the type definitions for mongoose
-        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-        // @ts-ignore
-        locationRecords
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        locationRecords as any
     ).then((record: ILocationRecord) => {
         return record
     }).catch((error: Error) => {

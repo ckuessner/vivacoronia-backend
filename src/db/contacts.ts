@@ -16,6 +16,7 @@ async function createContactRecords(
     return ContactRecord.create({
         userId,
         infectedUserId,
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         locationRecord: locationRecord._id
     })
 }

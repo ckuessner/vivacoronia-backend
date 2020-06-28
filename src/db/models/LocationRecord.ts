@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/interface-name-prefix */
 import mongoose, { Schema, Document, SchemaTypeOpts } from "mongoose";
 
 const Point2DSchema: Schema = new Schema({
@@ -18,6 +17,7 @@ const Point2DSchema: Schema = new Schema({
                 return lon >= -180 && lon <= 180 && lat >= -90 && lat <= 90
             },
             message: (v: SchemaTypeOpts.ValidatorProps): string =>
+                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
                 `${v.value} is not a valid GeoJSON Point2D!`
         }
     }
@@ -51,7 +51,7 @@ export interface ILocationRecord extends Document {
 export default mongoose.model<ILocationRecord>('LocationRecord', LocationRecordSchema);
 
 // Make sure that the 2dsphere (and other indexes) exist.
-mongoose.model('LocationRecord').ensureIndexes(err => {
+void mongoose.model('LocationRecord').ensureIndexes(err => {
     if (err) {
         console.error("Eror enrsuring indexes of LocationRecord exists: ", err)
     }
