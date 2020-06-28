@@ -10,7 +10,7 @@ import { router } from './routes';
 const app = express();
 
 // Load Middlewares
-app.use(bodyParser.json());
+app.use(bodyParser.json({ limit: '10MB' }));
 
 // Routes
 app.use('/', router);
