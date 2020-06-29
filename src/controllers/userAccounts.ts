@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import * as userAccountDb from "../db/userAccounts";
-import { IUserAccountRecord } from "../db/models/UserAccountRecord";
-import { generateJWT, generateAdminJWT } from "../validators/jsonWebTokenValidator";
+import { IUserAccountRecord } from "../db/Users/models/UserAccountRecord";
+import * as userAccountDb from "../db/Users/userAccounts";
+import { generateAdminJWT, generateJWT } from "../validators/jsonWebTokenValidator";
 
 export async function createNewUserId(req: Request, res: Response): Promise<void> {
   const password: String = req.body.password

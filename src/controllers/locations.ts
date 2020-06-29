@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
-import * as locationsDb from "../db/locations";
-import { ILocationRecord } from "../db/models/LocationRecord";
-import { validateJWT } from "../validators/jsonWebTokenValidator";
 import { isString } from "util";
+import * as locationsDb from "../db/Tracking/locations";
+import { ILocationRecord } from "../db/Tracking/models/LocationRecord";
+import { validateJWT } from "../validators/jsonWebTokenValidator";
 
 async function postLocationRecords(req: Request, res: Response): Promise<void> {
     const userId: String = req.params.userId

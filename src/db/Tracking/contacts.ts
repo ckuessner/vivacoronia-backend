@@ -1,5 +1,5 @@
-import LocationRecord, { ILocationRecord } from "./models/LocationRecord"
 import ContactRecord, { IContactRecord } from "./models/ContactRecord"
+import LocationRecord, { ILocationRecord } from "./models/LocationRecord"
 
 const EXPOSURE_MAX_DISTANCE = 10 // In meters
 const TIME_RANGE_PER_LOCATIONRECORD = 20 * 1000 // In milliseconds

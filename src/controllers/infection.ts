@@ -1,10 +1,10 @@
 import { Request, Response } from "express";
-import { getInfectionStatusOfUser } from "../db/infection";
-import InfectionRecord, { IInfectionRecord } from "../db/models/InfectionRecord";
+import { isString } from "util";
+import { getInfectionStatusOfUser } from "../db/Tracking/infection";
+import InfectionRecord, { IInfectionRecord } from "../db/Tracking/models/InfectionRecord";
+import { validateJWT } from "../validators/jsonWebTokenValidator";
 import validateSignature from "../validators/rsaSignatureValidator";
 import contacts from "./contacts";
-import { validateJWT } from "../validators/jsonWebTokenValidator";
-import { isString } from "util";
 
 export async function getInfection(req: Request, res: Response): Promise<void> {
     const userId: String = req.params.userId;

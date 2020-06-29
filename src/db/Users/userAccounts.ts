@@ -1,5 +1,5 @@
-import UserAccountRecord, { IUserAccountRecord } from "./models/UserAccountRecord";
 import AdminPasswordRecord, { IAdminPasswordRecord } from "./models/AdminPasswordRecord";
+import UserAccountRecord, { IUserAccountRecord } from "./models/UserAccountRecord";
 
 export async function createNewUserAccount(password: String): Promise<IUserAccountRecord> {
   do {
