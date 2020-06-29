@@ -11,7 +11,7 @@ async function postLocationRecords(req: Request, res: Response): Promise<void> {
             // Set userId of each field to userId of request
             req.body.forEach((record: unknown) => {
                 if (typeof record == 'object' && record !== null) {
-                    Object.defineProperty(record, 'userId', userId)
+                    (record as ILocationRecord).userId = userId
                 }
             });
             try {
