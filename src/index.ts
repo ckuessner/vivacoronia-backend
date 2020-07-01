@@ -42,3 +42,19 @@ const httpsServer = https.createServer({ key, cert }, app);
 httpsServer.listen(httpsPort, () => {
   console.log('HTTPS server listening on port ', httpsPort, '.');
 });
+
+// create websocket for push notifications
+const WebSocket = require('ws')
+const server = new WebSocket.Server({port: 8080})
+
+// hashmap with userID and corresponding websocket
+//let userIDToSocketMap = new Map()
+
+server.on('connection', function(ws) {
+  console.log('New Client connected')
+
+  ws.on('message', function(){
+    console.log('message received')
+  })
+})
+

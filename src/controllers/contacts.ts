@@ -20,9 +20,11 @@ async function startContactTracing(infectionRecord: IInfectionRecord): Promise<v
     if (contacts.length === 0) {
         console.log("No contacts found for infectionRecord", infectionRecord)
     }
-
-    console.log("Contacts found for infectionRecord", infectionRecord,
+    else {
+        console.log("Contacts found for infectionRecord", infectionRecord,
         "\ncontacts:\n", contacts)
+        
+    }
 }
 
 export default { getAllContactRecords, startContactTracing }
