@@ -44,17 +44,25 @@ httpsServer.listen(httpsPort, () => {
 });
 
 // create websocket for push notifications
-const WebSocket = require('ws')
-const server = new WebSocket.Server({port: 8080})
+const WebSocket = require('ws');
+const wsServer = new WebSocket.Server({server: httpsServer}); // rest api and websocket can run over the same port
 
 // hashmap with userID and corresponding websocket
 //let userIDToSocketMap = new Map()
 
-server.on('connection', function(ws) {
-  console.log('New Client connected')
+wsServer.on('connection', function(ws: any) {
+  console.log('New Client connected');
 
-  ws.on('message', function(){
-    console.log('message received')
+  ws.on('message', function(msg: String){
+    console.log('message received ' + msg);
+    ws.send(msg)
   })
-})
+});
 
+wsServer.on('listening', function(){
+  console.log("websocket listening");
+});
+
+wsServer.on('error', function(){
+  console.log("error while connecting");
+});
