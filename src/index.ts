@@ -1,19 +1,9 @@
-import bodyParser from 'body-parser';
-import express from 'express';
 import fs from 'fs';
 import yaml from 'js-yaml';
 import https from 'https';
 import path from 'path';
 import swaggerUi from 'swagger-ui-express';
-import { router } from './routes';
-
-const app = express();
-
-// Load Middlewares
-app.use(bodyParser.json({ limit: '10MB' }));
-
-// Routes
-app.use('/', router);
+import app from './app'
 
 // swagger-ui
 try {
