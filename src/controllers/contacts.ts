@@ -3,6 +3,7 @@ import contactsDb from "../db/contacts";
 import { IContactRecord } from "../db/models/ContactRecord";
 import { IInfectionRecord } from "../db/models/InfectionRecord";
 import tracing from "../db/contacts";
+import index from "../index"
 
 const TWO_WEEKS_MS = 14 * 24 * 60 * 60 * 1000
 
@@ -23,7 +24,17 @@ async function startContactTracing(infectionRecord: IInfectionRecord): Promise<v
     else {
         console.log("Contacts found for infectionRecord", infectionRecord,
         "\ncontacts:\n", contacts)
-        
+        const socketMap = index.getSockets();
+        console.log(socketMap);
+        var i;
+        for (i=0; i<contacts.length; i++) {
+            console.log("contact: ", contacts[i])
+            const sock = socketMap.get(String(contacts[i].userId))
+            if (sock !== undefined) {
+                sock.send("you are infected");
+                console.log("user ", contacts[i].userId, " is infected")
+            }
+        }
     }
 }
 

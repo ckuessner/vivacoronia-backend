@@ -48,15 +48,23 @@ const WebSocket = require('ws');
 const wsServer = new WebSocket.Server({server: httpsServer}); // rest api and websocket can run over the same port
 
 // hashmap with userID and corresponding websocket
-//let userIDToSocketMap = new Map()
+let userIDToSocketMap = new Map()
 
-wsServer.on('connection', function(ws: any) {
-  console.log('New Client connected');
+wsServer.on('connection', function(ws: any, req: express.Request) {
+  console.log('New Client connected ', req.headers.userid);
+  // add socket to socket map
+  const userid = req.headers.userid;
+  userIDToSocketMap.set(userid, ws)
 
   ws.on('message', function(msg: String){
     console.log('message received ' + msg);
     ws.send(msg)
   })
+
+  ws.on('close', function(){
+    console.log("closing socket")
+    console.log(ws === userIDToSocketMap.get("1234"))
+  });
 });
 
 wsServer.on('listening', function(){
@@ -66,3 +74,9 @@ wsServer.on('listening', function(){
 wsServer.on('error', function(){
   console.log("error while connecting");
 });
+
+function getSockets (){
+  return userIDToSocketMap
+}
+
+export default {getSockets}
