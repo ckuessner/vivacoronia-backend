@@ -13,19 +13,19 @@ export function generateJWT(userId: String): String {
   const privateKey = loadKeyFromFile('private_key');
 
   // Header
-  var oHeader = {
+  const oHeader = {
     alg: 'RS256',
     typ: 'JWT'
   }
 
   // Payload
-  var oPayload = {
+  const oPayload = {
     sub: userId,
     exp: KJUR.jws.IntDate.get('now + 1day')
   }
 
   // Sign JWT
-  var sJWT = KJUR.jws.JWS.sign("RS256", oHeader, oPayload, privateKey.toString());
+  const sJWT = KJUR.jws.JWS.sign("RS256", oHeader, oPayload, privateKey.toString());
 
   return sJWT
 }
@@ -34,19 +34,19 @@ export function generateAdminJWT(): String {
   const privateKey = loadKeyFromFile('private_key');
 
   // Header
-  var oHeader = {
+  const oHeader = {
     alg: 'RS256',
     typ: 'JWT'
   }
 
   // Payload
-  var oPayload = {
+  const oPayload = {
     sub: "admin",
     exp: KJUR.jws.IntDate.get('now + 1day')
   }
 
   // Sign JWT
-  var sJWT = KJUR.jws.JWS.sign("RS256", oHeader, oPayload, privateKey.toString());
+  const sJWT = KJUR.jws.JWS.sign("RS256", oHeader, oPayload, privateKey.toString());
 
   return sJWT
 }
@@ -65,7 +65,7 @@ export function validateJWT(token: String, userId: String): boolean {
       aud: []
     });
   } catch (error) {
-    // if token is invalid it raises an TypeError, maybe this is a bug...
+    // if token is invalid it raises an TypeError
     console.error(error)
     return false
   }
@@ -85,7 +85,7 @@ export function validateAdminJWT(token: String): boolean {
       aud: []
     });
   } catch (error) {
-    // if token is invalid it raises an TypeError, maybe this is a bug...
+    // if token is invalid it raises an TypeError
     console.error(error)
     return false
   }

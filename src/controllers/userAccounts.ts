@@ -2,11 +2,12 @@ import { Request, Response } from "express";
 import { IUserAccountRecord } from "../db/Users/models/UserAccountRecord";
 import * as userAccountDb from "../db/Users/userAccounts";
 import { generateAdminJWT, generateJWT } from "../validators/jsonWebTokenValidator";
+import { isString } from "util";
 
 export async function createNewUserId(req: Request, res: Response): Promise<void> {
-  const password: String = req.body.password
+  const password = req.body.password
 
-  if (password == "") {
+  if (!isString(password) || password === "") {
     console.error("Invalid password")
     res.sendStatus(400)
     return
@@ -14,8 +15,10 @@ export async function createNewUserId(req: Request, res: Response): Promise<void
 
   const record: IUserAccountRecord = await userAccountDb.createNewUserAccount(password)
 
+  console.log(record)
+
   const json = {
-    "userId": record.userId,
+    "userId": record._id,
     "timeCreated": record.timeCreated
   }
   res.json(json)
@@ -29,7 +32,7 @@ export async function newJSONWebToken(req: Request, res: Response): Promise<void
 
   if (validator) {
 
-    var token: String = generateJWT(userId)
+    const token: String = generateJWT(userId)
 
     const json = {
       "jwt": token
@@ -51,7 +54,7 @@ export async function newAdminToken(req: Request, res: Response): Promise<void> 
 
   if (validator) {
 
-    var token: String = generateAdminJWT()
+    const token: String = generateAdminJWT()
 
     const json = {
       "jwt": token

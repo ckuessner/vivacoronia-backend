@@ -16,7 +16,7 @@ tags:
     description: Manage product offers, needs, store inventories and available categories
 
 paths:
-  /createUserId/:
+  /user/:
     post:
       tags: [User Creation and Authentication]
       description: Returns a new unique userId
@@ -44,7 +44,7 @@ paths:
                 newUser:
                   $ref: "#/components/examples/newUserId"
 
-  /newJSONWebToken/{userId}/:
+  /userJWT/{userId}/:
     post:
       tags: [User Creation and Authentication]
       description: Returns a new JWT for a specific userId
@@ -78,7 +78,7 @@ paths:
           schema:
             $ref: "#/components/schemas/userId"
   
-  /newAdminToken/:
+  /adminJWT/:
     post:
       tags: [Admin authentication]
       description: Returns a new JWT for admin functionality

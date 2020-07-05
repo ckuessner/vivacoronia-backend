@@ -1,19 +1,16 @@
 import AdminPasswordRecord, { IAdminPasswordRecord } from "./models/AdminPasswordRecord";
 import UserAccountRecord, { IUserAccountRecord } from "./models/UserAccountRecord";
+import bcrypt from 'bcryptjs'
 
 export async function createNewUserAccount(password: String): Promise<IUserAccountRecord> {
-  do {
-    var date: String = new Date().toISOString()
-    var salt: String = Math.random().toString(36).substr(2, 4)
+  var date: String = new Date().toISOString()
 
-    var randomStuff = Math.random().toString(36)
-    var userId: String = (randomStuff.substr(2, 5) + Date.now().toString(36) + randomStuff.substr(5, 9))
+  const saltRounds = 10;
 
-    var hashPassword: String = hashString(password, salt)
-  } while ((await getUserAccount(userId)).length > 0);
+  const salt = await bcrypt.genSalt(saltRounds)
+  const hashPassword = await bcrypt.hash(password.toString(), salt)
 
   return UserAccountRecord.create({
-    "userId": userId,
     "timeCreated": date,
     "password": hashPassword,
     "salt": salt
@@ -27,13 +24,17 @@ export async function createNewUserAccount(password: String): Promise<IUserAccou
 export async function setupAdminAccount(): Promise<IAdminPasswordRecord> {
   const adminPassword: IAdminPasswordRecord[] = await AdminPasswordRecord.find()
 
-  if (adminPassword.length == 0) {
-    const salt: String = "thisIsMySalt"
-    const password: String = hashString("thisPasswordIsDamnStrong!!!", salt)
+  if (adminPassword.length === 0) {
+    const saltRounds = 10
+
+    const password: String = "thisPasswordIsDamnStrong!!!"
+
+    const salt = bcrypt.genSaltSync(saltRounds)
+    const hashPassword = bcrypt.hashSync(password.toString(), salt)
 
     return AdminPasswordRecord.create({
       "timeCreated": new Date().toISOString(),
-      "password": password,
+      "password": hashPassword,
       "salt": salt
     }).then((record: IAdminPasswordRecord) => {
       return record
@@ -43,17 +44,6 @@ export async function setupAdminAccount(): Promise<IAdminPasswordRecord> {
   }
 
   return adminPassword[0]
-}
-
-export function hashString(str: String, salt: String): String {
-  const crypto = require('crypto')
-  const hash = crypto.createHash('sha256')
-
-  hash.update(str.concat(salt.toString()))
-
-  const hashStr: String = hash.digest('hex')
-
-  return hashStr
 }
 
 export async function getAllUserAccounts(): Promise<IUserAccountRecord[]> {
@@ -68,11 +58,12 @@ export async function validatePassword(userId: String, password: String): Promis
   const userAccount: IUserAccountRecord[] = await getUserAccount(userId)
 
   if (userAccount.length > 0) {
-    var salt: String = userAccount[0].salt
+    const salt = userAccount[0].salt.toString()
 
-    var checkPassHash: String = hashString(password, salt)
+    const hashPassword = bcrypt.hashSync(password.toString(), salt)
+    const checkPassHash: Boolean = bcrypt.compareSync(userAccount[0].password.toString(), hashPassword)
 
-    if (checkPassHash == userAccount[0].password) {
+    if (checkPassHash) {
       return true
     }
   }
@@ -83,18 +74,19 @@ export async function validatePassword(userId: String, password: String): Promis
 export async function validateAdminPassword(password: String): Promise<boolean> {
   const adminPassword: IAdminPasswordRecord[] = await AdminPasswordRecord.find()
 
-  if (adminPassword.length == 0) {
+  if (adminPassword.length === 0) {
     console.log("Setup admin Account")
     console.log(await setupAdminAccount())
   }
 
   // we assume that there is only one password saved in the db so we take the first one
   if (adminPassword.length > 0) {
-    var salt: String = adminPassword[0].salt
+    const salt = adminPassword[0].salt.toString()
 
-    var checkPassHash: String = hashString(password, salt)
+    const hashPassword = bcrypt.hashSync(password.toString(), salt)
+    const checkPassHash: Boolean = bcrypt.compareSync(adminPassword[0].password.toString(), hashPassword)
 
-    if (checkPassHash == adminPassword[0].password) {
+    if (checkPassHash) {
       return true
     }
   }

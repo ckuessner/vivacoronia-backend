@@ -2,10 +2,6 @@
 import mongoose, { Schema, Document } from "mongoose";
 
 const UserAccountRecordSchema: Schema = new Schema({
-  userId: {
-    type: String,
-    required: true
-  },
   timeCreated: {
     type: Date,
     required: true
@@ -22,7 +18,6 @@ const UserAccountRecordSchema: Schema = new Schema({
 })
 
 export interface IUserAccountRecord extends Document {
-  userId: String;
   timeCreated: Date;
   password: String;
   salt: String;
