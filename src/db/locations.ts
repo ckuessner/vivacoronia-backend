@@ -1,22 +1,9 @@
 import LocationRecord, { ILocationRecord } from "./models/LocationRecord";
 
-interface LocationRecordInput {
-    userId: number;
-    time: Date;
-    location: {
-        coordinates: LocationFieldInput;
-    };
-}
-
-interface LocationFieldInput {
-    coordinates: Array<number>;
-}
-
-export async function addLocationRecords(locationRecords: LocationRecordInput[]): Promise<ILocationRecord> {
+export async function addLocationRecords(locationRecords: ILocationRecord[]): Promise<ILocationRecord[]> {
     return LocationRecord.create(
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        locationRecords as any
-    ).then((record: ILocationRecord) => {
+        locationRecords
+    ).then((record: Array<ILocationRecord>) => {
         return record
     }).catch((error: Error) => {
         throw error

@@ -1,18 +1,52 @@
 {
     "configurations": [
-    {
-        "address": "localhost",
-        "localRoot": "${workspaceFolder}/src",
-        "name": "Attach to app",
-        "port": 9229,
-        "remoteRoot": "/usr/src/app/src",
-        "restart": true,
-        "request": "attach",
-        "skipFiles": [
-            "<node_internals>/**"
-        ],
-        "type": "node",
-        "smartStep": true,
-    }
+        {
+            "address": "localhost",
+            "localRoot": "${workspaceFolder}/src",
+            "name": "Attach to app",
+            "port": 9229,
+            "remoteRoot": "/usr/src/app/src",
+            "restart": true,
+            "request": "attach",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "type": "node",
+            "smartStep": true,
+        },
+        {
+            "name": "Mocha Tests",
+            "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
+            "args": [
+                "--require",
+                "ts-node/register",
+                "--colors",
+                "${workspaceFolder}/test/**.test.ts"
+            ],
+            "request": "launch",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "type": "node"
+        },
+        {
+            "name": "Mocha Current File",
+            "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
+            "args": [
+                "--require",
+                "ts-node/register",
+                "--colors",
+                "${file}",
+            ],
+            "request": "launch",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "type": "node"
+        }
     ]
 }
