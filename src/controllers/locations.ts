@@ -29,14 +29,16 @@ async function postLocationRecords(req: Request, res: Response): Promise<void> {
     }
 }
 
-async function getAllLocationRecords(_: Request, res: Response): Promise<void> {
-    const records: ILocationRecord[] = await locationsDb.getAllLocationRecords()
+async function getAllLocationRecords(req: Request, res: Response): Promise<void> {
+    const records: ILocationRecord[] = await locationsDb.getAllLocationRecords([+req.query.longitude, +req.query.latitute], +req.query.distance)
     res.json(records)
 }
 
 async function getUserLocationRecord(req: Request, res: Response): Promise<void> {
     const userId: number = parseInt(req.params.userId)
-    const records: ILocationRecord[] = await locationsDb.getAllLocationRecordsOfUser(userId)
+    const startTime: Date = new Date(req.query.start.toString())
+    const endTime: Date = new Date(req.query.end.toString())
+    const records: ILocationRecord[] = await locationsDb.getAllLocationRecordsOfUser(userId, startTime, endTime)
     res.json(records)
 }
 
