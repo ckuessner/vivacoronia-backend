@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/interface-name-prefix */
 import mongoose, { Schema, Document, SchemaTypeOpts } from "mongoose";
 
 const Point2DSchema: Schema = new Schema({
