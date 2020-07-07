@@ -25,14 +25,14 @@ export async function createNewUserId(req: Request, res: Response): Promise<void
 }
 
 export async function newJSONWebToken(req: Request, res: Response): Promise<void> {
-  const userId: String = req.params.userId
-  const password: String = req.body.password
+  const userId = req.params.userId
+  const password = req.body.password
 
   const validator: boolean = await userAccountDb.validatePassword(userId, password)
 
   if (validator) {
 
-    const token: String = generateJWT(userId)
+    const token = generateJWT(userId)
 
     const json = {
       "jwt": token
@@ -43,18 +43,18 @@ export async function newJSONWebToken(req: Request, res: Response): Promise<void
   else {
     // password is not correct for user or no such userId 
     console.error("No such userId or incorrect password")
-    res.sendStatus(400)
+    res.sendStatus(401)
   }
 }
 
 export async function newAdminToken(req: Request, res: Response): Promise<void> {
-  const password: String = req.body.password
+  const password = req.body.password
 
   const validator: boolean = await userAccountDb.validateAdminPassword(password)
 
   if (validator) {
 
-    const token: String = generateAdminJWT()
+    const token = generateAdminJWT()
 
     const json = {
       "jwt": token
@@ -65,6 +65,6 @@ export async function newAdminToken(req: Request, res: Response): Promise<void> 
   else {
     // password is not correct
     console.error("incorrect password")
-    res.sendStatus(400)
+    res.sendStatus(401)
   }
 }

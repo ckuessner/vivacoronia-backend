@@ -1,11 +1,9 @@
 import { Request, Response } from "express";
-import contactsDb from "../db/contacts";
-import { IContactRecord } from "../db/models/ContactRecord";
-import { IInfectionRecord } from "../db/models/InfectionRecord";
-import tracing from "../db/contacts";
+import contactsDb from "../db/Tracking/contacts";
+import { IContactRecord } from "../db/Tracking/models/ContactRecord";
+import { IInfectionRecord } from "../db/Tracking/models/InfectionRecord";
+import tracing from "../db/Tracking/contacts";
 import notifications from "./notifications"
-import { validateAdminJWT } from "../validators/jsonWebTokenValidator";
-import { isString } from "util";
 
 const TWO_WEEKS_MS = 14 * 24 * 60 * 60 * 1000
 

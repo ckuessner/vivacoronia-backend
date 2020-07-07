@@ -1,14 +1,16 @@
 import bcrypt from 'bcryptjs';
-import AdminPasswordRecord, { IAdminPasswordRecord } from "./models/AdminPasswordRecord";
+import AdminPasswordRecord from "./models/AdminPasswordRecord";
 import UserAccountRecord, { IUserAccountRecord } from "./models/UserAccountRecord";
+import { isNull } from 'util';
+import mongoose from 'mongoose'
 
-export async function createNewUserAccount(password: String): Promise<IUserAccountRecord> {
-  var date: String = new Date().toISOString()
+export async function createNewUserAccount(password: string): Promise<IUserAccountRecord> {
+  const date = new Date().toISOString()
 
   const saltRounds = 10;
 
   const salt = await bcrypt.genSalt(saltRounds)
-  const hashPassword = await bcrypt.hash(password.toString(), salt)
+  const hashPassword = await bcrypt.hash(password, salt)
 
   return UserAccountRecord.create({
     "timeCreated": date,
@@ -21,55 +23,25 @@ export async function createNewUserAccount(password: String): Promise<IUserAccou
   });
 }
 
-export async function setupAdminAccount(): Promise<IAdminPasswordRecord> {
-  const adminPassword: IAdminPasswordRecord[] = await AdminPasswordRecord.find()
-
-  if (adminPassword.length === 0) {
-    const saltRounds = 10
-
-    const password: String = "thisPasswordIsDamnStrong!!!"
-
-    const salt = await bcrypt.genSalt(saltRounds)
-    const hashPassword = await bcrypt.hash(password.toString(), salt)
-
-    return AdminPasswordRecord.create({
-      "timeCreated": new Date().toISOString(),
-      "password": hashPassword,
-      "salt": salt
-    }).then((record: IAdminPasswordRecord) => {
-      return record
-    }).catch((error: Error) => {
-      throw error
-    });
-  }
-
-  return adminPassword[0]
-}
-
 export async function getAllUserAccounts(): Promise<IUserAccountRecord[]> {
   return UserAccountRecord.find()
 }
 
-export async function getUserAccount(userId: String): Promise<IUserAccountRecord[]> {
-  return UserAccountRecord.find({ _id: userId })
+export async function getUserAccount(userId: string): Promise<IUserAccountRecord | null> {
+
+  // check if valid ObjectId format, otherwise findOne will raise an CastError
+  if (mongoose.Types.ObjectId.isValid(userId))
+    return UserAccountRecord.findOne({ _id: userId })
+
+  return null
 }
 
-export async function validatePassword(userId: String, password: String): Promise<boolean> {
-  const userAccount: IUserAccountRecord[] = await getUserAccount(userId)
+export async function validatePassword(userId: string, password: string): Promise<boolean> {
+  const userAccount = await getUserAccount(userId)
 
-  console.log(userAccount)
+  if (!isNull(userAccount)) {
 
-  if (userAccount.length > 0) {
-    const salt = userAccount[0].salt.toString()
-
-    const hashPassword: string = await bcrypt.hash(password.toString(), salt)
-
-    const checkPasswordHash: boolean = await bcrypt.compare(hashPassword, userAccount[0].password.toString())
-
-
-    console.log("HashPass: " + hashPassword)
-    console.log("CheckPass: " + userAccount[0].password)
-    console.log(checkPasswordHash)
+    const checkPasswordHash: boolean = await bcrypt.compare(password.toString(), userAccount.password.toString())
 
     if (checkPasswordHash) {
       return true
@@ -79,20 +51,16 @@ export async function validatePassword(userId: String, password: String): Promis
   return false
 }
 
-export async function validateAdminPassword(password: String): Promise<boolean> {
-  const adminPassword: IAdminPasswordRecord[] = await AdminPasswordRecord.find()
+export async function validateAdminPassword(password: string): Promise<boolean> {
+  const adminPassword = await AdminPasswordRecord.findOne()
 
-  if (adminPassword.length === 0) {
-    console.log("Setup admin Account")
-    console.log(await setupAdminAccount())
+  if (isNull(adminPassword)) {
+    console.log("No Admin Account")
+    return false
   }
+  else {
 
-  // we assume that there is only one password saved in the db so we take the first one
-  if (adminPassword.length > 0) {
-    const salt = adminPassword[0].salt.toString()
-
-    const hashPassword = await bcrypt.hash(password.toString(), salt)
-    const checkPassHash: Boolean = await bcrypt.compare(adminPassword[0].password.toString(), hashPassword)
+    const checkPassHash: boolean = await bcrypt.compare(password.toString(), adminPassword.password.toString())
 
     if (checkPassHash) {
       return true

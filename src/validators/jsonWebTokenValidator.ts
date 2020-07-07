@@ -2,14 +2,14 @@ import { readFileSync } from 'fs';
 import { KJUR } from 'jsrsasign';
 import path from 'path';
 
-function loadKeyFromFile(filename: string): String {
+function loadKeyFromFile(filename: string): string {
   const filePath = path.join(__dirname, '..', '..', 'res', 'jwtKeys', filename);
   const fileContent = readFileSync(filePath, 'utf8');
 
   return fileContent;
 }
 
-export function generateJWT(userId: String): String {
+export function generateJWT(userId: string): string {
   const privateKey = loadKeyFromFile('private_key');
 
   // Header
@@ -18,19 +18,22 @@ export function generateJWT(userId: String): String {
     typ: 'JWT'
   }
 
+  // Token expires in one week
+  const calExp = String(KJUR.jws.IntDate.getNow() + 24 * 60 * 60 * 7)
+
   // Payload
   const oPayload = {
     sub: userId,
-    exp: KJUR.jws.IntDate.get('now + 1day')
+    exp: KJUR.jws.IntDate.get(calExp)
   }
 
   // Sign JWT
-  const sJWT = KJUR.jws.JWS.sign("RS256", oHeader, oPayload, privateKey.toString());
+  const sJWT = KJUR.jws.JWS.sign("RS256", oHeader, oPayload, privateKey);
 
   return sJWT
 }
 
-export function generateAdminJWT(): String {
+export function generateAdminJWT(): string {
   const privateKey = loadKeyFromFile('private_key');
 
   // Header
@@ -46,47 +49,28 @@ export function generateAdminJWT(): String {
   }
 
   // Sign JWT
-  const sJWT = KJUR.jws.JWS.sign("RS256", oHeader, oPayload, privateKey.toString());
+  const sJWT = KJUR.jws.JWS.sign("RS256", oHeader, oPayload, privateKey);
 
   return sJWT
 }
 
-export function validateJWT(token: String, userId: String): boolean {
+export function validateJWT(token: string, userId: string): boolean {
+  // we can use this function with userId = "admin" as admin jwt validation
   // https://kjur.github.io/jsrsasign/api/symbols/KJUR.jws.JWS.html#.verifyJWT
   // https://kjur.github.io/jsrsasign/api/symbols/KJUR.jws.IntDate.html
   const pubkey = loadKeyFromFile("public_key")
 
   try {
-    return KJUR.jws.JWS.verifyJWT(token.toString(), pubkey.toString(), {
+    return KJUR.jws.JWS.verifyJWT(token, pubkey, {
       alg: ['RS256'],
       iss: [],
-      sub: [userId.toString()],
+      sub: [userId],
       verifyAt: KJUR.jws.IntDate.getNow(),
       aud: []
     });
   } catch (error) {
     // if token is invalid it raises an TypeError
-    console.error(error)
-    return false
-  }
-}
-
-export function validateAdminJWT(token: String): boolean {
-  // https://kjur.github.io/jsrsasign/api/symbols/KJUR.jws.JWS.html#.verifyJWT
-  // https://kjur.github.io/jsrsasign/api/symbols/KJUR.jws.IntDate.html
-  const pubkey = loadKeyFromFile("public_key")
-
-  try {
-    return KJUR.jws.JWS.verifyJWT(token.toString(), pubkey.toString(), {
-      alg: ['RS256'],
-      iss: [],
-      sub: ['admin'],
-      verifyAt: KJUR.jws.IntDate.getNow(),
-      aud: []
-    });
-  } catch (error) {
-    // if token is invalid it raises an TypeError
-    console.error(error)
+    console.error("Invalid Token")
     return false
   }
 }

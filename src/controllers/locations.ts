@@ -1,25 +1,9 @@
 import { Request, Response } from "express";
-import { isString } from "util";
 import * as locationsDb from "../db/Tracking/locations";
 import { ILocationRecord } from "../db/Tracking/models/LocationRecord";
-import { validateJWT } from "../validators/jsonWebTokenValidator";
 
 async function postLocationRecords(req: Request, res: Response): Promise<void> {
-    const userId: String = req.params.userId
-
-    if (!isString(req.headers.jwt)) {
-        console.error("Invalid JWT format")
-        res.sendStatus(400)
-        return
-    }
-    const token: String = req.headers.jwt;
-
-    if (!validateJWT(token, userId)) {
-        // invalid token
-        console.error("Invalid JWT or userID")
-        res.sendStatus(400)
-        return
-    }
+    const userId = req.params.userId
 
     if (!Array.isArray(req.body)) {
         res.sendStatus(400)
@@ -80,7 +64,7 @@ function checkDist(dist: number) {
 }
 
 async function getUserLocationRecord(req: Request, res: Response): Promise<void> {
-    const userId: String = req.params.userId
+    const userId = req.params.userId
     const records: ILocationRecord[] = await locationsDb.getAllLocationRecordsOfUser(userId, req.query.start?.toString(), req.query.end?.toString())
     res.json(records)
 }

@@ -1,13 +1,12 @@
 import { Request, Response } from "express";
-import { isString } from "util";
 import { getInfectionStatusOfUser } from "../db/Tracking/infection";
 import InfectionRecord, { IInfectionRecord } from "../db/Tracking/models/InfectionRecord";
-import { validateJWT } from "../validators/jsonWebTokenValidator";
 import validateSignature from "../validators/rsaSignatureValidator";
 import contacts from "./contacts";
 
 export async function getInfection(req: Request, res: Response): Promise<void> {
-    const userId: String = req.params.userId;
+    const userId = req.params.userId;
+
     const latestInfection = (await getInfectionStatusOfUser(userId));
     if (latestInfection.length == 0) {
         res.sendStatus(404);
@@ -17,26 +16,12 @@ export async function getInfection(req: Request, res: Response): Promise<void> {
 }
 
 export async function postInfection(req: Request, res: Response): Promise<void> {
-    const userId: String = req.params.userId;
+    const userId = req.params.userId;
     const body = req.body as Record<string, unknown>
 
     if (typeof body.signature !== 'string') {
         res.sendStatus(400);
         return;
-    }
-
-    if (!isString(req.headers.jwt)) {
-        console.error("Invalid JWT format")
-        res.sendStatus(400)
-        return
-    }
-    const token: String = req.headers.jwt;
-
-    if (!validateJWT(token, userId)) {
-        // invalid token
-        console.error("Invalid JWT or userID")
-        res.sendStatus(400)
-        return
     }
 
     try {
