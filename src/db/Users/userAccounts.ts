@@ -1,3 +1,4 @@
+import bcrypt from 'bcryptjs';
 import AdminPasswordRecord, { IAdminPasswordRecord } from "./models/AdminPasswordRecord";
 import UserAccountRecord, { IUserAccountRecord } from "./models/UserAccountRecord";
 
@@ -5,8 +6,6 @@ export async function createNewUserAccount(password: String): Promise<IUserAccou
   var date: String = new Date().toISOString()
 
   const saltRounds = 10;
-
-  const bcrypt = require('bcryptjs')
 
   const salt = await bcrypt.genSalt(saltRounds)
   const hashPassword = await bcrypt.hash(password.toString(), salt)
@@ -29,8 +28,6 @@ export async function setupAdminAccount(): Promise<IAdminPasswordRecord> {
     const saltRounds = 10
 
     const password: String = "thisPasswordIsDamnStrong!!!"
-
-    const bcrypt = require('bcryptjs')
 
     const salt = await bcrypt.genSalt(saltRounds)
     const hashPassword = await bcrypt.hash(password.toString(), salt)
@@ -65,9 +62,6 @@ export async function validatePassword(userId: String, password: String): Promis
   if (userAccount.length > 0) {
     const salt = userAccount[0].salt.toString()
 
-
-    const bcrypt = require('bcryptjs')
-
     const hashPassword: string = await bcrypt.hash(password.toString(), salt)
 
     const checkPasswordHash: boolean = await bcrypt.compare(hashPassword, userAccount[0].password.toString())
@@ -96,8 +90,6 @@ export async function validateAdminPassword(password: String): Promise<boolean> 
   // we assume that there is only one password saved in the db so we take the first one
   if (adminPassword.length > 0) {
     const salt = adminPassword[0].salt.toString()
-
-    const bcrypt = require('bcryptjs')
 
     const hashPassword = await bcrypt.hash(password.toString(), salt)
     const checkPassHash: Boolean = await bcrypt.compare(adminPassword[0].password.toString(), hashPassword)
