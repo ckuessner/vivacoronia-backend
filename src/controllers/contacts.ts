@@ -25,7 +25,7 @@ async function startContactTracing(infectionRecord: IInfectionRecord): Promise<v
         console.log("Contacts found for infectionRecord", infectionRecord,
         "\ncontacts:\n", contacts)
         const socketMap = index.getSockets();
-        console.log(socketMap);
+        // console.log(socketMap);
         var i;
         for (i=0; i<contacts.length; i++) {
             console.log("contact: ", contacts[i])

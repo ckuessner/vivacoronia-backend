@@ -62,8 +62,14 @@ wsServer.on('connection', function(ws: any, req: express.Request) {
   })
 
   ws.on('close', function(){
+    userIDToSocketMap.forEach(function deleteSocket(value, key){
+        if (ws === value){
+          userIDToSocketMap.delete(key);
+          return;
+        }
+    });
     console.log("closing socket")
-    console.log(ws === userIDToSocketMap.get("1234"))
+    console.log(userIDToSocketMap)
   });
 });
 
