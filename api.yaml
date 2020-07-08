@@ -31,7 +31,40 @@ paths:
                 twoelems:
                   $ref: "#/components/examples/locationRecordArray"
 
-  /locations/{userId}/:
+  /locations/?latitute={latitude}&longitude={longitude}&distance={distance}:
+    get:
+      tags: [Location Tracking]
+      description: Returns the list of all location records of all users in given distance around given coordinates
+      responses:
+        "200":
+          description: JSON array with GeoJSON Points
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LocationRecord"
+              examples:
+                twoelems:
+                  $ref: "#/components/examples/locationRecordArray"
+    parameters:
+      - name: latitude
+        in: path
+        required: true
+        schema:
+          $ref: "#/components/schemas/lat_long"
+      - name: longitude
+        in: path
+        required: true
+        schema:
+          $ref: "#/components/schemas/lat_long"
+      - name: distance
+        in: path
+        required: true
+        schema:
+          $ref: "#/components/schemas/distance"
+
+  /locations/{userId}/?start={start}&end={end}:
     get:
       tags: [Location Tracking]
       description: Returns the list of locations the specified user
@@ -49,7 +82,25 @@ paths:
                   $ref: "#/components/examples/locationRecordArray"
                 empty:
                   $ref: "#/components/examples/emptyArrayExample"
+    parameters:
+      - name: userId
+        in: path
+        required: true
+        description: The id of the user
+        schema:
+          $ref: "#/components/schemas/userId"
+      - name: start
+        in: path
+        required: false
+        schema:
+          $ref: "#/components/schemas/date"
+      - name: end
+        in: path
+        required: false
+        schema:
+          $ref: "#/components/schemas/date"
 
+  /locations/{userId}/:
     post:
       tags: [Location Tracking]
       description: "Adds location records"
@@ -60,12 +111,12 @@ paths:
               type: array
               items:
                 $ref: "#/components/schemas/GeoJSONPoint2D"
-            examples:
-              twoelems:
-                $ref: "#/components/examples/geoJsonPoint2DArrayExample"
-      responses:
-        "201":
-          description: Created
+                examples:
+                  twoelems:
+                    $ref: "#/components/examples/geoJsonPoint2DArrayExample"
+                    responses:
+                      "201":
+                        description: Created
     parameters:
       - name: userId
         in: path
@@ -186,6 +237,21 @@ components:
       type: integer
       format: int64
       example: 42
+
+    lat_long:
+      type: number
+      format: double
+      example: 8.454
+
+    distance:
+      type: integer
+      format: int64
+      example: 500
+
+    date:
+      type: date
+      format: string
+      example: Thu Jul 09 02:00:00 GMT+02:00 2020
 
     GetInfectionRecordDto:
       type: object
