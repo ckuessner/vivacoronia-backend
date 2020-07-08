@@ -64,7 +64,7 @@ function checkDist(dist: number) {
 
 async function getUserLocationRecord(req: Request, res: Response): Promise<void> {
     const userId: number = parseInt(req.params.userId)
-    const records: ILocationRecord[] = await locationsDb.getAllLocationRecordsOfUser(userId, req.query.start, req.query.end)
+    const records: ILocationRecord[] = await locationsDb.getAllLocationRecordsOfUser(userId, req.query.start?.toString(), req.query.end?.toString())
     res.json(records)
 }
 
