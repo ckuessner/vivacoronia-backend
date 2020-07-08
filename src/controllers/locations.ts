@@ -47,7 +47,7 @@ async function getAllLocationRecords(req: Request, res: Response): Promise<void>
         res.json(records)
     }
     //check if some query parameter exist and is valid
-    else if (longValid || latValid || distValid) {
+    else {
         res.sendStatus(400)
     }
 }
