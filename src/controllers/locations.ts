@@ -30,14 +30,41 @@ async function postLocationRecords(req: Request, res: Response): Promise<void> {
 }
 
 async function getAllLocationRecords(req: Request, res: Response): Promise<void> {
-    const records: ILocationRecord[] = await locationsDb.getAllLocationRecords([+req.query.longitude, +req.query.latitute], +req.query.distance)
-    res.json(records)
+    const longitude: number = +req.query.longitude
+    const latitute: number = +req.query.latitute
+    const distance: number = +req.query.distance
+    const defaultLongitude: number = 151.20990
+    const defaultLatitude: number = -33.865143
+    const defaultDistance: number = 500
+    if (checkForQueryParams(Array(longitude, latitute, distance))) {
+        const records: ILocationRecord[] = await locationsDb.getAllLocationRecords([longitude, latitute], distance)
+        res.json(records)
+    }
+    else {
+        const records: ILocationRecord[] = await locationsDb.getAllLocationRecords([defaultLongitude, defaultLatitude], defaultDistance)
+        res.json(records)
+    }
+
+}
+
+function checkForQueryParams(params: Array<number>) {
+    var result: Boolean = true
+    params.forEach(param => {
+        result = result && !isNaN(param) && isFinite(param)
+    });
+    return result
 }
 
 async function getUserLocationRecord(req: Request, res: Response): Promise<void> {
     const userId: number = parseInt(req.params.userId)
-    const startTime: Date = new Date(req.query.start.toString())
-    const endTime: Date = new Date(req.query.end.toString())
+    var startTime: Date = new Date(-8640000000000000)
+    var endTime: Date = new Date(8640000000000000)
+    if (req.query.start != null) {
+        startTime = new Date(req.query.start.toString())
+    }
+    if (req.query.end != null) {
+        endTime = new Date(req.query.end.toString())
+    }
     const records: ILocationRecord[] = await locationsDb.getAllLocationRecordsOfUser(userId, startTime, endTime)
     res.json(records)
 }
