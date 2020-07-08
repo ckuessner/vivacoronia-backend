@@ -14,6 +14,10 @@ export async function getAllLocationRecordsOfUser(userId: ILocationRecord['userI
     return LocationRecord.find({ userId: userId, "time": { "$gte": start, "$lt": end } })
 }
 
+export async function getNewestLocationRecords(): Promise<Array<ILocationRecord>> {
+    return LocationRecord.find().sort({ "time": -1 }).limit(1000)
+}
+
 export async function getAllLocationRecords(location: [number, number], distance: number): Promise<Array<ILocationRecord>> {
 
     const timeStart = process.hrtime.bigint()

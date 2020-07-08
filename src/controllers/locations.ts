@@ -33,26 +33,31 @@ async function getAllLocationRecords(req: Request, res: Response): Promise<void>
     const longitude: number = +req.query.longitude
     const latitute: number = +req.query.latitute
     const distance: number = +req.query.distance
-    const defaultLongitude: number = 151.20990
-    const defaultLatitude: number = -33.865143
-    const defaultDistance: number = 500
-    if (checkForQueryParams(Array(longitude, latitute, distance))) {
+    const longValid: boolean = checkLong(longitude)
+    const latValid: boolean = checkLat(latitute)
+    const distValid: boolean = checkDist(distance)
+    if (longValid && latValid && distValid) {
         const records: ILocationRecord[] = await locationsDb.getAllLocationRecords([longitude, latitute], distance)
         res.json(records)
     }
+    else if (longValid || latValid || distValid) {
+        res.sendStatus(400)
+    }
     else {
-        const records: ILocationRecord[] = await locationsDb.getAllLocationRecords([defaultLongitude, defaultLatitude], defaultDistance)
+        const records: ILocationRecord[] = await locationsDb.getNewestLocationRecords()
         res.json(records)
     }
 
 }
 
-function checkForQueryParams(params: Array<number>) {
-    var result: Boolean = true
-    params.forEach(param => {
-        result = result && !isNaN(param) && isFinite(param)
-    });
-    return result
+function checkLat(lat: number) {
+    return !isNaN(lat) && isFinite(lat) && Math.abs(lat) <= 90
+}
+function checkLong(long: number) {
+    return !isNaN(long) && isFinite(long) && Math.abs(long) <= 180
+}
+function checkDist(dist: number) {
+    return !isNaN(dist) && isFinite(dist) && dist >= 0
 }
 
 async function getUserLocationRecord(req: Request, res: Response): Promise<void> {
