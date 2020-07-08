@@ -30,24 +30,26 @@ async function postLocationRecords(req: Request, res: Response): Promise<void> {
 }
 
 async function getAllLocationRecords(req: Request, res: Response): Promise<void> {
+    if (req.query.longitude == undefined && req.query.latitute == undefined && req.query.distance == undefined) {
+        const records: ILocationRecord[] = await locationsDb.getNewestLocationRecords()
+        res.json(records)
+        return
+    }
     const longitude: number = +req.query.longitude
     const latitute: number = +req.query.latitute
     const distance: number = +req.query.distance
     const longValid: boolean = checkLong(longitude)
     const latValid: boolean = checkLat(latitute)
     const distValid: boolean = checkDist(distance)
+    //check if all query parameter exist and are valid
     if (longValid && latValid && distValid) {
         const records: ILocationRecord[] = await locationsDb.getAllLocationRecords([longitude, latitute], distance)
         res.json(records)
     }
+    //check if some query parameter exist and is valid
     else if (longValid || latValid || distValid) {
         res.sendStatus(400)
     }
-    else {
-        const records: ILocationRecord[] = await locationsDb.getNewestLocationRecords()
-        res.json(records)
-    }
-
 }
 
 function checkLat(lat: number) {
@@ -62,15 +64,7 @@ function checkDist(dist: number) {
 
 async function getUserLocationRecord(req: Request, res: Response): Promise<void> {
     const userId: number = parseInt(req.params.userId)
-    var startTime: Date = new Date(-8640000000000000)
-    var endTime: Date = new Date(8640000000000000)
-    if (req.query.start != null) {
-        startTime = new Date(req.query.start.toString())
-    }
-    if (req.query.end != null) {
-        endTime = new Date(req.query.end.toString())
-    }
-    const records: ILocationRecord[] = await locationsDb.getAllLocationRecordsOfUser(userId, startTime, endTime)
+    const records: ILocationRecord[] = await locationsDb.getAllLocationRecordsOfUser(userId, req.query.start, req.query.end)
     res.json(records)
 }
 

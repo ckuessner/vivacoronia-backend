@@ -10,8 +10,21 @@ export async function addLocationRecords(locationRecords: ILocationRecord[]): Pr
     });
 }
 
-export async function getAllLocationRecordsOfUser(userId: ILocationRecord['userId'], start: Date, end: Date): Promise<ILocationRecord[]> {
-    return LocationRecord.find({ userId: userId, "time": { "$gte": start, "$lt": end } })
+export async function getAllLocationRecordsOfUser(userId: ILocationRecord['userId'], start: any, end: any): Promise<ILocationRecord[]> {
+    if (start == undefined && end == undefined) {
+        return LocationRecord.find({ userId: userId })
+    }
+    if (start == undefined) {
+        const endDate = new Date(end.toString())
+        return LocationRecord.find({ userId: userId, "time": { "$lt": endDate } })
+    }
+    if (end == undefined) {
+        const startDate = new Date(start.toString())
+        return LocationRecord.find({ userId: userId, "time": { "$gte": startDate } })
+    }
+    const startDate = new Date(start.toString())
+    const endDate = new Date(end.toString())
+    return LocationRecord.find({ userId: userId, "time": { "$gte": startDate, "$lt": endDate } })
 }
 
 export async function getNewestLocationRecords(): Promise<Array<ILocationRecord>> {
