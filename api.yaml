@@ -14,24 +14,8 @@ tags:
     description: Retrieve information about contact with infected persons
 
 paths:
-  /locations/:
-    get:
-      tags: [Location Tracking]
-      description: Returns the list of all location records of all users
-      responses:
-        "200":
-          description: JSON array with GeoJSON Points
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/LocationRecord"
-              examples:
-                twoelems:
-                  $ref: "#/components/examples/locationRecordArray"
 
-  /locations/?latitute={latitude}&longitude={longitude}&distance={distance}:
+  /locations/:
     get:
       tags: [Location Tracking]
       description: Returns the list of all location records of all users in given distance around given coordinates
@@ -49,22 +33,19 @@ paths:
                   $ref: "#/components/examples/locationRecordArray"
     parameters:
       - name: latitude
-        in: path
-        required: true
+        in: query
         schema:
           $ref: "#/components/schemas/lat_long"
       - name: longitude
-        in: path
-        required: true
+        in: query
         schema:
           $ref: "#/components/schemas/lat_long"
       - name: distance
-        in: path
-        required: true
+        in: query
         schema:
           $ref: "#/components/schemas/distance"
 
-  /locations/{userId}/?start={start}&end={end}:
+  /locations/{userId}/:
     get:
       tags: [Location Tracking]
       description: Returns the list of locations the specified user
@@ -82,25 +63,21 @@ paths:
                   $ref: "#/components/examples/locationRecordArray"
                 empty:
                   $ref: "#/components/examples/emptyArrayExample"
-    parameters:
-      - name: userId
-        in: path
-        required: true
-        description: The id of the user
-        schema:
-          $ref: "#/components/schemas/userId"
-      - name: start
-        in: path
-        required: false
-        schema:
-          $ref: "#/components/schemas/date"
-      - name: end
-        in: path
-        required: false
-        schema:
-          $ref: "#/components/schemas/date"
-
-  /locations/{userId}/:
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: The id of the user
+          schema:
+            $ref: "#/components/schemas/userId"
+        - name: start
+          in: query
+          schema:
+            $ref: "#/components/schemas/date"
+        - name: end
+          in: query
+          schema:
+            $ref: "#/components/schemas/date"
     post:
       tags: [Location Tracking]
       description: "Adds location records"
@@ -117,13 +94,13 @@ paths:
                     responses:
                       "201":
                         description: Created
-    parameters:
-      - name: userId
-        in: path
-        required: true
-        description: The id of the user
-        schema:
-          $ref: "#/components/schemas/userId"
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: The id of the user
+          schema:
+            $ref: "#/components/schemas/userId"
 
   /infection/{userId}/:
     get:
