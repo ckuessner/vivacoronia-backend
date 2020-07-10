@@ -38,7 +38,6 @@ async function getAllLocationRecords(req: Request, res: Response): Promise<void>
     const longitude: number = +req.query.longitude
     const latitude: number = +req.query.latitude
     const distance: number = +req.query.distance
-    console.log(longitude, latitude, distance)
     const longValid: boolean = checkLong(longitude)
     const latValid: boolean = checkLat(latitude)
     const distValid: boolean = checkDist(distance)

@@ -18,11 +18,11 @@ export async function getAllLocationRecordsOfUser(userId: ILocationRecord['userI
     const conditions = { userId: userId }
     if (Object.keys(time).length)
         return LocationRecord.find({ ...conditions, time: time })
-    return LocationRecord.find(conditions)
+    return LocationRecord.find(conditions).sort({ "time": 1 })
 }
 
 export async function getNewestLocationRecords(): Promise<Array<ILocationRecord>> {
-    return LocationRecord.find().sort({ "time": -1 }).limit(1000)
+    return LocationRecord.find().sort({ "_id": 1, "time": -1 }).limit(1000)
 }
 
 export async function getAllLocationRecords(location: [number, number], distance: number): Promise<Array<ILocationRecord>> {
@@ -43,7 +43,7 @@ export async function getAllLocationRecords(location: [number, number], distance
 
     const timeEnd = process.hrtime.bigint()
     console.log("Execution times: aggregate ", timeStampsToString(timeStart, timeEnd))
-    return nearbyLocationRecords
+    return nearbyLocationRecords.sort({ "_id": 1, "time": 1 })
 }
 
 function timeStampsToString(start: bigint, end: bigint): string {
