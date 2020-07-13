@@ -3,3 +3,4 @@ node_modules/
 !.vscode
 *.key
 !docker/dev.key
+package-lock.json
