@@ -1,6 +1,6 @@
-import mongoose, { Schema, Document, SchemaTypeOpts } from "mongoose";
+import mongoose, { Document, Schema, SchemaTypeOpts } from "mongoose";
 
-const Point2DSchema: Schema = new Schema({
+export const Point2DSchema: Schema = new Schema({
     type: {
         type: String,
         enum: ['Point'],
@@ -51,7 +51,7 @@ export interface ILocationRecord extends Document {
 export default mongoose.model<ILocationRecord>('LocationRecord', LocationRecordSchema);
 
 // Make sure that the 2dsphere (and other indexes) exist.
-void mongoose.model('LocationRecord').ensureIndexes(err => {
+mongoose.model('LocationRecord').ensureIndexes(err => {
     if (err) {
         console.error("Eror enrsuring indexes of LocationRecord exists: ", err)
     }
