@@ -50,7 +50,7 @@ const wsServer = new WebSocket.Server({server: httpsServer}); // rest api and we
 // hashmap with userID and corresponding websocket
 let userIDToSocketMap = new Map()
 
-wsServer.on('connection', function(ws: any, req: express.Request) {
+wsServer.on('connection', function(ws: any, req: any) {
   console.log('New Client connected ', req.headers.userid);
   // add socket to socket map
   const userid = req.headers.userid;
