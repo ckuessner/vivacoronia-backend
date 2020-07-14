@@ -4,6 +4,7 @@ import https from 'https';
 import path from 'path';
 import swaggerUi from 'swagger-ui-express';
 import app from './app'
+import WebSocket from 'ws'
 
 // swagger-ui
 try {
@@ -44,7 +45,6 @@ httpsServer.listen(httpsPort, () => {
 });
 
 // create websocket for push notifications
-const WebSocket = require('ws');
 const wsServer = new WebSocket.Server({server: httpsServer}); // rest api and websocket can run over the same port
 
 // hashmap with userID and corresponding websocket
@@ -77,8 +77,8 @@ wsServer.on('listening', function(){
   console.log("websocket listening");
 });
 
-wsServer.on('error', function(){
-  console.log("error while connecting");
+wsServer.on('error', function(e: Error){
+  console.log("Error in websocket ", e);
 });
 
 function getSockets (){
@@ -86,3 +86,4 @@ function getSockets (){
 }
 
 export default {getSockets}
+

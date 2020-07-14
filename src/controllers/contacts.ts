@@ -30,7 +30,7 @@ async function startContactTracing(infectionRecord: IInfectionRecord): Promise<v
         for (i=0; i<contacts.length; i++) {
             console.log("contact: ", contacts[i])
             const sock = socketMap.get(String(contacts[i].userId))
-            if (sock !== undefined) {
+            if (sock !== null && sock !== undefined) {
                 sock.send("you are infected");
                 console.log("user ", contacts[i].userId, " is infected")
             }
