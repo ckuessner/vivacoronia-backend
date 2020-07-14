@@ -10,21 +10,12 @@ const CategorySchema: Schema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'ProductRecord',
         required: true
-    }],
-})
-
-CategorySchema.add({
-    subCategories: [{
-        type: Schema.Types.ObjectId,
-        ref: 'CategoryRecord',
-        required: true,
     }]
 })
 
 export interface ICategoryRecord extends Document {
     name: string;
     products: [Schema.Types.ObjectId];
-    subCategories: [Schema.Types.ObjectId]
 }
 
 export default mongoose.model<ICategoryRecord>('CategoryRecord', CategorySchema);

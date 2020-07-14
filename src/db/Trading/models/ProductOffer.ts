@@ -13,7 +13,8 @@ const ProductOfferSchema: Schema = new Schema({
     },
     amount: {
         type: Number,
-        required: true
+        required: true,
+        min: [0, 'amount cannot be negative']
     },
     priceTotal: {
         // stores the money internally as cents, that's why we need get/set
@@ -21,6 +22,7 @@ const ProductOfferSchema: Schema = new Schema({
         required: true,
         get: getPrice,
         set: setPrice,
+        min: [0, 'priceTotal cannot be negative']
     },
     details: {
         type: String,
@@ -30,7 +32,7 @@ const ProductOfferSchema: Schema = new Schema({
         required: true,
         index: '2dsphere'
     },
-    deactivationTimestamp: {
+    deactivatedAt: {
         type: Date,
     },
     sold: {
@@ -45,7 +47,7 @@ function getPrice(num: number) {
 }
 
 function setPrice(num: number) {
-    return num * 100;
+    return Math.ceil(num * 100);
 }
 
 ProductOfferSchema.set('toObject', { getters: true });
@@ -62,7 +64,7 @@ export interface IProductOfferRecord extends Document {
         type: 'Point';
         coordinates: Array<number>;
     };
-    deactivationTimestamp?: Date;
+    deactivatedAt?: Date;
     sold: boolean;
 }
 

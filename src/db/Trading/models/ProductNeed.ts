@@ -13,14 +13,15 @@ const ProductNeedSchema: Schema = new Schema({
     },
     amount: {
         type: Number,
-        required: true
+        required: true,
+        min: [0, 'amount cannot be negative']
     },
     location: {
         type: Point2DSchema,
         required: true,
         index: '2dsphere'
     },
-    deactivationTimestamp: {
+    deactivatedAt: {
         type: Date,
     },
     fulfilled: {
@@ -40,7 +41,7 @@ export interface IProductNeedRecord extends Document {
         type: 'Point';
         coordinates: Array<number>;
     };
-    deactivationTimestamp?: Date;
+    deactivatedAt?: Date;
     fulfilled: boolean;
 }
 
