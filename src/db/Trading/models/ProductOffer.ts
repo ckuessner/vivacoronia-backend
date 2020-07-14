@@ -6,7 +6,7 @@ const ProductOfferSchema: Schema = new Schema({
         type: Number,
         required: true
     },
-    productId: {
+    product: {
         type: Schema.Types.ObjectId,
         ref: 'ProductRecord',
         required: true
@@ -54,7 +54,7 @@ ProductOfferSchema.set('timestamps', true);
 
 export interface IProductOfferRecord extends Document {
     userId: number;
-    productId: Schema.Types.ObjectId;
+    product: Schema.Types.ObjectId;
     amount: number;
     priceTotal: number;
     details: string;

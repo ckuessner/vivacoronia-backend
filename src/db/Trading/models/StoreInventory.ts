@@ -5,7 +5,7 @@ const StoreInventorySchema: Schema = new Schema({
         type: String,
         required: true
     },
-    productId: {
+    product: {
         type: Schema.Types.ObjectId,
         ref: 'ProductRecord',
         required: true
@@ -20,7 +20,7 @@ StoreInventorySchema.set('timestamps', true);
 
 export interface IStoreInventoryRecord extends Document {
     placeId: string;
-    productId: Schema.Types.ObjectId;
+    product: Schema.Types.ObjectId;
     amount: number;
 }
 

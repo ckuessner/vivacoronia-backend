@@ -6,7 +6,7 @@ const ProductNeedSchema: Schema = new Schema({
         type: Number,
         required: true
     },
-    productId: {
+    product: {
         type: Schema.Types.ObjectId,
         ref: 'ProductRecord',
         required: true
@@ -34,7 +34,7 @@ ProductNeedSchema.set('timestamps', true);
 
 export interface IProductNeedRecord extends Document {
     userId: number;
-    productId: Schema.Types.ObjectId;
+    product: Schema.Types.ObjectId;
     amount: number;
     location: {
         type: 'Point';
