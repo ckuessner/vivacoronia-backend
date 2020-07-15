@@ -1,5 +1,6 @@
 import mongoose, { Document, Schema } from "mongoose";
 import { Point2DSchema } from "../../models/LocationRecord";
+import { validateCategory } from "./ProductCategory";
 
 const ProductNeedSchema: Schema = new Schema({
     userId: {
@@ -7,14 +8,14 @@ const ProductNeedSchema: Schema = new Schema({
         required: true
     },
     product: {
-        type: Schema.Types.ObjectId,
-        ref: 'ProductRecord',
+        type: String,
         required: true
     },
-    amount: {
-        type: Number,
+    productCategory: {
+        type: String,
         required: true,
-        min: [0, 'amount cannot be negative']
+        index: true,
+        validate: validateCategory
     },
     location: {
         type: Point2DSchema,
@@ -35,8 +36,8 @@ ProductNeedSchema.set('timestamps', true);
 
 export interface IProductNeedRecord extends Document {
     userId: number;
-    product: Schema.Types.ObjectId;
-    amount: number;
+    product: string;
+    productCategory: string;
     location: {
         type: 'Point';
         coordinates: Array<number>;

@@ -1,4 +1,5 @@
-import mongoose, { Document, Schema } from "mongoose";
+import mongoose, { Document, Schema, SchemaTypeOpts } from "mongoose";
+import ProductCategory, { validateCategory } from "./ProductCategory";
 
 const StoreInventorySchema: Schema = new Schema({
     placeId: {
@@ -14,14 +15,21 @@ const StoreInventorySchema: Schema = new Schema({
         type: Number,
         required: true
     },
+    productCategory: {
+        type: String,
+        require: true,
+        index: true,
+        validate: validateCategory
+    }
 })
 
 StoreInventorySchema.set('timestamps', true);
 
 export interface IStoreInventoryRecord extends Document {
     placeId: string;
-    product: Schema.Types.ObjectId;
+    product: string;
     amount: number;
+    productCategory: string;
 }
 
 export default mongoose.model<IStoreInventoryRecord>('StoreInventoryRecord', StoreInventorySchema);

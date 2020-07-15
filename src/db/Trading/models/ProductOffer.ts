@@ -1,5 +1,6 @@
 import mongoose, { Document, Schema } from "mongoose";
 import { Point2DSchema } from "../../models/LocationRecord";
+import { validateCategory } from "./ProductCategory";
 
 const ProductOfferSchema: Schema = new Schema({
     userId: {
@@ -7,14 +8,19 @@ const ProductOfferSchema: Schema = new Schema({
         required: true
     },
     product: {
-        type: Schema.Types.ObjectId,
-        ref: 'ProductRecord',
+        type: String,
         required: true
     },
     amount: {
         type: Number,
         required: true,
         min: [0, 'amount cannot be negative']
+    },
+    productCategory: {
+        type: String,
+        required: true,
+        index: true,
+        validate: validateCategory
     },
     priceTotal: {
         // stores the money internally as cents, that's why we need get/set
@@ -56,8 +62,9 @@ ProductOfferSchema.set('timestamps', true);
 
 export interface IProductOfferRecord extends Document {
     userId: number;
-    product: Schema.Types.ObjectId;
+    product: string;
     amount: number;
+    productCategory: string;
     priceTotal: number;
     details: string;
     location: {
