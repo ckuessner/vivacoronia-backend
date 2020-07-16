@@ -17,7 +17,7 @@ const StoreInventorySchema: Schema = new Schema({
     },
     productCategory: {
         type: String,
-        require: true,
+        required: true,
         index: true,
         validate: validateCategory
     }
