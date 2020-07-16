@@ -14,7 +14,7 @@ const ProductOfferSchema: Schema = new Schema({
     amount: {
         type: Number,
         required: true,
-        min: [0, 'amount cannot be negative']
+        min: [1, 'amount cannot be negative']
     },
     productCategory: {
         type: String,
