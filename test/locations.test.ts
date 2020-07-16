@@ -1,28 +1,18 @@
 import 'mocha'
-import mongoose from 'mongoose';
-import { MongoMemoryServer } from "mongodb-memory-server";
+import mongoDBHelper from './mongoDBHelper'
 import app from '../src/app'
 import LocationRecord, { ILocationRecord } from '../src/db/models/LocationRecord';
 import chai, { expect } from 'chai';
 import request from 'supertest';
-import { } from "chai-subset";
-chai.use(require('chai-subset'))
+import chaiSubset from "chai-subset";
+chai.use(chaiSubset)
 
-let mongoServer: MongoMemoryServer;
-
-before('connect to MongoDB', (done) => {
-    mongoServer = new MongoMemoryServer();
-    mongoServer.getUri()
-        .then((uri) => {
-            process.env.MONGODB_CONNECTION_STRING = uri
-            require('../src/db/connection')
-            mongoose.connection.on('open', done)
-        })
+before('connect to MongoDB', async function () {
+    await mongoDBHelper.start()
 })
 
-after('disconnect from MongoDB', async () => {
-    await mongoose.disconnect()
-    await mongoServer.stop()
+after('disconnect from MongoDB', async function () {
+    await mongoDBHelper.stop()
 })
 
 beforeEach('delete LocationRecords', async () => {
