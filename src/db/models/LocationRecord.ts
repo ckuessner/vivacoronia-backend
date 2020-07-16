@@ -49,10 +49,3 @@ export interface ILocationRecord extends Document {
 }
 
 export default mongoose.model<ILocationRecord>('LocationRecord', LocationRecordSchema);
-
-// Make sure that the 2dsphere (and other indexes) exist.
-void mongoose.model('LocationRecord').ensureIndexes(err => {
-    if (err) {
-        console.error("Eror enrsuring indexes of LocationRecord exists: ", err)
-    }
-})
