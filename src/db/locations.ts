@@ -22,7 +22,7 @@ export async function getAllLocationRecordsOfUser(userId: ILocationRecord['userI
 }
 
 export async function getNewestLocationRecords(): Promise<Array<ILocationRecord>> {
-    return LocationRecord.find().sort({ "_id": 1, "time": -1 }).limit(1000)
+    return LocationRecord.find().sort({ "time": -1 }).limit(1000)
 }
 
 export async function getAllLocationRecords(location: [number, number], distance: number): Promise<Array<ILocationRecord>> {
@@ -43,7 +43,7 @@ export async function getAllLocationRecords(location: [number, number], distance
 
     const timeEnd = process.hrtime.bigint()
     console.log("Execution times: aggregate ", timeStampsToString(timeStart, timeEnd))
-    return nearbyLocationRecords.sort({ "_id": 1, "time": 1 })
+    return nearbyLocationRecords.sort({ "userId": 1, "time": 1 })
 }
 
 function timeStampsToString(start: bigint, end: bigint): string {

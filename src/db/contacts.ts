@@ -67,7 +67,7 @@ function contactRecordReducer(userId: number) {
 }
 
 export async function getAllContactRecords(): Promise<Array<IContactRecord>> {
-    return ContactRecord.find()
+    return ContactRecord.find().populate('locationRecord')
 }
 
 export default { findContacts, getAllContactRecords }
