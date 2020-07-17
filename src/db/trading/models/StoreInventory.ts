@@ -1,5 +1,5 @@
-import mongoose, { Document, Schema, SchemaTypeOpts } from "mongoose";
-import ProductCategory, { validateCategory } from "./ProductCategory";
+import mongoose, { Document, Schema } from "mongoose";
+import { validateCategory } from "./ProductCategory";
 
 const StoreInventorySchema: Schema = new Schema({
     placeId: {
