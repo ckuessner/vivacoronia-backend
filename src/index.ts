@@ -5,6 +5,7 @@ import path from 'path';
 import swaggerUi from 'swagger-ui-express';
 import app from './app'
 import WebSocket from 'ws'
+import notification_connections from './controllers/notification_connections'
 
 // swagger-ui
 try {
@@ -46,44 +47,4 @@ httpsServer.listen(httpsPort, () => {
 
 // create websocket for push notifications
 const wsServer = new WebSocket.Server({server: httpsServer}); // rest api and websocket can run over the same port
-
-// hashmap with userID and corresponding websocket
-let userIDToSocketMap = new Map()
-
-wsServer.on('connection', function(ws: any, req: any) {
-  console.log('New Client connected ', req.headers.userid);
-  // add socket to socket map
-  const userid = req.headers.userid;
-  userIDToSocketMap.set(userid, ws)
-
-  ws.on('message', function(msg: String){
-    console.log('message received ' + msg);
-    ws.send(msg)
-  })
-
-  ws.on('close', function(){
-    userIDToSocketMap.forEach(function deleteSocket(value, key){
-        if (ws === value){
-          userIDToSocketMap.delete(key);
-          return;
-        }
-    });
-    console.log("closing socket")
-    console.log(userIDToSocketMap)
-  });
-});
-
-wsServer.on('listening', function(){
-  console.log("websocket listening");
-});
-
-wsServer.on('error', function(e: Error){
-  console.log("Error in websocket ", e);
-});
-
-function getSockets (){
-  return userIDToSocketMap
-}
-
-export default {getSockets}
-
+notification_connections.setupSocketManagement(wsServer);
