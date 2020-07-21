@@ -9,7 +9,10 @@ function loadKeyFromFile(filename: string): string {
   return fileContent;
 }
 
-export function generateJWT(userId: string): string {
+function generateJWT(userId: string): string {
+  // generates an access token for a user with userId or admin
+  // we can use this function with userId = "admin" as admin jwt generation
+
   const privateKey = loadKeyFromFile('private_key');
 
   // Header
@@ -18,13 +21,14 @@ export function generateJWT(userId: string): string {
     typ: 'JWT'
   }
 
-  // Token expires in one week
-  const calExp = String(KJUR.jws.IntDate.getNow() + 24 * 60 * 60 * 7)
-
   // Payload
-  const oPayload = {
-    sub: userId,
-    exp: KJUR.jws.IntDate.get(calExp)
+  let oPayload = {
+    sub: userId
+  }
+
+  if (userId === "admin") {
+    // admin token expires in one day from now
+    oPayload = Object.assign(oPayload, { exp: KJUR.jws.IntDate.get('now + 1day') })
   }
 
   // Sign JWT
@@ -33,25 +37,12 @@ export function generateJWT(userId: string): string {
   return sJWT
 }
 
+export function generateAccessJWT(userId: string): string {
+  return generateJWT(userId)
+}
+
 export function generateAdminJWT(): string {
-  const privateKey = loadKeyFromFile('private_key');
-
-  // Header
-  const oHeader = {
-    alg: 'RS256',
-    typ: 'JWT'
-  }
-
-  // Payload
-  const oPayload = {
-    sub: "admin",
-    exp: KJUR.jws.IntDate.get('now + 1day')
-  }
-
-  // Sign JWT
-  const sJWT = KJUR.jws.JWS.sign("RS256", oHeader, oPayload, privateKey);
-
-  return sJWT
+  return generateJWT("admin")
 }
 
 export function validateJWT(token: string, userId: string): boolean {

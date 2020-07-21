@@ -134,11 +134,6 @@ paths:
         in: query
         schema:
           $ref: "#/components/schemas/distance"
-      - name: admin jwt
-        in: header
-        schema:
-          type: string
-        required: true
       - name: adminjwt
         in: header
         schema:

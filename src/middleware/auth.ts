@@ -29,6 +29,7 @@ async function authAdmin(req: Request, res: Response, next: NextFunction): Promi
         res.sendStatus(400)
         return
     }
+
     const token: string = req.headers.adminjwt;
 
     if (!validateJWT(token, "admin")) {

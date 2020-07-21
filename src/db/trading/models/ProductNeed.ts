@@ -1,10 +1,10 @@
 import mongoose, { Document, Schema } from "mongoose";
-import { Point2DSchema } from "../../models/LocationRecord";
+import { Point2DSchema } from "../../Tracking/models/LocationRecord";
 import { validateCategory } from "./ProductCategory";
 
 const ProductNeedSchema: Schema = new Schema({
     userId: {
-        type: Number,
+        type: String,
         required: true
     },
     product: {
@@ -35,7 +35,7 @@ const ProductNeedSchema: Schema = new Schema({
 ProductNeedSchema.set('timestamps', true);
 
 export interface LeanProductNeed {
-    userId: number;
+    userId: string;
     product: string;
     productCategory: string;
     location: {

@@ -1,10 +1,10 @@
 import mongoose, { Document, Schema } from "mongoose";
-import { Point2DSchema } from "../../models/LocationRecord";
+import { Point2DSchema } from "../../Tracking/models/LocationRecord";
 import { validateCategory } from "./ProductCategory";
 
 const ProductOfferSchema: Schema = new Schema({
     userId: {
-        type: Number,
+        type: String,
         required: true
     },
     product: {
@@ -61,7 +61,7 @@ ProductOfferSchema.set('toJSON', { getters: true });
 ProductOfferSchema.set('timestamps', true);
 
 export interface LeanProductOffer {
-    userId: number;
+    userId: string;
     product: string;
     amount: number;
     productCategory: string;
@@ -79,7 +79,7 @@ export interface ProductOfferDocument extends Document, LeanProductOffer { }
 
 export interface ProductOfferQuery {
     offerId?: string;
-    userId?: number;
+    userId?: string;
     product?: string;
     productCategory?: string;
     longitude?: number;

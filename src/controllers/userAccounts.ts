@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { IUserAccountRecord } from "../db/Users/models/UserAccountRecord";
 import * as userAccountDb from "../db/Users/userAccounts";
-import { generateAdminJWT, generateJWT } from "../validators/jsonWebTokenValidator";
+import { generateAdminJWT, generateAccessJWT } from "../validators/jsonWebTokenValidator";
 import { isString } from "util";
 
 export async function createNewUserId(req: Request, res: Response): Promise<void> {
@@ -32,7 +32,7 @@ export async function newJSONWebToken(req: Request, res: Response): Promise<void
 
   if (validator) {
 
-    const token = generateJWT(userId)
+    const token = generateAccessJWT(userId)
 
     const json = {
       "jwt": token
