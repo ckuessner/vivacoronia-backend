@@ -109,8 +109,6 @@ describe('tracing works with simple example', function () {
             { userId: 42, newStatus: "infected", dateOfTest: new Date("2020-07-20"), occuredDateEstimation: new Date("2020-07-10") }
         )
         await contactController.startContactTracing(infectionRecord)
-        console.log(await ContactRecord.find({}).populate('locationRecord'))
-        console.log(await ContactRecord.listIndexes())
         expect(await ContactRecord.countDocuments({})).to.equal(1)
         expect(await ContactRecord.countDocuments({ userId: 1234 })).to.equal(1)
     })
