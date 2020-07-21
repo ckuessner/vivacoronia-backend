@@ -17,8 +17,7 @@ router.post('/locations/:userId/', locationsController.postLocationRecords)
 
 router.get('/trading/offers/', tradingController.getOffers)
 router.post('/trading/offers/', tradingController.postOffer)
-router.put('/trading/offers/:offerId/', tradingController.putOffer)
-router.delete('/trading/offers/:offerId/', tradingController.deleteOffer)
+router.patch('/trading/offers/:offerId/', tradingController.patchOffer)
 
 router.get('/trading/categories/', tradingController.getCategories)
 router.post('/trading/categories/', tradingController.postCategory)

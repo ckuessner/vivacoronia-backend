@@ -69,8 +69,7 @@ async function postOffer(req: Request, res: Response): Promise<void> {
     }
 }
 
-async function putOffer(req: Request, res: Response): Promise<void> {
-    console.log("Putting offer...")
+async function patchOffer(req: Request, res: Response): Promise<void> {
     const offerId: string = req.params.offerId
     if (!offerId) {
         res.statusMessage = "Please provide the parameter \"offerId\" by including it in the URL path"
@@ -80,16 +79,14 @@ async function putOffer(req: Request, res: Response): Promise<void> {
 
     const existingRecord = await tradingDb.getProductOffers({ _id: offerId })
     if (!existingRecord || existingRecord.length == 0) {
-        res.statusMessage = `No record exists with Id ${offerId}. Please use the corresponding POST function`
+        res.statusMessage = `No record exists with Id ${offerId}.`
         res.sendStatus(404)
         return
     }
 
     try {
         const updatedOffer = await tradingDb.updateProductOffer(offerId, req.body)
-        console.log("Returning...")
         res.status(200).json(updatedOffer)
-        console.log("Returned...")
     } catch (e) {
         console.error(`Error trying to update offer ${offerId}`, e)
         res.statusMessage = `Cannot update offer ${offerId} because of invalid arguments`
@@ -97,21 +94,4 @@ async function putOffer(req: Request, res: Response): Promise<void> {
     }
 }
 
-async function deleteOffer(req: Request, res: Response): Promise<void> {
-    const offerId: string = req.params.offerId
-    if (!offerId) {
-        res.statusMessage = "Please provide the parameter \"offerId\" by including it in the URL path"
-        res.sendStatus(400)
-        return
-    }
-
-    const sold = req.body.sold === 'true'
-    const result = await tradingDb.deactivateProductOffer(offerId, sold)
-    if (result) {
-        res.sendStatus(204)
-    } else {
-        res.sendStatus(400)
-    }
-}
-
-export default { getCategories, postCategory, getOffers, postOffer, putOffer, deleteOffer }
+export default { getCategories, postCategory, getOffers, postOffer, patchOffer }
