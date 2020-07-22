@@ -30,36 +30,45 @@ async function postCategory(req: Request, res: Response): Promise<void> {
 }
 
 async function getOffers(req: Request, res: Response): Promise<void> {
-    const queryParams = { deactivatedAt: null, ...extractQueryParams(req) }
-    const offers = await tradingDb.getProductOffers(queryParams)
+    const offers = await tradingDb.getProductOffers(extractQuery(req))
     res.status(200).json(offers)
 }
 
-function extractQueryParams(req: Request): object {
+function extractQuery(req: Request): Record<string, unknown>[] {
     const userId: number = +req.query.userId
-    const productId: string = req.query.productId as string
-    const category: string = req.query.category as string
+    const product: string = req.query.product as string
+    const productCategory: string = req.query.productCategory as string
     const longitude: number = +req.query.longitude
     const latitude: number = +req.query.latitude
-    const radiusInMeters: number = +req.query.radius
+    const radiusInMeters: number = +req.query.radius || 25000 // default radius 15km
     const includeInactive: boolean = req.query.includeInactive === 'true'
 
-    if (longitude && !latitude || radiusInMeters && (!longitude || !latitude))
-        return {}
-
-    return {
-        ...(userId && { userId }),
-        ...(productId && { productId }),
-        ...(category && { category }),
-        ...(longitude && { longitude }),
-        ...(latitude && { latitude }),
-        ...(radiusInMeters && { radiusInMeters }),
-        ...(!includeInactive && { deactivatedAt: null })
+    const productQuery = {
+        $match: {
+            ...(userId && { userId }),
+            ...(product && { product: new RegExp("^" + product) }),
+            ...(productCategory && { productCategory }),
+            ...(!includeInactive && { deactivatedAt: null })
+        }
     }
+
+    const locationQuery = {
+        ...(longitude && latitude &&
+        {
+            $geoNear: {
+                near: { type: "Point", coordinates: [longitude, latitude] },
+                distanceField: "distanceToUser",
+                maxDistance: radiusInMeters
+            }
+        })
+    }
+
+    return [locationQuery, productQuery].filter(query => Object.keys(query).length != 0)
 }
 
 async function postOffer(req: Request, res: Response): Promise<void> {
     try {
+        delete req.body._id
         const offer = await tradingDb.addProductOffer(req.body as IProductOfferRecord)
         res.status(201).json(offer)
     } catch (e) {
@@ -77,8 +86,8 @@ async function patchOffer(req: Request, res: Response): Promise<void> {
         return
     }
 
-    const existingRecord = await tradingDb.getProductOffers({ _id: offerId })
-    if (!existingRecord || existingRecord.length == 0) {
+    const existingRecord = await tradingDb.getProductOffers([{ $match: { _id: offerId } }])
+    if (!existingRecord) {
         res.statusMessage = `No record exists with Id ${offerId}.`
         res.sendStatus(404)
         return

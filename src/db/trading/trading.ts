@@ -9,16 +9,16 @@ async function addCategory(name: string): Promise<IProductCategoryRecord> {
     return ProductCategory.create({ name })
 }
 
-async function getProductOffers(queryParams: any): Promise<IProductOfferRecord[]> {
-    return ProductOfferRecord.find(queryParams)
+async function getProductOffers(productQuery: Record<string, unknown>[]): Promise<IProductOfferRecord[]> {
+    return ProductOfferRecord.aggregate(productQuery)
 }
 
-async function addProductOffer(offer: any): Promise<IProductOfferRecord> {
+async function addProductOffer(offer: IProductOfferRecord): Promise<IProductOfferRecord> {
     return ProductOfferRecord.create({ ...offer, sold: false })
 }
 
-async function updateProductOffer(id: string, offer: any): Promise<IProductOfferRecord | null> {
-    return ProductOfferRecord.findOneAndUpdate({ _id: id }, { ...offer }, { new: true, runValidators: true })
+async function updateProductOffer(id: string, offer: Record<string, unknown>): Promise<IProductOfferRecord | null> {
+    return ProductOfferRecord.findOneAndUpdate({ _id: id }, offer, { new: true, runValidators: true })
 }
 
 async function deactivateProductOffer(id: string, sold: boolean): Promise<boolean> {

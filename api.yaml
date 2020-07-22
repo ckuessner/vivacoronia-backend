@@ -12,6 +12,8 @@ tags:
     description: Manage infections status
   - name: Contact Tracing
     description: Retrieve information about contact with infected persons
+  - name: Trading
+    description: Manage product offers, needs, store inventories and available categories
 
 paths:
 
@@ -21,7 +23,7 @@ paths:
       description: Returns the list of all location records of all users in given distance around given coordinates
       responses:
         "200":
-          description: JSON array with GeoJSON Points
+          description: JSON array with location records
           content:
             application/json:
               schema:
@@ -48,10 +50,10 @@ paths:
   /locations/{userId}/:
     get:
       tags: [Location Tracking]
-      description: Returns the list of locations the specified user
+      description: Returns the list of locations of the specified user
       responses:
         "200":
-          description: JSON array with GeoJSON Points
+          description: JSON array with location records
           content:
             application/json:
               schema:
@@ -87,13 +89,13 @@ paths:
             schema:
               type: array
               items:
-                $ref: "#/components/schemas/GeoJSONPoint2D"
-                examples:
-                  twoelems:
-                    $ref: "#/components/examples/geoJsonPoint2DArrayExample"
-                    responses:
-                      "201":
-                        description: Created
+                $ref: "#/components/schemas/location"
+              examples:
+                twoelems:
+                  $ref: "#/components/examples/locationArrayExample"
+      responses:
+        "201":
+          description: Created
       parameters:
         - name: userId
           in: path
@@ -148,12 +150,139 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/ContactRecord"
+  
+  /trading/offers/:
+    get:
+      tags: [Trading]
+      description: Retrieve offers by query parameters. Provide either both or none of latitude and longitude. They are also required when using radius
+      responses:
+        "200":
+          description: Array of ProductOfferRecords
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ProductOfferRecord"
+      parameters:
+        - name: userId
+          in: query
+          schema:
+            $ref: "#/components/schemas/userId"
+        - name: product
+          in: query
+          schema:
+            $ref: "#/components/schemas/product"
+        - name: productCategory
+          in: query
+          schema:
+            $ref: "#/components/schemas/productCategory" 
+        - name: longitude
+          in: query
+          schema:
+            $ref: "#/components/schemas/lat_long"
+        - name: latitude
+          in: query
+          schema:
+            $ref: "#/components/schemas/lat_long"
+        - name: radius
+          in: query
+          schema:
+            type: int64
+          example: 10000
+          description: Radius in meters, default is 25000
+        - name: includeInactive
+          in: query
+          schema:
+            type: boolean
+          example: true
+          description: if true returns inactive (deleted/sold) offers as well, default is false
+
+    post:
+      tags: [Trading]
+      description: Add a new offer. Ignores the _id attribute
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductOfferRecord"
+      responses:
+        "201":
+          description: Created
+        "400":
+          description: Error creating the offer record
+  
+  /trading/offers/{offerId}:
+    patch:
+      tags: [Trading]
+      description: Update an already existing offer, i.e. change or delete it. Only provide the properties to change
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductOfferRecord"
+              description: Only the properites to change need to be provided
+      responses:
+        "200":
+          description: Returns the complete succesfully changed offer
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductOfferRecord"
+        "404":
+          description: The offer with the provided Id does not exist
+        "400":
+          description: Either offerId was not specified in the url path or there was another error
+      parameters:
+        - name: offerId
+          in: path
+          required: true
+          description: The id of the offer
+          schema:
+            $ref: "#/components/schemas/offerId"
+  
+  /trading/categories/:
+    get:
+      tags: [Trading]
+      description: Returns all available categories
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              type: array
+              items:
+                $ref: "#/components/schemas/productCategory"
+              example: ["foods", "hygiene", "protection"]
+    post:
+      tags: [Trading]
+      description: Adds a new category
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: 
+                  type: string
+              example: 
+                name: foods
+      responses:
+        "201":
+          description: Successfully added the category
+        "400":
+          description: property \"name\" was not specified
+        "500":
+          description: An error ocurred
 
 components:
   schemas:
     LocationRecord:
       type: object
-      description: Location record with GeoJSON Point2D
+      description: Location record with location and userId
       example:
         userId: 42
         time: "2020-05-21T21:39:08+02:00"
@@ -169,46 +298,45 @@ components:
           type: string
           format: date-time
         location:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-                - Point
-            coordinates:
-              type: array
-              items:
-                type: number
-                maxItems: 2
-                minItems: 2
+          $ref: "#/components/schemas/GeoJSONPoint2D"
 
-    GeoJSONPoint2D:
+    location:
       type: object
-      description: GeoJSON Point2D
-      example:
-        time: "2020-05-21T21:39:08+02:00"
-        location:
-          type: "Point"
-          coordinates:
-            - 8.454
-            - 50.225
+      description: GeoJSONPoint2D along with timestamp
       properties:
         time:
           type: string
           format: date-time
+          example: "2020-05-21T21:39:08+02:00"
         location:
-          type: object
-          properties:
-            type:
-              type: string
-              enum:
-                - Point
-            coordinates:
-              type: array
-              items:
-                type: number
-                maxItems: 2
-                minItems: 2
+          $ref: "#/components/schemas/GeoJSONPoint2D"
+      example:
+        time: 2020-05-21T19:39:08.000Z
+        location:
+          type: "Point"
+          coordinates:
+            - -122.96
+            - 50.114
+
+    GeoJSONPoint2D:
+      type: object
+      description: Geo coordinates of a point on a map
+      properties:
+        type:
+          type: string
+          enum:
+            - Point
+        coordinates:
+          type: array
+          items:
+            type: number
+            maxItems: 2
+            minItems: 2
+      example:
+        type: "Point"
+        coordinates:
+          - -122.96
+          - 50.114
 
     userId:
       type: integer
@@ -289,9 +417,55 @@ components:
               - 8.454
               - 50.225
 
+    ProductOfferRecord:
+      type: object
+      description: Contains details about a product offer provided by a user
+      properties:
+        _id:
+          $ref: "#/components/schemas/offerId"
+        userId: 
+          $ref: "#/components/schemas/userId"
+        product:
+          $ref: "#/components/schemas/product"
+        amount: 
+          type: number
+          description: How much of the product is offered (1 time, 2 times, 5 times)
+          example: 5
+        productCategory:
+          $ref: "#/components/schemas/productCategory"
+        priceTotal:
+          type: double
+          example: 8.50
+        details: 
+          type: string
+          details: Additional information or description of the offer or product
+        location:
+          $ref: "#/components/schemas/GeoJSONPoint2D"
+        deactivatedAt:
+          type: string
+          format: date-time
+          description: Timestamp of deactivation, if this offer is not available anymore, else null
+        sold:
+          type: boolean
+          description: True if this product has sold, false if it was deleted without being sold. Only valid if deactivatedAt is not null.
+
+    product:
+      type: string
+      example: Flour 1kg
+    
+    productCategory:
+      type: string
+      description: Must be one of the categories already available (see getCategories), if not POST category
+      example: foods
+
+    offerId:
+      type: string
+      example: 5f0eb3935f839100238c0fcb
+    
+    
   examples:
-    geoJsonPoint2DArrayExample:
-      summary: Array with two GeoJSON Point2D ojects
+    locationArrayExample:
+      summary: Array with two location ojects
       value:
         - time: 2020-05-21T19:39:08.000Z
           location:
@@ -307,7 +481,7 @@ components:
               - 50.225
 
     locationRecordArray:
-      summary: Array with two GeoJSON location records, including userId
+      summary: Array with two locations including userId, i.e. two location records
       value:
         - userId: 42
           time: 2020-05-21T19:39:08.000Z
@@ -323,15 +497,6 @@ components:
             coordinates:
               - 8.454
               - 50.225
-
-    geoJsonPoint2DExample:
-      summary: GeoJSON Point2D record
-      value:
-        location:
-          type: "Point"
-          coordinates:
-            - -122.96
-            - 50.114
 
     emptyArrayExample:
       summary: Empty Array
