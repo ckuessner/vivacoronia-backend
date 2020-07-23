@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import tradingDb from '../db/trading/trading';
-import { IProductOfferRecord } from '../db/trading/models/ProductOffer';
+import { IProductOfferRecord, IProductOfferQuery } from '../db/trading/models/ProductOffer';
 
 async function getCategories(_: Request, res: Response): Promise<void> {
     try {
@@ -30,40 +30,17 @@ async function postCategory(req: Request, res: Response): Promise<void> {
 }
 
 async function getOffers(req: Request, res: Response): Promise<void> {
-    const offers = await tradingDb.getProductOffers(extractQuery(req))
-    res.status(200).json(offers)
-}
-
-function extractQuery(req: Request): Record<string, unknown>[] {
     const userId: number = +req.query.userId
     const product: string = req.query.product as string
     const productCategory: string = req.query.productCategory as string
     const longitude: number = +req.query.longitude
     const latitude: number = +req.query.latitude
-    const radiusInMeters: number = +req.query.radius || 25000 // default radius 15km
+    const radiusInMeters: number = +req.query.radius || 25000 // default radius 25km
     const includeInactive: boolean = req.query.includeInactive === 'true'
 
-    const productQuery = {
-        $match: {
-            ...(userId && { userId }),
-            ...(product && { product: new RegExp("^" + product) }),
-            ...(productCategory && { productCategory }),
-            ...(!includeInactive && { deactivatedAt: null })
-        }
-    }
-
-    const locationQuery = {
-        ...(longitude && latitude &&
-        {
-            $geoNear: {
-                near: { type: "Point", coordinates: [longitude, latitude] },
-                distanceField: "distanceToUser",
-                maxDistance: radiusInMeters
-            }
-        })
-    }
-
-    return [locationQuery, productQuery].filter(query => Object.keys(query).length != 0)
+    const queryOptions = { userId, product, productCategory, longitude, latitude, radiusInMeters, includeInactive } as IProductOfferQuery
+    const offers = await tradingDb.getProductOffers(queryOptions)
+    res.status(200).json(offers)
 }
 
 async function postOffer(req: Request, res: Response): Promise<void> {

@@ -1,4 +1,4 @@
-import ProductOfferRecord, { IProductOfferRecord } from "./models/ProductOffer";
+import ProductOfferRecord, { IProductOfferRecord, IProductOfferQuery } from "./models/ProductOffer";
 import ProductCategory, { IProductCategoryRecord } from "./models/ProductCategory";
 
 async function getCategories(): Promise<string[]> {
@@ -9,8 +9,34 @@ async function addCategory(name: string): Promise<IProductCategoryRecord> {
     return ProductCategory.create({ name })
 }
 
-async function getProductOffers(productQuery: Record<string, unknown>[]): Promise<IProductOfferRecord[]> {
-    return ProductOfferRecord.aggregate(productQuery)
+async function getProductOffers(queryOptions: IProductOfferQuery): Promise<IProductOfferRecord[]> {
+    return ProductOfferRecord.aggregate(extractQuery(queryOptions))
+}
+
+function extractQuery(queryOptions: IProductOfferQuery): Record<string, unknown>[] {
+    const { userId, product, productCategory, longitude, latitude, radiusInMeters, includeInactive } = queryOptions
+
+    const productQuery = {
+        $match: {
+            ...(userId && { userId }),
+            ...(product && { product: new RegExp("^" + product) }),
+            ...(productCategory && { productCategory }),
+            ...(!includeInactive && { deactivatedAt: null })
+        }
+    }
+
+    const locationQuery = {
+        ...(longitude && latitude &&
+        {
+            $geoNear: {
+                near: { type: "Point", coordinates: [longitude, latitude] },
+                distanceField: "distanceToUser",
+                maxDistance: radiusInMeters
+            }
+        })
+    }
+
+    return [locationQuery, productQuery].filter(query => Object.keys(query).length != 0)
 }
 
 async function addProductOffer(offer: IProductOfferRecord): Promise<IProductOfferRecord> {

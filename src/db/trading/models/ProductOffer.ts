@@ -75,4 +75,14 @@ export interface IProductOfferRecord extends Document {
     sold: boolean;
 }
 
+export interface IProductOfferQuery {
+    userId: number;
+    product: string;
+    productCategory: string;
+    longitude: number;
+    latitude: number;
+    radiusInMeters: number; // default radius 25km
+    includeInactive: boolean;
+}
+
 export default mongoose.model<IProductOfferRecord>('ProductOfferRecord', ProductOfferSchema);
