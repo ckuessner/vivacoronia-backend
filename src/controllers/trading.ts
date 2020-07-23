@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
+import { IProductOfferPatch, IProductOfferRecord } from '../db/trading/models/ProductOffer';
 import tradingDb from '../db/trading/trading';
-import { IProductOfferRecord, IProductOfferQuery } from '../db/trading/models/ProductOffer';
 
 async function getCategories(_: Request, res: Response): Promise<void> {
     try {
@@ -38,7 +38,7 @@ async function getOffers(req: Request, res: Response): Promise<void> {
     const radiusInMeters: number = +req.query.radius || 25000 // default radius 25km
     const includeInactive: boolean = req.query.includeInactive === 'true'
 
-    const queryOptions = { userId, product, productCategory, longitude, latitude, radiusInMeters, includeInactive } as IProductOfferQuery
+    const queryOptions = { userId, product, productCategory, longitude, latitude, radiusInMeters, includeInactive }
     const offers = await tradingDb.getProductOffers(queryOptions)
     res.status(200).json(offers)
 }
@@ -63,15 +63,25 @@ async function patchOffer(req: Request, res: Response): Promise<void> {
         return
     }
 
-    const existingRecord = await tradingDb.getProductOffers([{ $match: { _id: offerId } }])
+    const existingRecord = await tradingDb.getProductOffers({ offerId })
     if (!existingRecord) {
         res.statusMessage = `No record exists with Id ${offerId}.`
         res.sendStatus(404)
         return
     }
 
+    const product = req.body.product as string
+    const amount = +req.body.amount
+    const productCategory = req.body.productCategory as string
+    const priceTotal = +req.body.priceTotal
+    const details = req.body.details as string
+    const location = req.body.location as { type: 'Point', coordinates: Array<number> }
+    const deactivatedAt = req.body.deactivatedAt && new Date(req.body.deactivatedAt)
+    const sold = req.body.sold as boolean
+
+    const patch = { product, amount, productCategory, priceTotal, details, location, deactivatedAt, sold } as IProductOfferPatch
     try {
-        const updatedOffer = await tradingDb.updateProductOffer(offerId, req.body)
+        const updatedOffer = await tradingDb.updateProductOffer(offerId, patch)
         res.status(200).json(updatedOffer)
     } catch (e) {
         console.error(`Error trying to update offer ${offerId}`, e)

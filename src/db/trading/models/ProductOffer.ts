@@ -76,13 +76,28 @@ export interface IProductOfferRecord extends Document {
 }
 
 export interface IProductOfferQuery {
-    userId: number;
-    product: string;
-    productCategory: string;
-    longitude: number;
-    latitude: number;
-    radiusInMeters: number; // default radius 25km
-    includeInactive: boolean;
+    offerId?: string;
+    userId?: number;
+    product?: string;
+    productCategory?: string;
+    longitude?: number;
+    latitude?: number;
+    radiusInMeters?: number; // default radius 25km
+    includeInactive?: boolean;
+}
+
+export interface IProductOfferPatch {
+    product?: string;
+    amount?: number;
+    productCategory?: string;
+    priceTotal?: number;
+    details?: string;
+    location?: {
+        type: 'Point',
+        coordinates: Array<number>;
+    };
+    deactivatedAt?: Date
+    sold?: boolean
 }
 
 export default mongoose.model<IProductOfferRecord>('ProductOfferRecord', ProductOfferSchema);

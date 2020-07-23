@@ -1,5 +1,6 @@
-import ProductOfferRecord, { IProductOfferRecord, IProductOfferQuery } from "./models/ProductOffer";
+import { isNumber } from "util";
 import ProductCategory, { IProductCategoryRecord } from "./models/ProductCategory";
+import ProductOfferRecord, { IProductOfferPatch, IProductOfferQuery, IProductOfferRecord } from "./models/ProductOffer";
 
 async function getCategories(): Promise<string[]> {
     return (await ProductCategory.find()).map((cat: IProductCategoryRecord) => cat.name)
@@ -14,14 +15,15 @@ async function getProductOffers(queryOptions: IProductOfferQuery): Promise<IProd
 }
 
 function extractQuery(queryOptions: IProductOfferQuery): Record<string, unknown>[] {
-    const { userId, product, productCategory, longitude, latitude, radiusInMeters, includeInactive } = queryOptions
+    const { offerId, userId, product, productCategory, longitude, latitude, radiusInMeters, includeInactive } = queryOptions
 
     const productQuery = {
         $match: {
+            ...(offerId && { offerId }),
             ...(userId && { userId }),
             ...(product && { product: new RegExp("^" + product) }),
             ...(productCategory && { productCategory }),
-            ...(!includeInactive && { deactivatedAt: null })
+            ...(!includeInactive && { deactivatedAt: null }),
         }
     }
 
@@ -43,8 +45,14 @@ async function addProductOffer(offer: IProductOfferRecord): Promise<IProductOffe
     return ProductOfferRecord.create({ ...offer, sold: false })
 }
 
-async function updateProductOffer(id: string, offer: Record<string, unknown>): Promise<IProductOfferRecord | null> {
-    return ProductOfferRecord.findOneAndUpdate({ _id: id }, offer, { new: true, runValidators: true })
+async function updateProductOffer(id: string, patch: IProductOfferPatch): Promise<IProductOfferRecord | null> {
+    const update = patch as Record<string, unknown>
+    Object.keys(update).forEach(key =>
+        (update[key] === undefined
+            || (isNumber(update[key]) && isNaN(update[key] as number)))
+        && delete update[key]
+    )
+    return ProductOfferRecord.findOneAndUpdate({ _id: id }, update, { new: true, runValidators: true })
 }
 
 async function deactivateProductOffer(id: string, sold: boolean): Promise<boolean> {
