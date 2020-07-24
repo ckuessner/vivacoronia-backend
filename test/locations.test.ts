@@ -1,7 +1,7 @@
 import 'mocha'
 import mongoDBHelper from './mongoDBHelper'
 import app from '../src/app'
-import LocationRecord, { ILocationRecord } from '../src/db/models/LocationRecord';
+import LocationRecord, { ILocationRecord } from '../src/db/Tracking/models/LocationRecord';
 import chai, { expect } from 'chai';
 import request from 'supertest';
 import chaiSubset from "chai-subset";
@@ -96,7 +96,7 @@ describe('POST /locations/:userId/', function () {
         expect(records).to.have.lengthOf(3)
         // Creates a deep copy
         const testRecordsWithCorrectUserId = JSON.parse(JSON.stringify(testRecords))
-        testRecordsWithCorrectUserId.forEach((rec: ILocationRecord) => rec.userId = 1234)
+        testRecordsWithCorrectUserId.forEach((rec: ILocationRecord) => rec.userId = "1234")
         expect(JSON.parse(JSON.stringify(records))).to.containSubset(testRecordsWithCorrectUserId)
     })
 

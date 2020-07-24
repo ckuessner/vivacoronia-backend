@@ -30,11 +30,11 @@ export async function setupAdminAccount(): Promise<void> {
             "password": hashPassword,
             "salt": salt
         }).then((record: IAdminPasswordRecord) => {
-            console.log("Created Admin account: \n" + record)
+            console.log("Created Admin account: \n" + String(record))
         }).catch((error: Error) => {
             throw error
         });
     }
 }
 
-setupAdminAccount()
+void setupAdminAccount()
