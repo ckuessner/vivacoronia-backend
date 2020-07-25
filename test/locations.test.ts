@@ -23,6 +23,7 @@ let adminJWT: string
 
 before('connect to MongoDB', async function () {
     await mongoDBHelper.start()
+    await mongoDBHelper.setupAdminAccount()
 
     testAccounts = await getUserAccountRecords(2)
 

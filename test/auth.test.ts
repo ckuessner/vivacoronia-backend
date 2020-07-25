@@ -3,11 +3,22 @@ import app from '../src/app'
 import chai, { expect } from 'chai';
 import request from 'supertest';
 import { } from "chai-subset";
+import mongoDBHelper from './mongoDBHelper';
 chai.use(require('chai-subset'))
 
 let userId: string
 let password = "abc"
 let jwt: string
+
+before('connect to MongoDB', async function () {
+    await mongoDBHelper.start()
+
+    await mongoDBHelper.setupAdminAccount()
+})
+
+after('disconnect from MongoDB', async function () {
+    await mongoDBHelper.stop()
+})
 
 describe('Test user authentication process', function () {
     it('creates a new userAccount', function (done) {
