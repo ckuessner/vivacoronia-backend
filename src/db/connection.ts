@@ -11,9 +11,7 @@ void mongoose.connect(connectionString, opts)
 mongoose.connection.on('error', console.error.bind(console, 'connection error:'));
 mongoose.connection.once('open', () => console.log('connected to db'))
 
-export { opts, connectionString }
-
-export async function setupAdminAccount(): Promise<void> {
+async function setupAdminAccount(): Promise<void> {
     const adminPassword = await AdminPasswordRecord.findOne()
 
     if (isNull(adminPassword)) {
@@ -38,3 +36,5 @@ export async function setupAdminAccount(): Promise<void> {
 }
 
 void setupAdminAccount()
+
+export { opts, connectionString }

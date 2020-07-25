@@ -5,9 +5,9 @@ import request from 'supertest';
 import { } from "chai-subset";
 chai.use(require('chai-subset'))
 
-var userId: string
-var password = "abc"
-var jwt: string
+let userId: string
+let password = "abc"
+let jwt: string
 
 describe('Test user authentication process', function () {
     it('creates a new userAccount', function (done) {
@@ -62,7 +62,7 @@ describe('Test user authentication process', function () {
     })
 })
 
-var adminJWT: string
+let adminJWT: string
 
 describe('Test admin authentication', function () {
 

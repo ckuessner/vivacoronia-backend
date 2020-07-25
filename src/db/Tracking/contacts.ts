@@ -47,7 +47,7 @@ async function findContacts(userId: String, infectionDate: Date): Promise<Array<
         ) as IContactRecord[]
 }
 
-function contactRecordReducer(userId: number) {
+function contactRecordReducer(userId: String) {
     return async function appendCreatedDocumentIfNotExist(
         contacts: Array<IContactRecord>,
         locationRecord: ILocationRecordGeoQueryResult

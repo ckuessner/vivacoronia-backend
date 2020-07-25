@@ -1,24 +1,17 @@
-import LocationRecord from "../src/db/models/LocationRecord";
+import LocationRecord from "../src/db/Tracking/models/LocationRecord";
 import 'mocha';
 import { promises as fs } from 'fs';
 import path from 'path'
 import mongoDBHelper from "./mongoDBHelper";
 import contactController from "../src/controllers/contacts"
-import InfectionRecord from "../src/db/models/InfectionRecord";
-import ContactRecord from "../src/db/models/ContactRecord";
+import InfectionRecord from "../src/db/Tracking/models/InfectionRecord";
+import ContactRecord from "../src/db/Tracking/models/ContactRecord";
 import { expect } from "chai";
-
-before('connect to MongoDB', async function () {
-    await mongoDBHelper.start()
-})
-
-after('disconnect from MongoDB', async function () {
-    await mongoDBHelper.stop()
-})
+import { getUserAccountRecords } from "./userAccountsSetup";
 
 const testData = [
     {
-        userId: 42,
+        userId: "42",
         time: new Date("2020-07-15T05:50:45"),
         location: {
             type: "Point",
@@ -29,7 +22,7 @@ const testData = [
         }
     },
     {
-        userId: 42,
+        userId: "42",
         time: new Date("2020-07-15T05:50:47"),
         location: {
             type: "Point",
@@ -40,7 +33,7 @@ const testData = [
         }
     },
     {
-        userId: 1234,
+        userId: "1234",
         time: new Date("2020-07-15T05:50:46"),
         location: {
             type: "Point",
@@ -51,7 +44,7 @@ const testData = [
         }
     },
     {
-        userId: 1234,
+        userId: "1234",
         time: new Date("2020-07-15T05:50:45"),
         location: {
             type: "Point",
@@ -62,7 +55,7 @@ const testData = [
         }
     },
     {
-        userId: 42,
+        userId: "42",
         time: new Date("2020-07-15T05:50:25"), // Roughly 20 seconds before other points
         location: {
             type: "Point",
@@ -73,6 +66,22 @@ const testData = [
         }
     },
 ]
+
+let testAccounts: Array<Record<string, string>>
+
+before('connect to MongoDB', async function () {
+    await mongoDBHelper.start()
+
+    testAccounts = await getUserAccountRecords(2)
+
+    // use userId for infection records
+    testData[0].userId = testData[1].userId = testData[4].userId = testAccounts[0].userId
+    testData[2].userId = testData[3].userId = testAccounts[1].userId
+})
+
+after('disconnect from MongoDB', async function () {
+    await mongoDBHelper.stop()
+})
 
 describe('tracing works with simple example', function () {
     before('create noise', async function () {
@@ -88,11 +97,11 @@ describe('tracing works with simple example', function () {
     it('finds contacts in test data', async function () {
         await LocationRecord.create(testData as any)
         const infectionRecord = await InfectionRecord.create(
-            { userId: 1234, newStatus: "infected", dateOfTest: new Date("2020-07-20"), occuredDateEstimation: new Date("2020-07-10") }
+            { userId: testAccounts[1].userId, newStatus: "infected", dateOfTest: new Date("2020-07-20"), occuredDateEstimation: new Date("2020-07-10") }
         )
         await contactController.startContactTracing(infectionRecord)
         expect(await ContactRecord.countDocuments({})).to.equal(2)
-        expect(await ContactRecord.countDocuments({ userId: 42 })).to.equal(2)
+        expect(await ContactRecord.countDocuments({ userId: testAccounts[0].userId })).to.equal(2)
     })
 
     it('contact is not duplicated', async function () {
@@ -106,10 +115,10 @@ describe('tracing works with simple example', function () {
         await InfectionRecord.deleteMany({})
         await LocationRecord.create(testData as any)
         const infectionRecord = await InfectionRecord.create(
-            { userId: 42, newStatus: "infected", dateOfTest: new Date("2020-07-20"), occuredDateEstimation: new Date("2020-07-10") }
+            { userId: testAccounts[0].userId, newStatus: "infected", dateOfTest: new Date("2020-07-20"), occuredDateEstimation: new Date("2020-07-10") }
         )
         await contactController.startContactTracing(infectionRecord)
         expect(await ContactRecord.countDocuments({})).to.equal(1)
-        expect(await ContactRecord.countDocuments({ userId: 1234 })).to.equal(1)
+        expect(await ContactRecord.countDocuments({ userId: testAccounts[1].userId })).to.equal(1)
     })
 })

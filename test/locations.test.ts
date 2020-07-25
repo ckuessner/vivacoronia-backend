@@ -5,10 +5,31 @@ import LocationRecord, { ILocationRecord } from '../src/db/Tracking/models/Locat
 import chai, { expect } from 'chai';
 import request from 'supertest';
 import chaiSubset from "chai-subset";
+import { getUserAccountRecords, getAdminJWT } from './userAccountsSetup';
 chai.use(chaiSubset)
+
+function getTestRecords() {
+    return [
+        { userId: "42", time: "2020-05-21T19:39:08.000Z", location: { type: "Point", coordinates: [-122.96, 50.114] } },
+        { userId: "99", time: "2020-04-12T21:50:42.000Z", location: { type: "Point", coordinates: [-8.454, 50.225] } },
+        { userId: "99", time: "2020-05-12T21:50:42.000Z", location: { type: "Point", coordinates: [-9.454, 42.225] } }
+    ]
+}
+const testRecords = getTestRecords();
+
+let testAccounts: Array<Record<string, string>>
+
+let adminJWT: string
 
 before('connect to MongoDB', async function () {
     await mongoDBHelper.start()
+
+    testAccounts = await getUserAccountRecords(2)
+
+    testRecords[0].userId = testAccounts[0].userId
+    testRecords[1].userId = testRecords[2].userId = testAccounts[1].userId
+
+    adminJWT = await getAdminJWT()
 })
 
 after('disconnect from MongoDB', async function () {
@@ -19,21 +40,13 @@ beforeEach('delete LocationRecords', async () => {
     await LocationRecord.deleteMany({})
 })
 
-function getTestRecords() {
-    return [
-        { userId: 42, time: "2020-05-21T19:39:08.000Z", location: { type: "Point", coordinates: [-122.96, 50.114] } },
-        { userId: 99, time: "2020-04-12T21:50:42.000Z", location: { type: "Point", coordinates: [-8.454, 50.225] } },
-        { userId: 99, time: "2020-05-12T21:50:42.000Z", location: { type: "Point", coordinates: [-9.454, 42.225] } }
-    ]
-}
-const testRecords = getTestRecords();
-
 
 describe('GET /locations/', function () {
 
     it('responds with empty array as JSON when no LocationRecords exist', function (done) {
         request(app)
             .get('/locations/')
+            .set({ adminjwt: adminJWT })
             .expect(200)
             .expect('Content-Type', /json/)
             .expect([])
@@ -42,7 +55,7 @@ describe('GET /locations/', function () {
 
     it('responds with correct LocationRecords when multiple exist', async function () {
         await LocationRecord.insertMany(testRecords)
-        const res = await request(app).get('/locations/')
+        const res = await request(app).get('/locations/').set({ adminjwt: adminJWT })
         expect(res.status).to.equal(200)
         expect(res.body).to.be.an('array')
         expect(res.body).to.have.lengthOf(testRecords.length)
@@ -52,7 +65,7 @@ describe('GET /locations/', function () {
     it('responds with correct LocationRecords', async function () {
         const testRecord = testRecords[0]
         await LocationRecord.insertMany(testRecord)
-        const res = await request(app).get('/locations/')
+        const res = await request(app).get('/locations/').set({ adminjwt: adminJWT })
         expect(res.status).to.equal(200)
         expect(res.body).to.be.an('array')
         expect(res.body).to.have.lengthOf(1)
@@ -63,22 +76,22 @@ describe('GET /locations/', function () {
 describe('GET /locations/:userId/', function () {
     it('responds with single location record for user with one location record', async function () {
         await LocationRecord.insertMany(testRecords)
-        const res = await request(app).get('/locations/' + testRecords[0].userId + '/')
+        const res = await request(app).get('/locations/' + testAccounts[0].userId + '/').set({ jwt: testAccounts[0].jwt })
         expect(res.status).to.equal(200)
         expect(res.body).to.be.an('array')
         expect(res.body).to.have.lengthOf(1)
         expect(res.body).to.containSubset([testRecords[0]])
     })
-    it('responds with 200 when user nonexistent', async function () {
+    /*it('responds with 200 when user nonexistent', async function () {
         await LocationRecord.insertMany(testRecords)
         const res = await request(app).get('/locations/10101010/')
         expect(res.status).to.equal(200)
         expect(res.body).to.be.an('array')
         expect(res.body).to.have.lengthOf(0)
-    })
+    })*/
     it('responds with multiple location records for user with multiple location records', async function () {
         await LocationRecord.insertMany(testRecords)
-        const res = await request(app).get('/locations/99/')
+        const res = await request(app).get('/locations/' + testAccounts[1].userId + "/").set({ jwt: testAccounts[1].jwt })
         expect(res.status).to.equal(200)
         expect(res.body).to.be.an('array')
         expect(res.body).to.have.lengthOf(2)
@@ -89,14 +102,15 @@ describe('GET /locations/:userId/', function () {
 describe('POST /locations/:userId/', function () {
     it('stores all records with userId from URI', async function () {
         await request(app)
-            .post('/locations/1234/')
+            .post('/locations/' + testAccounts[1].userId + "/")
+            .set({ jwt: testAccounts[1].jwt })
             .send(testRecords)
             .expect(201)
         const records = await LocationRecord.find().exec()
         expect(records).to.have.lengthOf(3)
         // Creates a deep copy
         const testRecordsWithCorrectUserId = JSON.parse(JSON.stringify(testRecords))
-        testRecordsWithCorrectUserId.forEach((rec: ILocationRecord) => rec.userId = "1234")
+        testRecordsWithCorrectUserId.forEach((rec: ILocationRecord) => rec.userId = testAccounts[1].userId)
         expect(JSON.parse(JSON.stringify(records))).to.containSubset(testRecordsWithCorrectUserId)
     })
 
@@ -104,14 +118,16 @@ describe('POST /locations/:userId/', function () {
         let record = getTestRecords()[0]
         record.location.coordinates = []
         await request(app)
-            .post('/locations/1234/')
+            .post('/locations/' + testAccounts[1].userId + "/")
+            .set({ jwt: testAccounts[1].jwt })
             .send(record)
             .expect(400)
 
         record = getTestRecords()[0]
         record.location.type = "invalid"
         await request(app)
-            .post('/locations/1234/')
+            .post('/locations/' + testAccounts[1].userId + "/")
+            .set({ jwt: testAccounts[1].jwt })
             .send(record)
             .expect(400)
 
@@ -119,14 +135,16 @@ describe('POST /locations/:userId/', function () {
         // @ts-ignore
         record.location = undefined
         await request(app)
-            .post('/locations/1234/')
+            .post('/locations/' + testAccounts[1].userId + "/")
+            .set({ jwt: testAccounts[1].jwt })
             .send(record)
             .expect(400)
 
         record = getTestRecords()[0]
         record.time = "2020"
         await request(app)
-            .post('/locations/1234/')
+            .post('/locations/' + testAccounts[1].userId + "/")
+            .set({ jwt: testAccounts[1].jwt })
             .send(record)
             .expect(400)
 
@@ -136,7 +154,8 @@ describe('POST /locations/:userId/', function () {
         // @ts-ignore
         records[2].location = undefined
         await request(app)
-            .post('/locations/1234/')
+            .post('/locations/' + testAccounts[1].userId + "/")
+            .set({ jwt: testAccounts[1].jwt })
             .send(record)
             .expect(400)
         expect(await LocationRecord.estimatedDocumentCount() === 0)
@@ -147,7 +166,8 @@ describe('POST /locations/:userId/', function () {
         const record = getTestRecords()[0]
         record.location.coordinates = [90, 180]
         await request(app)
-            .post('/locations/1234/')
+            .post('/locations/' + testAccounts[1].userId + "/")
+            .set({ jwt: testAccounts[1].jwt })
             .send(record)
             .expect(400)
     })
