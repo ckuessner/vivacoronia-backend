@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { IProductOfferPatch, IProductOfferRecord } from '../db/trading/models/ProductOffer';
+import { IProductOfferPatch, LeanProductOffer } from '../db/trading/models/ProductOffer';
 import tradingDb from '../db/trading/trading';
 import { PatchOfferRequest, PostCategoryRequest } from '../types/trading'
 
@@ -46,8 +46,9 @@ async function getOffers(req: Request, res: Response): Promise<void> {
 
 async function postOffer(req: Request, res: Response): Promise<void> {
     try {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         delete req.body._id
-        const offer = await tradingDb.addProductOffer(req.body as IProductOfferRecord)
+        const offer = await tradingDb.addProductOffer(req.body as LeanProductOffer)
         res.status(201).json(offer)
     } catch (e) {
         console.error("Error trying to create ProductOfferRecord from POST body: ", e)

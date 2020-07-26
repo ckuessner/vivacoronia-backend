@@ -34,7 +34,7 @@ const ProductNeedSchema: Schema = new Schema({
 
 ProductNeedSchema.set('timestamps', true);
 
-export interface IProductNeedRecord extends Document {
+export interface LeanProductNeed {
     userId: number;
     product: string;
     productCategory: string;
@@ -46,4 +46,6 @@ export interface IProductNeedRecord extends Document {
     fulfilled: boolean;
 }
 
-export default mongoose.model<IProductNeedRecord>('ProductNeedRecord', ProductNeedSchema);
+export interface ProductNeedDocument extends LeanProductNeed, Document { }
+
+export default mongoose.model<ProductNeedDocument>('ProductNeedRecord', ProductNeedSchema);

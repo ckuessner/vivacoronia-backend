@@ -25,11 +25,13 @@ const StoreInventorySchema: Schema = new Schema({
 
 StoreInventorySchema.set('timestamps', true);
 
-export interface IStoreInventoryRecord extends Document {
+export interface LeanStoreInventory {
     placeId: string;
     product: string;
     amount: number;
     productCategory: string;
 }
 
-export default mongoose.model<IStoreInventoryRecord>('StoreInventoryRecord', StoreInventorySchema);
+export interface StoreInventoryDocument extends LeanStoreInventory, Document { }
+
+export default mongoose.model<StoreInventoryDocument>('StoreInventoryRecord', StoreInventorySchema);

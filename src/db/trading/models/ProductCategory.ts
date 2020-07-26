@@ -8,11 +8,13 @@ const ProductCategorySchema: Schema = new Schema({
     },
 })
 
-export interface IProductCategoryRecord extends Document {
+export interface LeanProductCategory {
     name: string;
 }
 
-const ProductCategory = mongoose.model<IProductCategoryRecord>('CategoryRecord', ProductCategorySchema);
+export interface ProductCategoryDocument extends Document, LeanProductCategory { }
+
+const ProductCategory = mongoose.model<ProductCategoryDocument>('CategoryRecord', ProductCategorySchema);
 
 export default ProductCategory
 

@@ -1,18 +1,18 @@
 import { isNumber } from "util";
-import ProductCategory, { IProductCategoryRecord } from "./models/ProductCategory";
-import ProductOfferRecord, { IProductOfferPatch, IProductOfferQuery, IProductOfferRecord } from "./models/ProductOffer";
+import ProductCategory, { ProductCategoryDocument } from "./models/ProductCategory";
+import ProductOfferRecord, { IProductOfferPatch, IProductOfferQuery, ProductOfferDocument, LeanProductOffer } from "./models/ProductOffer";
 import sanitize from "mongo-sanitize";
 
 async function getCategories(): Promise<string[]> {
-    return (await ProductCategory.find()).map((cat: IProductCategoryRecord) => cat.name)
+    return ProductCategory.find().lean()
 }
 
-async function addCategory(name: string): Promise<IProductCategoryRecord> {
+async function addCategory(name: string): Promise<ProductCategoryDocument> {
     return ProductCategory.create({ name })
 }
 
-async function getProductOffers(queryOptions: IProductOfferQuery): Promise<IProductOfferRecord[]> {
-    return ProductOfferRecord.aggregate(extractQuery(queryOptions))
+async function getProductOffers(queryOptions: IProductOfferQuery): Promise<ProductOfferDocument[]> {
+    return ProductOfferRecord.aggregate(extractAggregateQuery(queryOptions))
 }
 
 function extractAggregateQuery(queryOptions: IProductOfferQuery): Record<string, unknown>[] {
@@ -40,14 +40,15 @@ function extractAggregateQuery(queryOptions: IProductOfferQuery): Record<string,
         })
     }
 
+    // The aggregation doesn't accept empty pipeline stages, if no parameters for some stage are provided, remove the empty pipeline stages.
     return [locationQuery, productQuery].filter(query => Object.keys(query).length != 0)
 }
 
-async function addProductOffer(offer: IProductOfferRecord): Promise<IProductOfferRecord> {
+async function addProductOffer(offer: LeanProductOffer): Promise<ProductOfferDocument> {
     return ProductOfferRecord.create({ ...offer, sold: false })
 }
 
-async function updateProductOffer(id: string, patch: IProductOfferPatch): Promise<IProductOfferRecord | null> {
+async function updateProductOffer(id: string, patch: IProductOfferPatch): Promise<ProductOfferDocument | null> {
     const update = patch as Record<string, unknown>
     Object.keys(update).forEach(key =>
         (update[key] === undefined

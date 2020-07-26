@@ -60,7 +60,7 @@ ProductOfferSchema.set('toObject', { getters: true });
 ProductOfferSchema.set('toJSON', { getters: true });
 ProductOfferSchema.set('timestamps', true);
 
-export interface IProductOfferRecord extends Document {
+export interface LeanProductOffer {
     userId: number;
     product: string;
     amount: number;
@@ -74,6 +74,8 @@ export interface IProductOfferRecord extends Document {
     deactivatedAt?: Date;
     sold: boolean;
 }
+
+export interface ProductOfferDocument extends Document, LeanProductOffer { }
 
 export interface IProductOfferQuery {
     offerId?: string;
@@ -100,4 +102,4 @@ export interface IProductOfferPatch {
     sold?: boolean
 }
 
-export default mongoose.model<IProductOfferRecord>('ProductOfferRecord', ProductOfferSchema);
+export default mongoose.model<ProductOfferDocument>('ProductOfferRecord', ProductOfferSchema);
