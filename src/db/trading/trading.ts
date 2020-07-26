@@ -1,6 +1,7 @@
 import { isNumber } from "util";
 import ProductCategory, { IProductCategoryRecord } from "./models/ProductCategory";
 import ProductOfferRecord, { IProductOfferPatch, IProductOfferQuery, IProductOfferRecord } from "./models/ProductOffer";
+import sanitize from "mongo-sanitize";
 
 async function getCategories(): Promise<string[]> {
     return (await ProductCategory.find()).map((cat: IProductCategoryRecord) => cat.name)
@@ -14,8 +15,9 @@ async function getProductOffers(queryOptions: IProductOfferQuery): Promise<IProd
     return ProductOfferRecord.aggregate(extractQuery(queryOptions))
 }
 
-function extractQuery(queryOptions: IProductOfferQuery): Record<string, unknown>[] {
-    const { offerId, userId, product, productCategory, longitude, latitude, radiusInMeters, includeInactive } = queryOptions
+function extractAggregateQuery(queryOptions: IProductOfferQuery): Record<string, unknown>[] {
+    // Should be sanitized, to prevent query injection
+    const { offerId, userId, product, productCategory, longitude, latitude, radiusInMeters, includeInactive } = sanitize(queryOptions)
 
     const productQuery = {
         $match: {
