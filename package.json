@@ -6,6 +6,7 @@
   "scripts": {
     "start": "tsc && node build/index.js",
     "test": "mocha --require ts-node/register test/**.test.ts --exit",
+    "precommit": "npm install && npm run tsc && npm run lint && npm run test",
     "watch": "nodemon",
     "tsc": "tsc",
     "lint": "eslint ./src/ --ext .ts",
