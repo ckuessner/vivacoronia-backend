@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { IProductOfferPatch, IProductOfferRecord } from '../db/trading/models/ProductOffer';
 import tradingDb from '../db/trading/trading';
+import { PatchOfferRequest, PostCategoryRequest } from '../types/trading'
 
 async function getCategories(_: Request, res: Response): Promise<void> {
     try {
@@ -12,8 +13,8 @@ async function getCategories(_: Request, res: Response): Promise<void> {
     }
 }
 
-async function postCategory(req: Request, res: Response): Promise<void> {
-    const categoryName = req.body?.name as string
+async function postCategory(req: PostCategoryRequest, res: Response): Promise<void> {
+    const categoryName = req.body.name
     if (!categoryName) {
         res.statusMessage = 'Please provide the attribute "name" in the request body'
         res.sendStatus(400)
@@ -55,7 +56,7 @@ async function postOffer(req: Request, res: Response): Promise<void> {
     }
 }
 
-async function patchOffer(req: Request, res: Response): Promise<void> {
+async function patchOffer(req: PatchOfferRequest, res: Response): Promise<void> {
     const offerId: string = req.params.offerId
     if (!offerId) {
         res.statusMessage = "Please provide the parameter \"offerId\" by including it in the URL path"
@@ -70,16 +71,17 @@ async function patchOffer(req: Request, res: Response): Promise<void> {
         return
     }
 
-    const product = req.body.product as string
-    const amount = +req.body.amount
-    const productCategory = req.body.productCategory as string
-    const priceTotal = +req.body.priceTotal
-    const details = req.body.details as string
-    const location = req.body.location as { type: 'Point', coordinates: Array<number> }
-    const deactivatedAt = req.body.deactivatedAt && new Date(req.body.deactivatedAt)
-    const sold = req.body.sold as boolean
+    const patch = {
+        product: req.body.product,
+        amount: req.body.amount && +req.body.amount,
+        productCategory: req.body.productCategory,
+        priceTotal: req.body.priceTotal && +req.body.priceTotal,
+        details: req.body.details,
+        location: req.body.location,
+        deactivatedAt: req.body.deactivatedAt && new Date(req.body.deactivatedAt),
+        sold: req.body.sold,
+    } as IProductOfferPatch
 
-    const patch = { product, amount, productCategory, priceTotal, details, location, deactivatedAt, sold } as IProductOfferPatch
     try {
         const updatedOffer = await tradingDb.updateProductOffer(offerId, patch)
         res.status(200).json(updatedOffer)
