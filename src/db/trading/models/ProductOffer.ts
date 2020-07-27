@@ -77,7 +77,7 @@ export interface LeanProductOffer {
 
 export interface ProductOfferDocument extends Document, LeanProductOffer { }
 
-export interface IProductOfferQuery {
+export interface ProductOfferQuery {
     offerId?: string;
     userId?: number;
     product?: string;
@@ -88,7 +88,7 @@ export interface IProductOfferQuery {
     includeInactive?: boolean;
 }
 
-export interface IProductOfferPatch {
+export interface ProductOfferPatch {
     product?: string;
     amount?: number;
     productCategory?: string;

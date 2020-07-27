@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { IProductOfferPatch, LeanProductOffer } from '../db/trading/models/ProductOffer';
+import { ProductOfferPatch, LeanProductOffer } from '../db/trading/models/ProductOffer';
 import tradingDb from '../db/trading/trading';
 import { PatchOfferRequest, PostCategoryRequest } from '../types/trading'
 
@@ -81,7 +81,7 @@ async function patchOffer(req: PatchOfferRequest, res: Response): Promise<void> 
         location: req.body.location,
         deactivatedAt: req.body.deactivatedAt && new Date(req.body.deactivatedAt),
         sold: req.body.sold,
-    } as IProductOfferPatch
+    } as ProductOfferPatch
 
     try {
         const updatedOffer = await tradingDb.updateProductOffer(offerId, patch)
