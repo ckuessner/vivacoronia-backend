@@ -46,7 +46,7 @@ const ProductOfferSchema: Schema = new Schema({
         default: false,
         index: true
     }
-})
+}, { id: false })
 
 function getPrice(num: number) {
     return parseFloat((num / 100).toFixed(2));
