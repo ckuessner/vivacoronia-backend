@@ -1,23 +1,25 @@
 import WebSocket from 'ws'
+import express from 'express'
 
 // hashmap with userID and corresponding websocket
-let userIDToSocketMap = new Map()
+const userIDToSocketMap = new Map<string, WebSocket>()
 
-function getUserIDToSocketMap() {
+function getUserIDToSocketMap() : Map<string, WebSocket> {
     return userIDToSocketMap;
 }
 
 
-function setupSocketManagement(wsServer: WebSocket.Server) {
+function setupSocketManagement(wsServer: WebSocket.Server) : void {
     // called when client connects
-    wsServer.on('connection', function(ws: any, req: any) {
+    wsServer.on('connection', function(ws: WebSocket, req: express.Request) {
         console.log('New Client connected ', req.headers.userid);
+        console.log('ws has type: ', typeof(ws))
         // add socket to socket map
-        const userid = req.headers.userid;
+        const userid = req.headers.userid as string;
         userIDToSocketMap.set(userid, ws)
         console.log(userIDToSocketMap)
         
-        ws.on('message', function(msg: String){
+        ws.on('message', function(msg: string){
             console.log('message received ' + msg);
             ws.send(msg)
         })
