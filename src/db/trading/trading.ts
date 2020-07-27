@@ -1,6 +1,7 @@
 import ProductCategory, { ProductCategoryDocument } from "./models/ProductCategory";
 import ProductOfferRecord, { ProductOfferPatch, ProductOfferQuery, ProductOfferDocument, LeanProductOffer } from "./models/ProductOffer";
 import sanitize from "mongo-sanitize";
+import { escapeRegExp } from 'lodash'
 
 async function getCategories(): Promise<string[]> {
     return (await ProductCategory.find().lean()).map(doc => doc.name)
@@ -23,13 +24,14 @@ const priceTotalConversion = {
 
 function extractAggregateQuery(queryOptions: ProductOfferQuery): Record<string, unknown>[] {
     // Should be sanitized, to prevent query injection
+    queryOptions.product = escapeRegExp(queryOptions.product)
     const { offerId, userId, product, productCategory, longitude, latitude, radiusInMeters, includeInactive } = sanitize(queryOptions)
 
     const productQuery = {
         $match: {
             ...(offerId && { offerId }),
             ...(userId && { userId }),
-            ...(product && { product: new RegExp("^" + product) }),
+            ...(product && { product: new RegExp(product, 'i') }),
             ...(productCategory && { productCategory }),
             ...(!includeInactive && { deactivatedAt: null }),
         }
