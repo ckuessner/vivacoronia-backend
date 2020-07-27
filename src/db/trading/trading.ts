@@ -4,7 +4,7 @@ import ProductOfferRecord, { IProductOfferPatch, IProductOfferQuery, ProductOffe
 import sanitize from "mongo-sanitize";
 
 async function getCategories(): Promise<string[]> {
-    return ProductCategory.find().lean()
+    return (await ProductCategory.find().lean()).map(doc => doc.name)
 }
 
 async function addCategory(name: string): Promise<ProductCategoryDocument> {
@@ -12,7 +12,13 @@ async function addCategory(name: string): Promise<ProductCategoryDocument> {
 }
 
 async function getProductOffers(queryOptions: IProductOfferQuery): Promise<ProductOfferDocument[]> {
-    return ProductOfferRecord.aggregate(extractAggregateQuery(queryOptions))
+    return (await ProductOfferRecord.aggregate(extractAggregateQuery(queryOptions)))
+}
+
+const priceTotalConversion = {
+    $addFields: {
+        priceTotal: { $multiply: ["$priceTotal", .01] }
+    }
 }
 
 function extractAggregateQuery(queryOptions: IProductOfferQuery): Record<string, unknown>[] {
@@ -41,11 +47,11 @@ function extractAggregateQuery(queryOptions: IProductOfferQuery): Record<string,
     }
 
     // The aggregation doesn't accept empty pipeline stages, if no parameters for some stage are provided, remove the empty pipeline stages.
-    return [locationQuery, productQuery].filter(query => Object.keys(query).length != 0)
+    return [locationQuery, productQuery, priceTotalConversion].filter(query => Object.keys(query).length != 0)
 }
 
 async function addProductOffer(offer: LeanProductOffer): Promise<ProductOfferDocument> {
-    return ProductOfferRecord.create({ ...offer, sold: false })
+    return ProductOfferRecord.create(offer)
 }
 
 async function updateProductOffer(id: string, patch: IProductOfferPatch): Promise<ProductOfferDocument | null> {
