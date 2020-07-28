@@ -3,8 +3,7 @@ import contactsDb from "../db/contacts";
 import { IContactRecord } from "../db/models/ContactRecord";
 import { IInfectionRecord } from "../db/models/InfectionRecord";
 import tracing from "../db/contacts";
-import notification_sender from "../controllers/notification_sender"
-//import notification_connections from "../controllers/notification_connections"
+import notification_sender from "./notification_sender"
 
 const TWO_WEEKS_MS = 14 * 24 * 60 * 60 * 1000
 
@@ -24,7 +23,7 @@ async function startContactTracing(infectionRecord: IInfectionRecord): Promise<v
     }
     else {
         console.log("Contacts found for infectionRecord", infectionRecord,
-        "\ncontacts:\n", contacts)
+            "\ncontacts:\n", contacts)
         notification_sender.sendInfectedContactNotification(contacts)
     }
 }

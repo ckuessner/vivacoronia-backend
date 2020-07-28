@@ -46,5 +46,5 @@ httpsServer.listen(httpsPort, () => {
 });
 
 // create websocket for push notifications
-const wsServer = new WebSocket.Server({server: httpsServer}); // rest api and websocket can run over the same port
+const wsServer = new WebSocket.Server({ server: httpsServer }); // rest api and websocket can run over the same port
 notification_connections.setupSocketManagement(wsServer);
