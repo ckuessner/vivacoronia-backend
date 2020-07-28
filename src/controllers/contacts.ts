@@ -3,7 +3,8 @@ import contactsDb from "../db/contacts";
 import { IContactRecord } from "../db/models/ContactRecord";
 import { IInfectionRecord } from "../db/models/InfectionRecord";
 import tracing from "../db/contacts";
-import notification_connections from "../controllers/notification_connections"
+import notification_sender from "../controllers/notification_sender"
+//import notification_connections from "../controllers/notification_connections"
 
 const TWO_WEEKS_MS = 14 * 24 * 60 * 60 * 1000
 
@@ -24,7 +25,8 @@ async function startContactTracing(infectionRecord: IInfectionRecord): Promise<v
     else {
         console.log("Contacts found for infectionRecord", infectionRecord,
         "\ncontacts:\n", contacts)
-        const socketMap = notification_connections.getUserIDToSocketMap();
+        notification_sender.sendInfectedContactNotification(contacts)
+        /*const socketMap = notification_connections.getUserIDToSocketMap();
         let i;
         // send to each user who has contact a notification
         for (i=0; i<contacts.length; i++) {
@@ -35,6 +37,7 @@ async function startContactTracing(infectionRecord: IInfectionRecord): Promise<v
                 console.log("user ", contacts[i].userId, " had contact with an infected person")
             }
         }
+        */
     }
 }
 
