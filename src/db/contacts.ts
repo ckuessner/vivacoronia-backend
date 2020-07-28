@@ -70,4 +70,10 @@ export async function getAllContactRecords(): Promise<Array<IContactRecord>> {
     return ContactRecord.find().populate('locationRecord')
 }
 
-export default { findContacts, getAllContactRecords }
+export async function getAllContactRecordsForIDs(ids: number[]) {
+    const idContactRequests = ids.map((id: number) => ContactRecord.find({ $or: [{ userID: id }, { infectedUserId: id }] }).populate('locationRecord'))
+    const idContacts = await Promise.all(idContactRequests)
+    return idContacts.flat()
+}
+
+export default { findContacts, getAllContactRecords, getAllContactRecordsForIDs }
