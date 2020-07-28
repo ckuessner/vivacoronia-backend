@@ -5,7 +5,7 @@ import path from 'path';
 import swaggerUi from 'swagger-ui-express';
 import app from './app'
 import WebSocket from 'ws'
-import notification_connections from './controllers/notification_connections'
+import notification_connections from './controllers/notifications'
 
 // swagger-ui
 try {
