@@ -26,18 +26,6 @@ async function startContactTracing(infectionRecord: IInfectionRecord): Promise<v
         console.log("Contacts found for infectionRecord", infectionRecord,
         "\ncontacts:\n", contacts)
         notification_sender.sendInfectedContactNotification(contacts)
-        /*const socketMap = notification_connections.getUserIDToSocketMap();
-        let i;
-        // send to each user who has contact a notification
-        for (i=0; i<contacts.length; i++) {
-            console.log("contact: ", contacts[i])
-            const sock = socketMap.get(String(contacts[i].userId))
-            if (sock !== null && sock !== undefined) {
-                sock.send("you are infected");
-                console.log("user ", contacts[i].userId, " had contact with an infected person")
-            }
-        }
-        */
     }
 }
 

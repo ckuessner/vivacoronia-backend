@@ -3,7 +3,7 @@ import { IContactRecord } from "../db/models/ContactRecord"
 
 
 
-function sendInfectedContactNotification(contacts: Array<IContactRecord>) {
+function sendInfectedContactNotification(contacts: Array<IContactRecord>) : void {
         const socketMap = notification_connections.getUserIDToSocketMap();
         let i;
         // send to each user who has contact a notification
