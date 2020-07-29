@@ -31,7 +31,7 @@ async function postCategory(req: PostCategoryRequest, res: Response): Promise<vo
 }
 
 async function getOffers(req: Request, res: Response): Promise<void> {
-    const userId: number = +req.query.userId
+    const userId: string = req.query.userId as string
     const product: string = req.query.product as string
     const productCategory: string = req.query.productCategory as string
     const longitude: number = +req.query.longitude

@@ -22,8 +22,8 @@ router.get('/locations/:userId/', authUser, locationsController.getUserLocationR
 router.post('/locations/:userId/', authUser, locationsController.postLocationRecords)
 
 router.get('/trading/offers/', tradingController.getOffers)
-router.post('/trading/offers/', tradingController.postOffer)
-router.patch('/trading/offers/:offerId/', tradingController.patchOffer)
+router.post('/trading/offers/', authUser, tradingController.postOffer)
+router.patch('/trading/offers/:offerId/', authUser, tradingController.patchOffer)
 
 router.get('/trading/categories/', tradingController.getCategories)
-router.post('/trading/categories/', tradingController.postCategory)
+router.post('/trading/categories/', authAdmin, tradingController.postCategory)

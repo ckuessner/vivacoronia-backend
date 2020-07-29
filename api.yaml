@@ -321,6 +321,12 @@ paths:
           description: Created
         "400":
           description: Error creating the offer record
+      parameters:
+        - name: jwt
+          in: header
+          schema:
+           type: string
+          required: true
   
   /trading/offers/{offerId}:
     patch:
@@ -351,6 +357,11 @@ paths:
           description: The id of the offer
           schema:
             $ref: "#/components/schemas/offerId"
+        - name: jwt
+          in: header
+          schema:
+            type: string
+          required: true
   
   /trading/categories/:
     get:
@@ -386,6 +397,12 @@ paths:
           description: property \"name\" was not specified
         "500":
           description: An error ocurred
+      parameters:
+        - name: adminjwt
+          in: header
+          schema:
+            type: string
+          required: true
 
 components:
   schemas:

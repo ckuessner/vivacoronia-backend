@@ -8,7 +8,6 @@ async function getCategories(): Promise<string[]> {
 }
 
 async function addCategory(name: string): Promise<ProductCategoryDocument> {
-    // TODO: add admin check
     return ProductCategory.create({ name })
 }
 
