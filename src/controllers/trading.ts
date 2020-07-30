@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { LeanProductOffer, ProductOfferPatch } from '../db/trading/models/ProductOffer';
 import tradingDb from '../db/trading/trading';
 import { PatchOfferRequest, PostCategoryRequest } from '../types/trading';
+import { LeanProductNeed } from '../db/trading/models/ProductNeed';
 
 async function getCategories(_: Request, res: Response): Promise<void> {
     try {
@@ -132,4 +133,15 @@ async function patchOffer(req: PatchOfferRequest, res: Response): Promise<void> 
     }
 }
 
-export default { getCategories, postCategory, getOffers, postOffer, patchOffer }
+async function postProductNeed(req: Request, res: Response): Promise<void> {
+    try {
+        const productNeed = await tradingDb.addProductNeed(req.body as LeanProductNeed)
+        res.status(201).json(productNeed)
+    } catch (e) {
+        console.error("Error trying to create ProductNeed from POST body: ", e)
+        res.sendStatus(400)
+    }
+
+}
+
+export default { getCategories, postCategory, getOffers, postOffer, patchOffer, postProductNeed }

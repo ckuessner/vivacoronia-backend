@@ -2,6 +2,7 @@ import { escapeRegExp } from 'lodash';
 import sanitize from "mongo-sanitize";
 import ProductCategory, { ProductCategoryDocument } from "./models/ProductCategory";
 import ProductOfferRecord, { LeanProductOffer, ProductOfferDocument, ProductOfferPatch, ProductOfferQuery } from "./models/ProductOffer";
+import ProductNeedRecord, { ProductNeedDocument, LeanProductNeed } from "./models/ProductNeed";
 
 async function getCategories(): Promise<string[]> {
     return (await ProductCategory.find().lean()).map(doc => doc.name)
@@ -97,4 +98,8 @@ async function deactivateProductOffer(id: string, userId: string, sold: boolean)
     }
 }
 
-export default { getCategories, addCategory, getProductOffers, addProductOffer, updateProductOffer, deactivateProductOffer }
+async function addProductNeed(productNeed: LeanProductNeed): Promise<ProductNeedDocument> {
+    return ProductNeedRecord.create(productNeed)
+}
+
+export default { getCategories, addCategory, getProductOffers, addProductOffer, updateProductOffer, deactivateProductOffer, addProductNeed }

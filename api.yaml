@@ -419,6 +419,22 @@ paths:
           schema:
             type: string
           required: true
+  
+  /trading/product_need/:
+    post:
+      tags: [Trading]
+      description: Adds a new product need
+      requestBody: 
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductNeedRecord"
+      responses:
+        "201":
+          description: Created
+        "400":
+          description: Error creating the product need record
 
 components:
   schemas:
@@ -626,6 +642,28 @@ components:
         phoneNumber:
           type: string
           example: "+49 6151 16 23190"
+
+    ProductNeedRecord:
+      type: object
+      description: Contains details about a product need provided by a user
+      properties:
+        userId: 
+          $ref: "#/components/schemas/userId"
+        product: 
+          type: string
+          $ref: "#/components/schemas/product"
+        productCategory: 
+          type: string
+          $ref: "#/components/schemas/productCategory"
+        location: 
+          $ref: "#/components/schemas/GeoJSONPoint2D"
+        deactivatedAt: 
+          type: string
+          format: date-time
+          description: Timestamp of deactivation
+        fulfilled: 
+          type: boolean
+          description: True if this product need is fullfilled
 
     product:
       type: string
