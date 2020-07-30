@@ -37,7 +37,7 @@ describe('Test user authentication process', function () {
 
     it('denies jwt because of wrong password', function (done) {
         request(app)
-            .post('/userJWT/' + userId)
+            .post('/user/' + userId + '/login/')
             .send({ password: 'wrong password' })
             .expect(401)
             .end(done)
@@ -45,7 +45,7 @@ describe('Test user authentication process', function () {
 
     it('returns a new jwt with correct password', function (done) {
         request(app)
-            .post('/userJWT/' + userId + '/')
+            .post('/user/' + userId + '/login/')
             .send({ password: password })
             .expect(200)
             .expect('Content-Type', /json/)
@@ -79,8 +79,8 @@ describe('Test admin authentication', function () {
 
     it('returns a new admin jwt for correct admin password', function (done) {
         request(app)
-            .post('/adminJWT/')
-            .send({ password: 'thisPasswordIsDamnStrong!!!' })
+            .post('/admin/login/')
+            .send({ password: 'testPassword!!!' })
             .expect(200)
             .expect('Content-Type', /json/)
             .then(response => {
@@ -92,7 +92,7 @@ describe('Test admin authentication', function () {
 
     it('denies a new admin jwt for incorrect admin password', function (done) {
         request(app)
-            .post('/adminJWT/')
+            .post('/admin/login/')
             .send({ password: 'wrongPassword' })
             .expect(401)
             .end(done)
@@ -111,6 +111,13 @@ describe('Test admin authentication', function () {
             .get('/locations/')
             .set({ adminjwt: 'abc.edf.aaa' })
             .expect(401)
+            .end(done)
+    })
+
+    it('denies access to all locations without admin jwt', function (done) {
+        request(app)
+            .get('/locations/')
+            .expect(400)
             .end(done)
     })
 

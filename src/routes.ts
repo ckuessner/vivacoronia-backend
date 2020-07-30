@@ -9,8 +9,8 @@ import { authUser, authAdmin } from "./middleware/auth"
 export const router = Router();
 
 router.post('/user/', userAccountsController.createNewUserId)
-router.post('/userJWT/:userId/', userAccountsController.newJSONWebToken)
-router.post('/adminJWT/', userAccountsController.newAdminToken)
+router.post('/user/:userId/login/', userAccountsController.newJSONWebToken)
+router.post('/admin/login/', userAccountsController.newAdminToken)
 
 router.get('/infection/:userId/', authUser, infectionController.getInfection)
 router.post('/infection/:userId/', authUser, infectionController.postInfection)

@@ -61,7 +61,6 @@ export function validateJWT(token: string, userId: string): boolean {
     });
   } catch (error) {
     // if token is invalid it raises an TypeError
-    console.error("Invalid Token")
     return false
   }
 }

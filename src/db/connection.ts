@@ -2,6 +2,8 @@ import mongoose from "mongoose";
 import bcrypt from 'bcryptjs';
 import AdminPasswordRecord, { IAdminPasswordRecord } from "./Users/models/AdminPasswordRecord";
 import { isNull } from "util";
+import { readFileSync } from 'fs';
+import path from 'path';
 
 const connectionString: string = process.env.MONGODB_CONNECTION_STRING || 'mongodb://localhost/'
 
@@ -18,7 +20,8 @@ async function setupAdminAccount(): Promise<void> {
 
         const saltRounds = 10
 
-        const password = "thisPasswordIsDamnStrong!!!"
+        const filePath = path.join(__dirname, '..', '..', 'res', 'adminPassword');
+        const password = readFileSync(filePath, 'utf8');
 
         const salt = await bcrypt.genSalt(saltRounds)
         const hashPassword = await bcrypt.hash(password.toString(), salt)

@@ -1,6 +1,6 @@
 import WebSocket from 'ws'
 import express from 'express'
-import { IContactRecord } from "../db/models/ContactRecord"
+import { IContactRecord } from "../db/Tracking/models/ContactRecord"
 
 // map with userID and corresponding websocket
 export const userIDToSocketMap = new Map<string, WebSocket>()

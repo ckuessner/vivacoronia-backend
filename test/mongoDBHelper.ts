@@ -14,7 +14,7 @@ async function setupAdminAccount(): Promise<void> {
 
         const saltRounds = 10
 
-        const password = "thisPasswordIsDamnStrong!!!"
+        const password = "testPassword!!!"
 
         const salt = await bcrypt.genSalt(saltRounds)
         const hashPassword = await bcrypt.hash(password.toString(), salt)

@@ -24,14 +24,14 @@ export async function createNewUserAccount(password: string): Promise<IUserAccou
 }
 
 export async function getAllUserAccounts(): Promise<IUserAccountRecord[]> {
-  return UserAccountRecord.find()
+  return await UserAccountRecord.find()
 }
 
 export async function getUserAccount(userId: string): Promise<IUserAccountRecord | null> {
 
   // check if valid ObjectId format, otherwise findOne will raise an CastError
   if (mongoose.Types.ObjectId.isValid(userId))
-    return UserAccountRecord.findOne({ _id: userId })
+    return await UserAccountRecord.findOne({ _id: userId })
 
   return null
 }
@@ -60,7 +60,7 @@ export async function validateAdminPassword(password: string): Promise<boolean> 
   }
   else {
 
-    const checkPassHash: boolean = await bcrypt.compare(password.toString(), adminPassword.password.toString())
+    const checkPassHash: boolean = await bcrypt.compare(password, adminPassword.password.toString())
 
     if (checkPassHash) {
       return true

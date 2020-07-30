@@ -16,12 +16,13 @@ export async function createNewUserId(req: Request, res: Response): Promise<void
 
   const record: IUserAccountRecord = await userAccountDb.createNewUserAccount(password)
 
-  console.log(record)
-
   const json = {
-    "userId": record._id as string,
+    "userId": record._id, // as string
     "timeCreated": record.timeCreated
   }
+
+  console.log("Created new user account: " + json)
+
   res.json(json)
 }
 

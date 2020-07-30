@@ -44,7 +44,7 @@ paths:
                 newUser:
                   $ref: "#/components/examples/newUserId"
 
-  /userJWT/{userId}/:
+  /user/{userId}/login:
     post:
       tags: [User Creation and Authentication]
       description: Returns a new JWT for a specific userId
@@ -78,7 +78,7 @@ paths:
           schema:
             $ref: "#/components/schemas/userId"
   
-  /adminJWT/:
+  /admin/login/:
     post:
       tags: [Admin authentication]
       description: Returns a new JWT for admin functionality

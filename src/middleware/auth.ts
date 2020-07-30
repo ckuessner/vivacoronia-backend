@@ -5,26 +5,22 @@ import { isEmpty } from "lodash";
 
 
 async function authUser(req: Request, res: Response, next: NextFunction): Promise<void> {
-    let userId = req.params.userId as string
 
-    if (isEmpty(userId)) {
-        // get from body
-        userId = req.body.userId as string
+    if (!isString(req.params.userId) || isEmpty(req.params.userId)) {
+        res.status(400).send("Invalid userId")
     }
 
+    const userId: string = req.params.userId
+
     if (!isString(req.headers.jwt)) {
-        console.error("Invalid JWT format")
-        res.statusMessage = "Invalid JWT format"
-        res.sendStatus(400)
+        res.status(400).send("Invalid format or missing JWT")
         return
     }
     const token: string = req.headers.jwt;
 
     if (!validateJWT(token, userId)) {
         // invalid token
-        console.error("Invalid JWT or user does not exist")
-        res.statusMessage = "Invalid JWT or user does not exist"
-        res.sendStatus(401)
+        res.status(401).send("Invalid JWT or user does not exist")
         return
     }
 
@@ -33,9 +29,7 @@ async function authUser(req: Request, res: Response, next: NextFunction): Promis
 
 async function authAdmin(req: Request, res: Response, next: NextFunction): Promise<void> {
     if (!isString(req.headers.adminjwt)) {
-        console.error("Invalid JWT format")
-        res.statusMessage = "Invalid JWT format"
-        res.sendStatus(400)
+        res.status(400).send("Invalid format or missing JWT")
         return
     }
 
@@ -43,9 +37,7 @@ async function authAdmin(req: Request, res: Response, next: NextFunction): Promi
 
     if (!validateJWT(token, "admin")) {
         // invalid token
-        console.error("Invalid JWT")
-        res.statusMessage = "Invalid JWT"
-        res.sendStatus(401)
+        res.status(401).send("Invalid JWT")
         return
     }
 

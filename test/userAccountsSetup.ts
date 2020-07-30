@@ -16,7 +16,7 @@ export async function createUserAccount(password: string): Promise<string> {
 export async function getUserJWT(userId: string, password: string): Promise<string> {
     let ret = ""
     await request(app)
-        .post('/userJWT/' + userId + '/')
+        .post('/user/' + userId + '/login/')
         .send({ password: password })
         .then(response => {
             ret = response.body.jwt
@@ -28,8 +28,8 @@ export async function getUserJWT(userId: string, password: string): Promise<stri
 export async function getAdminJWT(): Promise<string> {
     let ret = ""
     await request(app)
-        .post('/adminJWT/')
-        .send({ password: "thisPasswordIsDamnStrong!!!" })
+        .post('/admin/login/')
+        .send({ password: "testPassword!!!" })
         .then(response => {
             ret = response.body.jwt
         })

@@ -52,7 +52,6 @@ function extractAggregateQuery(queryOptions: ProductOfferQuery): Record<string, 
 }
 
 async function addProductOffer(offer: LeanProductOffer): Promise<ProductOfferDocument> {
-    // TODO: set correct userId
     return ProductOfferRecord.create(offer)
 }
 
