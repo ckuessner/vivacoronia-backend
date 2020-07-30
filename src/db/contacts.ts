@@ -66,11 +66,11 @@ function contactRecordReducer(userId: number) {
     }
 }
 
-export async function getAllContactRecords(): Promise<Array<IContactRecord>> {
+async function getAllContactRecords(): Promise<Array<IContactRecord>> {
     return ContactRecord.find().populate('locationRecord')
 }
 
-export async function getAllContactRecordsForIDs(ids: number[]) {
+async function getAllContactRecordsForIDs(ids: number[]): Promise<Array<IContactRecord>> {
     const idContactRequests = ids.map((id: number) => ContactRecord.find({ $or: [{ userID: id }, { infectedUserId: id }] }).populate('locationRecord'))
     const idContacts = await Promise.all(idContactRequests)
     return idContacts.flat()
