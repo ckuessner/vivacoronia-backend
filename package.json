@@ -10,6 +10,7 @@
     "watch": "nodemon",
     "tsc": "tsc",
     "lint": "eslint ./src/ --ext .ts",
+    "lintfix": "eslint ./src/ --ext .ts --fix",
     "dev": "docker-compose build && docker-compose up -d",
     "prod": "docker-compose -f docker-compose.yml -f docker-compose.prod.yml build && docker-compose -f docker-compose.yml -f docker-compose.prod.yml up",
     "postinstall": "patch-package"
@@ -18,7 +19,9 @@
     "type": "git",
     "url": "git@git.rwth-aachen.de:iptk/ss20/team-foxtrot/backend.git"
   },
-  "engines" : { "node" : ">=14.0.0" },
+  "engines": {
+    "node": ">=14.0.0"
+  },
   "author": "Team Foxtrot @ IPTK TU Darmstat",
   "license": "ISC",
   "dependencies": {

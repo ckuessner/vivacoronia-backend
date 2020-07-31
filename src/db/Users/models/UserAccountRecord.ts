@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/interface-name-prefix */
 import mongoose, { Schema, Document } from "mongoose";
 
 const UserAccountRecordSchema: Schema = new Schema({
@@ -14,7 +13,7 @@ const UserAccountRecordSchema: Schema = new Schema({
 
 export interface IUserAccountRecord extends Document {
   timeCreated: Date;
-  passwordHash: String;
+  passwordHash: string;
 }
 
 export default mongoose.model<IUserAccountRecord>('UserAccountRecord', UserAccountRecordSchema);

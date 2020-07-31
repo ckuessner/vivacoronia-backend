@@ -8,7 +8,7 @@ interface ILocationRecordGeoQueryResult extends ILocationRecord {
     distanceToInfected: number
 }
 
-async function findContacts(userId: String, infectionDate: Date): Promise<Array<IContactRecord>> {
+async function findContacts(userId: string, infectionDate: Date): Promise<Array<IContactRecord>> {
     const TIME_DISTANCE = TIME_RANGE_PER_LOCATIONRECORD / 2;
 
     const infectedLocations: ILocationRecord[] = await LocationRecord.find({
@@ -47,7 +47,7 @@ async function findContacts(userId: String, infectionDate: Date): Promise<Array<
         ) as IContactRecord[]
 }
 
-function contactRecordReducer(userId: String) {
+function contactRecordReducer(userId: string) {
     return async function appendCreatedDocumentIfNotExist(
         contacts: Array<IContactRecord>,
         locationRecord: ILocationRecordGeoQueryResult

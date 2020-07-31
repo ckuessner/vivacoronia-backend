@@ -20,7 +20,7 @@ const InfectionRecordSchema: Schema = new Schema({
 })
 
 export interface IInfectionRecord extends Document {
-    userId: String;
+    userId: string;
     newStatus: "infected" | "recovered";
     dateOfTest: Date;
     occuredDateEstimation?: Date;

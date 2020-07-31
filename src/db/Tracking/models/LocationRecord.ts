@@ -40,7 +40,7 @@ const LocationRecordSchema: Schema = new Schema({
 })
 
 export interface ILocationRecord extends Document {
-    userId: String;
+    userId: string;
     time: Date;
     location: {
         type: 'Point';

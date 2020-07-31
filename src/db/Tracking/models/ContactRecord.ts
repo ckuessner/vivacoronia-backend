@@ -20,8 +20,8 @@ const ContactRecordSchema: Schema = new Schema({
 ContactRecordSchema.index({ infectedUserId: 1, locationRecord: 1 }, { unique: true })
 
 export interface IContactRecord extends Document {
-    userId: String;
-    infectedUserId: String;
+    userId: string;
+    infectedUserId: string;
     /**
      * The locationRecord of the person that comes in contact with the infected person.
      */

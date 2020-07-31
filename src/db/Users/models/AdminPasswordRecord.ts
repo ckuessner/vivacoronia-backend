@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/interface-name-prefix */
 import mongoose, { Schema, Document } from "mongoose";
 
 const AdminPasswordRecordSchema: Schema = new Schema({
@@ -15,7 +14,7 @@ const AdminPasswordRecordSchema: Schema = new Schema({
 
 export interface IAdminPasswordRecord extends Document {
     timeCreated: Date;
-    passwordHash: String;
+    passwordHash: string;
 }
 
 export default mongoose.model<IAdminPasswordRecord>('AdminPasswordRecord', AdminPasswordRecordSchema);
