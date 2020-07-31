@@ -35,7 +35,7 @@ export async function validatePassword(userId: string, password: string): Promis
 
   if (!isNull(userAccount)) {
 
-    const checkPasswordHash: boolean = await bcrypt.compare(password.toString(), userAccount.passwordHash.toString())
+    const checkPasswordHash: boolean = await bcrypt.compare(password, userAccount.passwordHash)
 
     if (checkPasswordHash) {
       return true

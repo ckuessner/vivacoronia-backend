@@ -83,9 +83,9 @@ describe('GET /locations/:userId/', function () {
         expect(res.body).to.have.lengthOf(1)
         expect(res.body).to.containSubset([testRecords[0]])
     })
-    /*it('responds with 200 when user nonexistent', async function () {
+    /*it('responds with 200 when user nonexistent and requester is admin', async function () {
         await LocationRecord.insertMany(testRecords)
-        const res = await request(app).get('/locations/10101010/')
+        const res = await request(app).get('/locations/507f1f77bcf86cd799439011/').set({ jwt: adminJWT })
         expect(res.status).to.equal(200)
         expect(res.body).to.be.an('array')
         expect(res.body).to.have.lengthOf(0)

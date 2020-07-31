@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { ProductOfferPatch, LeanProductOffer } from '../db/trading/models/ProductOffer';
 import tradingDb from '../db/trading/trading';
 import { PatchOfferRequest, PostCategoryRequest } from '../types/trading'
+import { AuthenticatedUserResponse } from '../types/auth';
 
 async function getCategories(_: Request, res: Response): Promise<void> {
     try {
@@ -44,21 +45,19 @@ async function getOffers(req: Request, res: Response): Promise<void> {
     res.status(200).json(offers)
 }
 
-async function postOffer(req: Request, res: Response): Promise<void> {
+async function postOffer(req: Request, res: AuthenticatedUserResponse): Promise<void> {
     try {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         delete req.body._id
-        const userId: string = req.params.userId
-
+        // An array wouldn't be checked correctly by the middleware
+        if (req.body instanceof Array) {
+            res.sendStatus(400)
+            return
+        }
         const reqOffer = req.body as LeanProductOffer
-
-        if (userId === reqOffer.userId) {
-            const offer = await tradingDb.addProductOffer(reqOffer)
-            res.status(201).json(offer)
-        }
-        else {
-            res.status(400).send("User does not exist or match to token")
-        }
+        reqOffer.userId = req.params.userId
+        const offer = await tradingDb.addProductOffer(reqOffer)
+        res.status(201).json(offer)
     } catch (e) {
         console.error("Error trying to create ProductOfferRecord from POST body: ", e)
         res.sendStatus(400)
@@ -66,7 +65,7 @@ async function postOffer(req: Request, res: Response): Promise<void> {
     }
 }
 
-async function patchOffer(req: PatchOfferRequest, res: Response): Promise<void> {
+async function patchOffer(req: PatchOfferRequest, res: AuthenticatedUserResponse): Promise<void> {
     const offerId: string = req.params.offerId
     if (!offerId) {
         res.statusMessage = "Please provide the parameter \"offerId\" by including it in the URL path"
@@ -92,7 +91,7 @@ async function patchOffer(req: PatchOfferRequest, res: Response): Promise<void> 
         sold: req.body.sold,
     } as ProductOfferPatch
 
-    const userId: string = req.params.userId
+    const userId = res.locals.userId
 
     try {
         const updatedOffer = await tradingDb.updateProductOffer(offerId, userId, patch)
