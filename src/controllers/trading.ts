@@ -48,8 +48,17 @@ async function postOffer(req: Request, res: Response): Promise<void> {
     try {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         delete req.body._id
-        const offer = await tradingDb.addProductOffer(req.body as LeanProductOffer)
-        res.status(201).json(offer)
+        const userId: string = req.params.userId
+
+        const reqOffer = req.body as LeanProductOffer
+
+        if (userId === reqOffer.userId) {
+            const offer = await tradingDb.addProductOffer(reqOffer)
+            res.status(201).json(offer)
+        }
+        else {
+            res.status(400).send("User does not exist or match to token")
+        }
     } catch (e) {
         console.error("Error trying to create ProductOfferRecord from POST body: ", e)
         res.sendStatus(400)
@@ -83,8 +92,11 @@ async function patchOffer(req: PatchOfferRequest, res: Response): Promise<void> 
         sold: req.body.sold,
     } as ProductOfferPatch
 
+    const userId: string = req.params.userId
+
     try {
-        const updatedOffer = await tradingDb.updateProductOffer(offerId, patch)
+        const updatedOffer = await tradingDb.updateProductOffer(offerId, userId, patch)
+        console.log(updatedOffer)
         res.status(200).json(updatedOffer)
     } catch (e) {
         console.error(`Error trying to update offer ${offerId}`, e)

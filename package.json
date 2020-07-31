@@ -18,6 +18,7 @@
     "type": "git",
     "url": "git@git.rwth-aachen.de:iptk/ss20/team-foxtrot/backend.git"
   },
+  "engines" : { "node" : ">=14.0.0" },
   "author": "Team Foxtrot @ IPTK TU Darmstat",
   "license": "ISC",
   "dependencies": {
@@ -40,7 +41,6 @@
     "lodash": "^4.17.19",
     "mongo-sanitize": "^1.1.0",
     "mongoose": "^5.9.22",
-    "node": "^14.5.0",
     "patch-package": "^6.2.2",
     "swagger-ui-express": "^4.1.4",
     "typescript": "^3.9.7",

@@ -65,16 +65,14 @@ function sanitizeProductOfferPatch(patch: Record<string, unknown>): ProductOffer
     return patch
 }
 
-async function updateProductOffer(id: string, patch: ProductOfferPatch): Promise<ProductOfferDocument | null> {
+async function updateProductOffer(id: string, userId: string, patch: ProductOfferPatch): Promise<ProductOfferDocument | null> {
     const sanitizedPatch = sanitizeProductOfferPatch(patch as Record<string, unknown>)
-    // TODO: add userId from JWT to query, so that users can't modify other users ProductOffers
-    return ProductOfferRecord.findOneAndUpdate({ _id: id }, sanitizedPatch, { new: true, runValidators: true })
+    return ProductOfferRecord.findOneAndUpdate({ _id: id, userId: userId }, sanitizedPatch, { new: true, runValidators: true })
 }
 
-async function deactivateProductOffer(id: string, sold: boolean): Promise<boolean> {
+async function deactivateProductOffer(id: string, userId: string, sold: boolean): Promise<boolean> {
     try {
-        // TODO: add userId from JWT to query, so that users can't modify other users ProductOffers
-        await ProductOfferRecord.findOneAndUpdate({ _id: id }, { deactivatedAt: new Date(), sold })
+        await ProductOfferRecord.findOneAndUpdate({ _id: id, userId: userId }, { deactivatedAt: new Date(), sold })
         return true
     } catch (e) {
         console.error(`Unable to delete offer with "${id}": `, e)

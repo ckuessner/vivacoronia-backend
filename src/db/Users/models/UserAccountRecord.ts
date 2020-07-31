@@ -6,21 +6,15 @@ const UserAccountRecordSchema: Schema = new Schema({
     type: Date,
     required: true
   },
-  password: {
-    type: String,
-    required: true
-  },
-  salt: {
+  passwordHash: {
     type: String,
     required: true
   }
-
 })
 
 export interface IUserAccountRecord extends Document {
   timeCreated: Date;
-  password: String;
-  salt: String;
+  passwordHash: String;
 }
 
 export default mongoose.model<IUserAccountRecord>('UserAccountRecord', UserAccountRecordSchema);

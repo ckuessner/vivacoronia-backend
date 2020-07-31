@@ -5,9 +5,7 @@ export async function addLocationRecords(locationRecords: ILocationRecord[]): Pr
         locationRecords
     ).then((record: Array<ILocationRecord>) => {
         return record
-    }).catch((error: Error) => {
-        throw error
-    });
+    })
 }
 
 export async function getAllLocationRecordsOfUser(userId: ILocationRecord['userId'], start: string | undefined, end: string | undefined): Promise<ILocationRecord[]> {

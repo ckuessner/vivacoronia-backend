@@ -2,39 +2,30 @@ import app from '../src/app'
 import request from 'supertest';
 
 export async function createUserAccount(password: string): Promise<string> {
-    let ret = ""
-    await request(app)
+    return await request(app)
         .post('/user/')
         .send({ password: password })
         .then(response => {
-            ret = response.body.userId
+            return response.body.userId
         })
-
-    return ret
 }
 
 export async function getUserJWT(userId: string, password: string): Promise<string> {
-    let ret = ""
-    await request(app)
+    return await request(app)
         .post('/user/' + userId + '/login/')
         .send({ password: password })
         .then(response => {
-            ret = response.body.jwt
+            return response.body.jwt
         })
-
-    return ret
 }
 
 export async function getAdminJWT(): Promise<string> {
-    let ret = ""
-    await request(app)
+    return await request(app)
         .post('/admin/login/')
         .send({ password: "testPassword!!!" })
         .then(response => {
-            ret = response.body.jwt
+            return response.body.jwt
         })
-
-    return ret
 }
 
 export async function getUserAccountRecords(amount: number): Promise<Array<Record<string, string>>> {

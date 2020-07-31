@@ -9,7 +9,6 @@ export async function createNewUserId(req: Request, res: Response): Promise<void
   const password = body.password
 
   if (!isString(password) || password === "") {
-    console.error("Invalid password")
     res.sendStatus(400)
     return
   }
@@ -17,11 +16,11 @@ export async function createNewUserId(req: Request, res: Response): Promise<void
   const record: IUserAccountRecord = await userAccountDb.createNewUserAccount(password)
 
   const json = {
-    "userId": record._id, // as string
+    "userId": record._id as string,
     "timeCreated": record.timeCreated
   }
 
-  console.log("Created new user account: " + json)
+  console.log("Created new user account: " + String(json.userId))
 
   res.json(json)
 }
@@ -36,17 +35,17 @@ export async function newJSONWebToken(req: Request, res: Response): Promise<void
 
   if (validator) {
 
-    const token = generateAccessJWT(userId)
+    const token = await generateAccessJWT(userId)
 
     const json = {
       "jwt": token
     }
 
+    console.log("User " + userId + " gets token")
     res.json(json)
   }
   else {
     // password is not correct for user or no such userId 
-    console.error("No such userId or incorrect password")
     res.sendStatus(401)
   }
 }
@@ -59,17 +58,17 @@ export async function newAdminToken(req: Request, res: Response): Promise<void> 
 
   if (validator) {
 
-    const token = generateAdminJWT()
+    const token = await generateAdminJWT()
 
     const json = {
       "jwt": token
     }
 
+    console.log("Admin token was granted")
     res.json(json)
   }
   else {
     // password is not correct
-    console.error("incorrect password")
     res.sendStatus(401)
   }
 }

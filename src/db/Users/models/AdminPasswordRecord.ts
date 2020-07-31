@@ -6,11 +6,7 @@ const AdminPasswordRecordSchema: Schema = new Schema({
         type: Date,
         required: true
     },
-    password: {
-        type: String,
-        required: true
-    },
-    salt: {
+    passwordHash: {
         type: String,
         required: true
     }
@@ -19,8 +15,7 @@ const AdminPasswordRecordSchema: Schema = new Schema({
 
 export interface IAdminPasswordRecord extends Document {
     timeCreated: Date;
-    password: String;
-    salt: String;
+    passwordHash: String;
 }
 
 export default mongoose.model<IAdminPasswordRecord>('AdminPasswordRecord', AdminPasswordRecordSchema);

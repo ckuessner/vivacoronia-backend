@@ -18,18 +18,14 @@ async function setupAdminAccount(): Promise<void> {
 
     if (isNull(adminPassword)) {
 
-        const saltRounds = 10
-
         const filePath = path.join(__dirname, '..', '..', 'res', 'adminPassword');
         const password = readFileSync(filePath, 'utf8');
 
-        const salt = await bcrypt.genSalt(saltRounds)
-        const hashPassword = await bcrypt.hash(password.toString(), salt)
+        const hashPassword = await bcrypt.hash(password, 10)
 
         AdminPasswordRecord.create({
             "timeCreated": new Date().toISOString(),
-            "password": hashPassword,
-            "salt": salt
+            "passwordHash": hashPassword,
         }).then((record: IAdminPasswordRecord) => {
             console.log("Created Admin account: \n" + String(record))
         }).catch((error: Error) => {

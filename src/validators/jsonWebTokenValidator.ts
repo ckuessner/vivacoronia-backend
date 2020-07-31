@@ -1,19 +1,34 @@
-import { readFileSync } from 'fs';
-import { KJUR } from 'jsrsasign';
+import { promises as fs } from 'fs';
+import { KJUR, b64toutf8 } from 'jsrsasign';
 import path from 'path';
+import { JsonObject } from 'swagger-ui-express';
 
-function loadKeyFromFile(filename: string): string {
+const publicPrivateKeyBuffer = new Map<string, string>()
+
+async function loadKeyFromFile(filename: string): Promise<string> {
   const filePath = path.join(__dirname, '..', '..', 'res', 'jwtKeys', filename);
-  const fileContent = readFileSync(filePath, 'utf8');
 
-  return fileContent;
+  const data = await fs.readFile(filePath, 'utf8');
+
+  return data
 }
 
-function generateJWT(userId: string): string {
+async function getKeyFromBuffer(filename: string): Promise<string> {
+  let buffer = publicPrivateKeyBuffer.get(filename)
+
+  if (buffer == undefined || buffer.length === 0) {
+    buffer = await loadKeyFromFile(filename)
+    publicPrivateKeyBuffer.set(filename, buffer)
+  }
+
+  return String(buffer)
+}
+
+async function generateJWT(userId: string): Promise<string> {
   // generates an access token for a user with userId or admin
   // we can use this function with userId = "admin" as admin jwt generation
 
-  const privateKey = loadKeyFromFile('private_key');
+  const privateKey = await getKeyFromBuffer('private_key');
 
   // Header
   const oHeader = {
@@ -37,19 +52,30 @@ function generateJWT(userId: string): string {
   return sJWT
 }
 
-export function generateAccessJWT(userId: string): string {
-  return generateJWT(userId)
+export async function getUserIdFromToken(jwt: string): Promise<string> {
+
+  const payloadObj = KJUR.jws.JWS.readSafeJSONString(b64toutf8(jwt.split(".")[1]))
+
+  if (payloadObj == null) {
+    return Promise.reject("Unable to decode payload of jwt")
+  }
+
+  return (payloadObj as JsonObject).sub as string
 }
 
-export function generateAdminJWT(): string {
-  return generateJWT("admin")
+export async function generateAccessJWT(userId: string): Promise<string> {
+  return await generateJWT(userId)
 }
 
-export function validateJWT(token: string, userId: string): boolean {
+export async function generateAdminJWT(): Promise<string> {
+  return await generateJWT("admin")
+}
+
+export async function validateJWT(token: string, userId: string): Promise<boolean> {
   // we can use this function with userId = "admin" as admin jwt validation
   // https://kjur.github.io/jsrsasign/api/symbols/KJUR.jws.JWS.html#.verifyJWT
   // https://kjur.github.io/jsrsasign/api/symbols/KJUR.jws.IntDate.html
-  const pubkey = loadKeyFromFile("public_key")
+  const pubkey = await getKeyFromBuffer("public_key")
 
   try {
     return KJUR.jws.JWS.verifyJWT(token, pubkey, {

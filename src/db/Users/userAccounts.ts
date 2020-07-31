@@ -7,20 +7,14 @@ import mongoose from 'mongoose'
 export async function createNewUserAccount(password: string): Promise<IUserAccountRecord> {
   const date = new Date().toISOString()
 
-  const saltRounds = 10;
-
-  const salt = await bcrypt.genSalt(saltRounds)
-  const hashPassword = await bcrypt.hash(password, salt)
+  const hashPassword = await bcrypt.hash(password, 10)
 
   return UserAccountRecord.create({
     "timeCreated": date,
-    "password": hashPassword,
-    "salt": salt
+    "passwordHash": hashPassword,
   }).then((record: IUserAccountRecord) => {
     return record
-  }).catch((error: Error) => {
-    throw error
-  });
+  })
 }
 
 export async function getAllUserAccounts(): Promise<IUserAccountRecord[]> {
@@ -33,7 +27,7 @@ export async function getUserAccount(userId: string): Promise<IUserAccountRecord
   if (mongoose.Types.ObjectId.isValid(userId))
     return await UserAccountRecord.findOne({ _id: userId })
 
-  return null
+  return Promise.reject()
 }
 
 export async function validatePassword(userId: string, password: string): Promise<boolean> {
@@ -41,7 +35,7 @@ export async function validatePassword(userId: string, password: string): Promis
 
   if (!isNull(userAccount)) {
 
-    const checkPasswordHash: boolean = await bcrypt.compare(password.toString(), userAccount.password.toString())
+    const checkPasswordHash: boolean = await bcrypt.compare(password.toString(), userAccount.passwordHash.toString())
 
     if (checkPasswordHash) {
       return true
@@ -55,12 +49,12 @@ export async function validateAdminPassword(password: string): Promise<boolean> 
   const adminPassword = await AdminPasswordRecord.findOne()
 
   if (isNull(adminPassword)) {
-    console.log("No Admin Account")
+    console.log("No Admin Account exists")
     return false
   }
   else {
 
-    const checkPassHash: boolean = await bcrypt.compare(password, adminPassword.password.toString())
+    const checkPassHash: boolean = await bcrypt.compare(password, adminPassword.passwordHash.toString())
 
     if (checkPassHash) {
       return true
