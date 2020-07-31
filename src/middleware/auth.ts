@@ -40,8 +40,6 @@ async function checkTokenAndExtractUserId(req: Request, res: Response, next: Nex
         // userId is set to params for further use for example to check against body
         req.params.userId = value
 
-        console.log("Value: " + value)
-
         void authUser(req, res, next)
         return
 
