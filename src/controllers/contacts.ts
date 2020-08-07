@@ -8,7 +8,7 @@ const TWO_WEEKS_MS = 14 * 24 * 60 * 60 * 1000
 
 async function getContactRecords(req: Request, res: Response): Promise<void> {
     if (typeof req.query.ids === 'string') {
-        const ids: number[] = req.query.ids.replace(/[^0-9,]/g, "").split(',').map(Number)
+        const ids: string[] = req.query.ids.replace(/[^0-9,]/g, "").split(',').map(String)
         const records: IContactRecord[] = await contactsDb.getAllContactRecordsForIDs(ids)
         res.json(records)
     }

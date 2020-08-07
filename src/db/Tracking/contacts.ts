@@ -70,8 +70,8 @@ async function getAllContactRecords(): Promise<Array<IContactRecord>> {
     return ContactRecord.find().populate('locationRecord')
 }
 
-async function getAllContactRecordsForIDs(ids: number[]): Promise<Array<IContactRecord>> {
-    const idContactRequests = ids.map((id: number) => ContactRecord.find({ $or: [{ userID: id }, { infectedUserId: id }] }).populate('locationRecord'))
+async function getAllContactRecordsForIDs(ids: string[]): Promise<Array<IContactRecord>> {
+    const idContactRequests = ids.map((id: string) => ContactRecord.find({ $or: [{ userID: id }, { infectedUserId: id }] }).populate('locationRecord'))
     const idContacts = await Promise.all(idContactRequests)
     return idContacts.flat()
 }
