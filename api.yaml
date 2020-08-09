@@ -1,10 +1,12 @@
 openapi: 3.0.2
 info:
   title: Tracing App Backend API
-  version: 0.0.1
+  version: 0.1.0
 servers:
+  - url: "https://vivacoronia.herokuapp.com"
+    description: Production server
   - url: "http://localhost:3000"
-    description: Development server
+    description: Development server on localhost
 tags:
   - name: Location Tracking
     description: Manage location tracking data
@@ -65,8 +67,7 @@ paths:
             application/json:
               schema:
                 type: string
-                items:
-                  "#components/schemas/JWT"
+                items: "#components/schemas/JWT"
               examples:
                 newJWT:
                   $ref: "#/components/examples/newJWT"
@@ -77,7 +78,7 @@ paths:
           description: The id of the user
           schema:
             $ref: "#/components/schemas/userId"
-  
+
   /admin/login/:
     post:
       tags: [Admin authentication]
@@ -99,8 +100,7 @@ paths:
             application/json:
               schema:
                 type: string
-                items:
-                  "#components/schemas/JWT"
+                items: "#components/schemas/JWT"
               examples:
                 newJWT:
                   $ref: "#/components/examples/newJWT"
@@ -259,7 +259,7 @@ paths:
           schema:
             type: string
           required: true
-  
+
   /trading/offers/:
     get:
       tags: [Trading]
@@ -285,7 +285,7 @@ paths:
         - name: productCategory
           in: query
           schema:
-            $ref: "#/components/schemas/productCategory" 
+            $ref: "#/components/schemas/productCategory"
         - name: longitude
           in: query
           schema:
@@ -297,7 +297,7 @@ paths:
         - name: radius
           in: query
           schema:
-            type: int64
+            type: integer
           example: 10000
           description: Radius in meters, default is 25000
         - name: includeInactive
@@ -325,9 +325,9 @@ paths:
         - name: jwt
           in: header
           schema:
-           type: string
+            type: string
           required: true
-  
+
   /trading/offers/{offerId}:
     patch:
       tags: [Trading]
@@ -362,7 +362,7 @@ paths:
           schema:
             type: string
           required: true
-  
+
   /trading/categories/:
     get:
       tags: [Trading]
@@ -386,9 +386,9 @@ paths:
             schema:
               type: object
               properties:
-                name: 
+                name:
                   type: string
-              example: 
+              example:
                 name: foods
       responses:
         "201":
@@ -581,11 +581,11 @@ components:
       properties:
         _id:
           $ref: "#/components/schemas/offerId"
-        userId: 
+        userId:
           $ref: "#/components/schemas/userId"
         product:
           $ref: "#/components/schemas/product"
-        amount: 
+        amount:
           type: number
           description: How much of the product is offered (1 time, 2 times, 5 times)
           example: 5
@@ -594,7 +594,7 @@ components:
         priceTotal:
           type: double
           example: 8.50
-        details: 
+        details:
           type: string
           details: Additional information or description of the offer or product
         location:
@@ -610,7 +610,7 @@ components:
     product:
       type: string
       example: Flour 1kg
-    
+
     productCategory:
       type: string
       description: Must be one of the categories already available (see getCategories), if not POST category
@@ -619,8 +619,7 @@ components:
     offerId:
       type: string
       example: 5f0eb3935f839100238c0fcb
-    
-    
+
   examples:
     locationArrayExample:
       summary: Array with two location ojects

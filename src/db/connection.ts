@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import bcrypt from 'bcryptjs';
 import AdminPasswordRecord, { IAdminPasswordRecord } from "./Users/models/AdminPasswordRecord";
 import { isNull } from "util";
-import { readFileSync } from 'fs';
+import { promises as fs } from 'fs';
 import path from 'path';
 
 const connectionString: string = process.env.MONGODB_CONNECTION_STRING || 'mongodb://localhost/'
@@ -17,20 +17,23 @@ async function setupAdminAccount(): Promise<void> {
     const adminPassword = await AdminPasswordRecord.findOne()
 
     if (isNull(adminPassword)) {
+        // Check if the ADMIN_PASSWORD is set in the process environment. Ignore if the string is empty.
+        let passwordHash;
+        if (process.env.ADMIN_PASSWORD && process.env.ADMIN_PASSWORD !== "") {
+            passwordHash = await bcrypt.hash(process.env.ADMIN_PASSWORD, 10)
+        } else {
+            const filePath = path.join(__dirname, '..', '..', 'res', 'adminPassword');
+            const password = await fs.readFile(filePath, 'utf8');
 
-        const filePath = path.join(__dirname, '..', '..', 'res', 'adminPassword');
-        const password = readFileSync(filePath, 'utf8');
+            passwordHash = await bcrypt.hash(password, 10)
+        }
 
-        const hashPassword = await bcrypt.hash(password, 10)
-
-        AdminPasswordRecord.create({
+        await AdminPasswordRecord.create({
             "timeCreated": new Date().toISOString(),
-            "passwordHash": hashPassword,
+            "passwordHash": passwordHash,
         }).then((record: IAdminPasswordRecord) => {
             console.log("Created Admin account: \n" + String(record))
-        }).catch((error: Error) => {
-            throw error
-        });
+        })
     }
 }
 
