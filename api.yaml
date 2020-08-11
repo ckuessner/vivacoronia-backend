@@ -420,7 +420,47 @@ paths:
             type: string
           required: true
   
-  /trading/product_need/:
+  /trading/needs/:
+    get:
+      tags: [Trading]
+      description: Retrieve needs by query parameters. Provide either both or none of latitude and longitude. They are also required when using radius
+      responses:
+        "200":
+          description: Array of ProductNeedRecords
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ProductNeedRecord"
+      parameters:
+        - name: userId
+          in: query
+          schema:
+            $ref: "#/components/schemas/userId"
+        - name: product
+          in: query
+          schema:
+            $ref: "#/components/schemas/product"
+        - name: productCategory
+          in: query
+          schema:
+            $ref: "#/components/schemas/productCategory" 
+        - name: longitude
+          in: query
+          schema:
+            $ref: "#/components/schemas/lat_long"
+        - name: latitude
+          in: query
+          schema:
+            $ref: "#/components/schemas/lat_long"
+        - name: radius
+          in: query
+          schema:
+            type: int64
+          example: 10000
+          description: Radius in meters, default is 25000
+          
     post:
       tags: [Trading]
       description: Adds a new product need

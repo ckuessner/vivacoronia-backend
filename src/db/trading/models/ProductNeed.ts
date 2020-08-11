@@ -48,4 +48,14 @@ export interface LeanProductNeed {
 
 export interface ProductNeedDocument extends LeanProductNeed, Document { }
 
+export interface ProductNeedQuery{
+    needId?: string;
+    userId?: number;
+    product?: string;
+    productCategory?: string;
+    longitude?: number;
+    latitude?: number;
+    radiusInMeters?: number; 
+}
+
 export default mongoose.model<ProductNeedDocument>('ProductNeedRecord', ProductNeedSchema);

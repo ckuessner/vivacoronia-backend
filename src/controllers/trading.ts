@@ -4,6 +4,47 @@ import tradingDb from '../db/trading/trading';
 import { PatchOfferRequest, PostCategoryRequest } from '../types/trading';
 import { LeanProductNeed } from '../db/trading/models/ProductNeed';
 
+function getRequestParameters(req: Request): {
+    userId: string;
+    product: string;
+    productCategory: string;
+    longitude: number | undefined;
+    latitude: number | undefined;
+    radiusInMeters: number;
+    includeInactive: boolean;
+    sortBy: string;
+    priceMin: number | undefined;
+    priceMax: number | undefined;
+} {
+    const userId: string = req.query.userId as string
+    const product: string = req.query.product as string
+    const productCategory: string = req.query.productCategory as string
+    const longitude: number | undefined = req.query.longitude ? +req.query.longitude : undefined
+    const latitude: number | undefined = req.query.latitude ? +req.query.latitude : undefined
+    const radiusInMeters: number = req.query.radiusInKm ? (+req.query.radiusInKm) * 1000 : -1
+    const includeInactive: boolean = req.query.includeInactive === 'true'
+    const priceMin: number | undefined = req.query.priceMin ? +req.query.priceMin : undefined
+    const priceMax: number | undefined = req.query.priceMax ? +req.query.priceMax : undefined
+    let sortBy: string = req.query.sortBy as string
+
+    if (sortBy) {
+        if (sortBy === 'name') {
+            sortBy = 'product'
+        }
+        else if (sortBy === 'price') {
+            sortBy = 'price'
+        }
+        else if (sortBy === 'distance' && longitude && latitude) {
+            sortBy = 'distanceToUser'
+        } else {
+            sortBy = ''
+        }
+    }
+
+    return { userId, product, productCategory, longitude, latitude, radiusInMeters, includeInactive, sortBy, priceMin, priceMax }
+
+}
+
 async function getCategories(_: Request, res: Response): Promise<void> {
     try {
         const categories = await tradingDb.getCategories()
@@ -32,32 +73,7 @@ async function postCategory(req: PostCategoryRequest, res: Response): Promise<vo
 }
 
 async function getOffers(req: Request, res: Response): Promise<void> {
-    const userId: string = req.query.userId as string
-    const product: string = req.query.product as string
-    const productCategory: string = req.query.productCategory as string
-    const longitude: number | undefined = req.query.longitude ? +req.query.longitude : undefined
-    const latitude: number | undefined = req.query.latitude ? +req.query.latitude : undefined
-    const radiusInMeters: number = req.query.radiusInKm ? (+req.query.radiusInKm) * 1000 : -1
-    const includeInactive: boolean = req.query.includeInactive === 'true'
-    const priceMin: number | undefined = req.query.priceMin ? +req.query.priceMin : undefined
-    const priceMax: number | undefined = req.query.priceMax ? +req.query.priceMax : undefined
-    let sortBy: string = req.query.sortBy as string
-
-    if (sortBy) {
-        if (sortBy === 'name') {
-            sortBy = 'product'
-        }
-        else if (sortBy === 'price') {
-            sortBy = 'price'
-        }
-        else if (sortBy === 'distance' && longitude && latitude) {
-            sortBy = 'distanceToUser'
-        } else {
-            sortBy = ''
-        }
-    }
-
-    const queryOptions = { userId, product, productCategory, longitude, latitude, radiusInMeters, includeInactive, sortBy, priceMin, priceMax }
+    const queryOptions = getRequestParameters(req)
     const offers = await tradingDb.getProductOffers(queryOptions)
     res.status(200).json(offers)
 }
@@ -133,7 +149,16 @@ async function patchOffer(req: PatchOfferRequest, res: Response): Promise<void> 
     }
 }
 
-async function postProductNeed(req: Request, res: Response): Promise<void> {
+//==========================================================================================
+// Needs
+
+async function getNeeds(req: Request, res: Response): Promise<void> {
+    const queryOptions = getRequestParameters(req)
+    const needs = await tradingDb.getProductNeeds(queryOptions)
+    res.status(200).json(needs)
+}
+
+async function postNeed(req: Request, res: Response): Promise<void> {
     try {
         const productNeed = await tradingDb.addProductNeed(req.body as LeanProductNeed)
         res.status(201).json(productNeed)
@@ -144,4 +169,4 @@ async function postProductNeed(req: Request, res: Response): Promise<void> {
 
 }
 
-export default { getCategories, postCategory, getOffers, postOffer, patchOffer, postProductNeed }
+export default { getCategories, postCategory, getOffers, postOffer, patchOffer, postNeed, getNeeds }

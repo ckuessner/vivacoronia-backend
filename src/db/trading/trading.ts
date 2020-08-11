@@ -2,7 +2,7 @@ import { escapeRegExp } from 'lodash';
 import sanitize from "mongo-sanitize";
 import ProductCategory, { ProductCategoryDocument } from "./models/ProductCategory";
 import ProductOfferRecord, { LeanProductOffer, ProductOfferDocument, ProductOfferPatch, ProductOfferQuery } from "./models/ProductOffer";
-import ProductNeedRecord, { ProductNeedDocument, LeanProductNeed } from "./models/ProductNeed";
+import ProductNeedRecord, { ProductNeedDocument, LeanProductNeed, ProductNeedQuery } from "./models/ProductNeed";
 
 async function getCategories(): Promise<string[]> {
     return (await ProductCategory.find().lean()).map(doc => doc.name)
@@ -13,7 +13,7 @@ async function addCategory(name: string): Promise<ProductCategoryDocument> {
 }
 
 async function getProductOffers(queryOptions: ProductOfferQuery): Promise<ProductOfferDocument[]> {
-    return (await ProductOfferRecord.aggregate(extractAggregateQuery(queryOptions)))
+    return (await ProductOfferRecord.aggregate(extractAggregateOfferQuery(queryOptions)))
 }
 
 const priceConversion = {
@@ -22,7 +22,29 @@ const priceConversion = {
     }
 }
 
-function extractAggregateQuery(queryOptions: ProductOfferQuery): Record<string, unknown>[] {
+function getLocationQuery(lon: number, lat: number, radiusInMeters: number): {
+    $geoNear?: {
+        near: {
+            type: string;
+            coordinates: number[];
+        };
+        distanceField: string;
+        maxDistance: number;
+    };
+} {
+    return {
+        ...(lon && lat &&
+        {
+            $geoNear: {
+                near: { type: "Point", coordinates: [lon, lat] },
+                distanceField: "distanceToUser",
+                maxDistance: radiusInMeters
+            }
+        })
+    }
+}
+
+function extractAggregateOfferQuery(queryOptions: ProductOfferQuery): Record<string, unknown>[] {
     // Should be sanitized, to prevent query injection
     queryOptions.product = escapeRegExp(queryOptions.product)
     const { offerId, userId, product, productCategory, longitude, latitude, radiusInMeters, includeInactive, sortBy, priceMin, priceMax } = sanitize(queryOptions)
@@ -43,18 +65,7 @@ function extractAggregateQuery(queryOptions: ProductOfferQuery): Record<string, 
         }
     }
 
-    const locationQuery = {
-        ...(longitude && latitude &&
-        {
-            $geoNear: {
-                near: { type: "Point", coordinates: [longitude, latitude] },
-                distanceField: "distanceToUser",
-                distanceMultiplier: 0.001,
-                spherical: true,
-                ...(radiusInMeters && radiusInMeters > 0 && { maxDistance: radiusInMeters })
-            }
-        })
-    }
+    const locationQuery = getLocationQuery(longitude as number, latitude as number, radiusInMeters as number)
 
     const sortQuery = {
         ...(sortBy) &&
@@ -67,6 +78,24 @@ function extractAggregateQuery(queryOptions: ProductOfferQuery): Record<string, 
 
     // The aggregation doesn't accept empty pipeline stages, if no parameters for some stage are provided, remove the empty pipeline stages.
     return [locationQuery, productQuery, priceConversion, sortQuery].filter(query => Object.keys(query).length != 0)
+}
+
+function extractAggregateNeedQuery(queryOptions: ProductNeedQuery): Record<string, unknown>[] {
+    queryOptions.product = escapeRegExp(queryOptions.product)
+    const { needId, userId, product, productCategory, longitude, latitude, radiusInMeters } = sanitize(queryOptions)
+
+    const productQuery = {
+        $match: {
+            ...(needId && { needId }),
+            ...(userId && { userId }),
+            ...(product && { product: new RegExp(product, 'i') }),
+            ...(productCategory && { productCategory }),
+        }
+    }
+
+    const locationQuery = getLocationQuery(longitude as number, latitude as number, radiusInMeters as number)
+
+    return [locationQuery, productQuery].filter(query => Object.keys(query).length != 0)
 }
 
 async function addProductOffer(offer: LeanProductOffer): Promise<ProductOfferDocument> {
@@ -98,8 +127,13 @@ async function deactivateProductOffer(id: string, userId: string, sold: boolean)
     }
 }
 
+// Product needs from here
+async function getProductNeeds(queryOptions: ProductNeedQuery): Promise<ProductNeedDocument[]> {
+    return (await ProductNeedRecord.aggregate(extractAggregateNeedQuery(queryOptions)))
+}
+
 async function addProductNeed(productNeed: LeanProductNeed): Promise<ProductNeedDocument> {
     return ProductNeedRecord.create(productNeed)
 }
 
-export default { getCategories, addCategory, getProductOffers, addProductOffer, updateProductOffer, deactivateProductOffer, addProductNeed }
+export default { getCategories, addCategory, getProductOffers, addProductOffer, updateProductOffer, deactivateProductOffer, addProductNeed, getProductNeeds }
