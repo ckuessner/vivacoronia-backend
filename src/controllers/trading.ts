@@ -160,6 +160,7 @@ async function getNeeds(req: Request, res: Response): Promise<void> {
 
 async function postNeed(req: Request, res: Response): Promise<void> {
     try {
+        delete req.body._id
         const productNeed = await tradingDb.addProductNeed(req.body as LeanProductNeed)
         res.status(201).json(productNeed)
     } catch (e) {
