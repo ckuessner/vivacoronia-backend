@@ -56,6 +56,12 @@ export interface ProductNeedQuery{
     longitude?: number;
     latitude?: number;
     radiusInMeters?: number; 
+    includeInactive?: boolean
+}
+
+export interface ProductNeedPatch{
+    deactivatedAt?: Date
+    fulfilled?: boolean
 }
 
 export default mongoose.model<ProductNeedDocument>('ProductNeedRecord', ProductNeedSchema);

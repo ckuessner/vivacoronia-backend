@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { LeanProductOffer, ProductOfferPatch } from '../db/trading/models/ProductOffer';
 import tradingDb from '../db/trading/trading';
-import { PatchOfferRequest, PostCategoryRequest } from '../types/trading';
+import { PatchOfferRequest, PostCategoryRequest, PatchNeedRequest } from '../types/trading'
 import { LeanProductNeed } from '../db/trading/models/ProductNeed';
 
 function getRequestParameters(req: Request): {
@@ -106,16 +106,16 @@ async function postOffer(req: Request, res: Response): Promise<void> {
 }
 
 async function patchOffer(req: PatchOfferRequest, res: Response): Promise<void> {
-    const offerId: string = req.params.offerId
-    if (!offerId) {
+    const id: string = req.params.offerId
+    if (!id) {
         res.statusMessage = "Please provide the parameter \"offerId\" by including it in the URL path"
         res.sendStatus(400)
         return
     }
 
-    const existingRecord = await tradingDb.getProductOffers({ offerId })
+    const existingRecord = await tradingDb.getProductOffers({ id })
     if (!existingRecord) {
-        res.statusMessage = `No record exists with Id ${offerId}.`
+        res.statusMessage = `No record exists with Id ${id}.`
         res.sendStatus(404)
         return
     }
@@ -139,12 +139,12 @@ async function patchOffer(req: PatchOfferRequest, res: Response): Promise<void> 
     }
 
     try {
-        const updatedOffer = await tradingDb.updateProductOffer(offerId, userId, patch)
+        const updatedOffer = await tradingDb.updateProductOffer(id, userId, patch)
         console.log(updatedOffer)
         res.status(200).json(updatedOffer)
     } catch (e) {
-        console.error(`Error trying to update offer ${offerId}`, e)
-        res.statusMessage = `Cannot update offer ${offerId} because of invalid arguments`
+        console.error(`Error trying to update offer ${id}`, e)
+        res.statusMessage = `Cannot update offer ${id} because of invalid arguments`
         res.sendStatus(400)
     }
 }
@@ -160,6 +160,7 @@ async function getNeeds(req: Request, res: Response): Promise<void> {
 
 async function postNeed(req: Request, res: Response): Promise<void> {
     try {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         delete req.body._id
         const productNeed = await tradingDb.addProductNeed(req.body as LeanProductNeed)
         res.status(201).json(productNeed)
@@ -170,4 +171,30 @@ async function postNeed(req: Request, res: Response): Promise<void> {
 
 }
 
-export default { getCategories, postCategory, getOffers, postOffer, patchOffer, postNeed, getNeeds }
+async function patchNeed(req: PatchNeedRequest, res: Response): Promise<void> {
+    const id = req.params.needId
+    const fulfilled = req.body.fulfilled
+    const deactivatedAt = req.body.deactivatedAt
+
+    const patch = {
+        fulfilled: fulfilled,
+        deactivatedAt: deactivatedAt
+    }
+
+    const existingRecord = await tradingDb.getProductNeeds({ id })
+    if (!existingRecord) {
+        res.statusMessage = `No record exists with Id ${id}.`
+        res.sendStatus(404)
+    }
+
+    try {
+        const need = await tradingDb.deactivateProductNeed(id, patch)
+        res.status(200).json(need)
+    } catch (e) {
+        res.statusMessage = `Cannot delete need ${id} because of invalid arguments`
+        res.sendStatus(400)
+    }
+
+}
+
+export default { getCategories, postCategory, getOffers, postOffer, patchOffer, postNeed, getNeeds, patchNeed }

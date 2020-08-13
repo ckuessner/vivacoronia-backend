@@ -30,4 +30,4 @@ router.post('/trading/categories/', authAdmin, tradingController.postCategory)
 
 router.get('/trading/needs/', tradingController.getNeeds)
 router.post('/trading/needs/', tradingController.postNeed)
-//router.patch('/trading/needs/:needId/', tradingController.patchNeed)
+router.patch('/trading/needs/:needId/', tradingController.patchNeed)

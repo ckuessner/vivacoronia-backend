@@ -475,6 +475,36 @@ paths:
           description: Created
         "400":
           description: Error creating the product need record
+  
+  /trading/needs/{needId}:
+    patch:
+      tags: [Trading]
+      description: Delete an already existing need.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductNeedRecord"
+              description: only property fulfilled is necessary
+      responses:
+        "200":
+          description: Returns the complete succesfully changed offer
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductNeedRecord"
+        "404":
+          description: The need with the provided Id does not exist
+        "400":
+          description: Either needId was not specified in the url path or there was another error
+      parameters:
+        - name: needId
+          in: path
+          required: true
+          description: The id of the need
+          schema:
+            $ref: "#/components/schemas/needId"   
 
 components:
   schemas:
@@ -687,6 +717,8 @@ components:
       type: object
       description: Contains details about a product need provided by a user
       properties:
+        _id: 
+          $ref: "#/components/schemas/needId"
         userId: 
           $ref: "#/components/schemas/userId"
         product: 
@@ -718,6 +750,11 @@ components:
       type: string
       example: 5f0eb3935f839100238c0fcb
 
+    needId:
+      type: string
+      example: 5f22c05fa920c7004af2a477
+    
+    
   examples:
     locationArrayExample:
       summary: Array with two location ojects
