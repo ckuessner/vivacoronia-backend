@@ -27,14 +27,21 @@ async function setupAdminAccount(): Promise<void> {
 }
 
 async function start() {
-    mongoServer = new MongoMemoryServer();
-    const uri = await mongoServer.getUri()
-    return mongoose.connect(uri, opts)
+    if (!mongoServer) {
+        mongoServer = new MongoMemoryServer()
+        const uri = await mongoServer.getUri()
+        await mongoose.connect(uri, opts)
+    }
+
+    for (const collection in mongoose.connection.collections) {
+        await mongoose.connection.collections[collection].deleteMany({})
+    }
 }
 
 async function stop() {
-    await mongoose.disconnect()
-    await mongoServer.stop()
+    for (const collection in mongoose.connection.collections) {
+        await mongoose.connection.collections[collection].deleteMany({})
+    }
 }
 
 export default { start, stop, setupAdminAccount }

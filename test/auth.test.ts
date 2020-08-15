@@ -12,7 +12,6 @@ let jwt: string
 
 before('connect to MongoDB', async function () {
     await mongoDBHelper.start()
-
     await mongoDBHelper.setupAdminAccount()
 })
 
