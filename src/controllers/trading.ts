@@ -3,19 +3,9 @@ import { LeanProductOffer, ProductOfferPatch } from '../db/trading/models/Produc
 import tradingDb from '../db/trading/trading';
 import { PatchOfferRequest, PostCategoryRequest, PatchNeedRequest } from '../types/trading'
 import { LeanProductNeed } from '../db/trading/models/ProductNeed';
+import { ProductQuery } from '../db/trading/models/Product';
 
-function getRequestParameters(req: Request): {
-    userId: string;
-    product: string;
-    productCategory: string;
-    longitude: number | undefined;
-    latitude: number | undefined;
-    radiusInMeters: number;
-    includeInactive: boolean;
-    sortBy: string;
-    priceMin: number | undefined;
-    priceMax: number | undefined;
-} {
+function getRequestParameters(req: Request): ProductQuery {
     const userId: string = req.query.userId as string
     const product: string = req.query.product as string
     const productCategory: string = req.query.productCategory as string
@@ -106,16 +96,16 @@ async function postOffer(req: Request, res: Response): Promise<void> {
 }
 
 async function patchOffer(req: PatchOfferRequest, res: Response): Promise<void> {
-    const id: string = req.params.offerId
-    if (!id) {
+    const offerId: string = req.params.offerId
+    if (!offerId) {
         res.statusMessage = "Please provide the parameter \"offerId\" by including it in the URL path"
         res.sendStatus(400)
         return
     }
 
-    const existingRecord = await tradingDb.getProductOffers({ id })
+    const existingRecord = await tradingDb.getProductOffers({ id: offerId })
     if (!existingRecord) {
-        res.statusMessage = `No record exists with Id ${id}.`
+        res.statusMessage = `No record exists with Id ${offerId}.`
         res.sendStatus(404)
         return
     }
@@ -139,12 +129,12 @@ async function patchOffer(req: PatchOfferRequest, res: Response): Promise<void> 
     }
 
     try {
-        const updatedOffer = await tradingDb.updateProductOffer(id, userId, patch)
+        const updatedOffer = await tradingDb.updateProductOffer(offerId, userId, patch)
         console.log(updatedOffer)
         res.status(200).json(updatedOffer)
     } catch (e) {
-        console.error(`Error trying to update offer ${id}`, e)
-        res.statusMessage = `Cannot update offer ${id} because of invalid arguments`
+        console.error(`Error trying to update offer ${offerId}`, e)
+        res.statusMessage = `Cannot update offer ${offerId} because of invalid arguments`
         res.sendStatus(400)
     }
 }

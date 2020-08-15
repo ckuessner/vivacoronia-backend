@@ -1,6 +1,6 @@
 export interface ProductQuery{
     id?: string;
-    userId?: number;
+    userId?: string;
     product?: string;
     productCategory?: string;
     longitude?: number;

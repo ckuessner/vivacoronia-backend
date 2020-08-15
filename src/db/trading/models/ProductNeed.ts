@@ -50,7 +50,7 @@ export interface ProductNeedDocument extends LeanProductNeed, Document { }
 
 export interface ProductNeedQuery{
     needId?: string;
-    userId?: number;
+    userId?: string;
     product?: string;
     productCategory?: string;
     longitude?: number;
