@@ -2,9 +2,8 @@ import { NextFunction, Request, Response } from "express";
 import { isString } from "util";
 import { validateJWT } from "../validators/jsonWebTokenValidator";
 import { isEmpty } from "lodash";
-import { AuthenticatedUserResponse } from "../types/auth";
 
-async function authUser(req: Request, res: AuthenticatedUserResponse, next: NextFunction): Promise<void> {
+async function authUser(req: Request, res: Response, next: NextFunction): Promise<void> {
 
     if (!isString(req.params.userId) || isEmpty(req.params.userId)) {
         res.status(400).send("Invalid userId")

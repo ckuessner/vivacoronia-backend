@@ -2,7 +2,6 @@ import { Request, Response } from 'express';
 import { ProductOfferPatch, LeanProductOffer } from '../db/trading/models/ProductOffer';
 import tradingDb from '../db/trading/trading';
 import { PatchOfferRequest, PostCategoryRequest } from '../types/trading'
-import { AuthenticatedUserResponse } from '../types/auth';
 
 async function getCategories(_: Request, res: Response): Promise<void> {
     try {
@@ -35,9 +34,9 @@ async function getOffers(req: Request, res: Response): Promise<void> {
     const userId: string = req.query.userId as string
     const product: string = req.query.product as string
     const productCategory: string = req.query.productCategory as string
-    const longitude: number = +req.query.longitude
-    const latitude: number = +req.query.latitude
-    const radiusInMeters: number = +req.query.radius || 25000 // default radius 25km
+    const longitude: number | undefined = req.query.longitude ? +req.query.longitude : undefined
+    const latitude: number | undefined = req.query.latitude ? +req.query.latitude : undefined
+    const radiusInMeters: number = +(req.query.radius || 25000) // default radius 25km
     const includeInactive: boolean = req.query.includeInactive === 'true'
 
     const queryOptions = { userId, product, productCategory, longitude, latitude, radiusInMeters, includeInactive }
@@ -45,7 +44,7 @@ async function getOffers(req: Request, res: Response): Promise<void> {
     res.status(200).json(offers)
 }
 
-async function postOffer(req: Request, res: AuthenticatedUserResponse): Promise<void> {
+async function postOffer(req: Request, res: Response): Promise<void> {
     try {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         delete req.body._id
@@ -65,7 +64,7 @@ async function postOffer(req: Request, res: AuthenticatedUserResponse): Promise<
     }
 }
 
-async function patchOffer(req: PatchOfferRequest, res: AuthenticatedUserResponse): Promise<void> {
+async function patchOffer(req: PatchOfferRequest, res: Response): Promise<void> {
     const offerId: string = req.params.offerId
     if (!offerId) {
         res.statusMessage = "Please provide the parameter \"offerId\" by including it in the URL path"
@@ -91,7 +90,7 @@ async function patchOffer(req: PatchOfferRequest, res: AuthenticatedUserResponse
         sold: req.body.sold,
     } as ProductOfferPatch
 
-    const userId = res.locals.userId
+    const userId = res.locals.userId as string
 
     try {
         const updatedOffer = await tradingDb.updateProductOffer(offerId, userId, patch)

@@ -36,9 +36,9 @@ async function getAllLocationRecords(req: Request, res: Response): Promise<void>
         res.json(records)
         return
     }
-    const longitude: number = +req.query.longitude
-    const latitude: number = +req.query.latitude
-    const distance: number = +req.query.distance
+    const longitude: number = +(req.query.longitude || NaN)
+    const latitude: number = +(req.query.latitude || NaN)
+    const distance: number = +(req.query.distance || NaN)
     const longValid: boolean = checkLong(longitude)
     const latValid: boolean = checkLat(latitude)
     const distValid: boolean = checkDist(distance)
