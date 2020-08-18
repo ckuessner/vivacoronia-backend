@@ -25,7 +25,7 @@ async function setupAdminAccount(): Promise<void> {
         } else {
             const filePath = path.join(__dirname, '..', '..', 'res', 'adminPassword');
             const data = await fs.readFile(filePath, 'utf8');
-            const lines = data.split(/r?\n/);
+            const lines = data.split(/\r?\n/);
             const password = lines[0]
 
             passwordHash = await bcrypt.hash(password, 10)
