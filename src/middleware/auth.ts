@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { isString } from "util";
-import { validateJWT } from "../validators/jsonWebTokenValidator";
+import { validateJWT, getUserIdFromToken } from "../validators/jsonWebTokenValidator";
 import { isEmpty } from "lodash";
 
 async function authUser(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -25,6 +25,33 @@ async function authUser(req: Request, res: Response, next: NextFunction): Promis
     }
 
     res.locals.userId = userId
+
+    next()
+}
+
+async function checkTokenAndExtractUserId(req: Request, res: Response, next: NextFunction): Promise<void> {
+    // checks if a jwt is provided and 
+    if (!isString(req.headers.jwt)) {
+        res.status(400).send("Invalid format or missing JWT")
+        return
+    }
+
+    const userId = await getUserIdFromToken(req.headers.jwt)
+
+    if (!isString(req.headers.jwt)) {
+        res.status(400).send("Invalid format or missing JWT")
+        return
+    }
+    const token: string = req.headers.jwt;
+
+    if (!await validateJWT(token, userId)) {
+        // invalid token
+        res.status(401).send("Invalid JWT or user does not exist")
+        return
+    }
+
+    res.locals.userId = userId
+
     next()
 }
 
@@ -45,4 +72,4 @@ async function authAdmin(req: Request, res: Response, next: NextFunction): Promi
     next()
 }
 
-export { authUser, authAdmin }
+export { authUser, authAdmin, checkTokenAndExtractUserId }

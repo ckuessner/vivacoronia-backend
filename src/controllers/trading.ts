@@ -53,10 +53,18 @@ async function postOffer(req: Request, res: Response): Promise<void> {
             res.sendStatus(400)
             return
         }
+
         const reqOffer = req.body as LeanProductOffer
-        reqOffer.userId = req.params.userId
-        const offer = await tradingDb.addProductOffer(reqOffer)
-        res.status(201).json(offer)
+        const userId = res.locals.userId
+
+        if (userId === reqOffer.userId) {
+            const offer = await tradingDb.addProductOffer(reqOffer)
+            res.status(201).json(offer)
+        }
+        else {
+            res.status(400).send("User does not exist or match to token")
+        }
+
     } catch (e) {
         console.error("Error trying to create ProductOfferRecord from POST body: ", e)
         res.sendStatus(400)
@@ -90,7 +98,7 @@ async function patchOffer(req: PatchOfferRequest, res: Response): Promise<void> 
         sold: req.body.sold,
     } as ProductOfferPatch
 
-    const userId = res.locals.userId as string
+    const userId = res.locals.userId
 
     try {
         const updatedOffer = await tradingDb.updateProductOffer(offerId, userId, patch)
