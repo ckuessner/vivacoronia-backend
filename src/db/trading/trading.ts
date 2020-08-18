@@ -1,9 +1,9 @@
 import { escapeRegExp } from 'lodash';
 import sanitize from "mongo-sanitize";
+import { ProductQuery } from "./models/Product";
 import ProductCategory, { ProductCategoryDocument } from "./models/ProductCategory";
-import ProductOfferRecord, { ProductOfferPatch, ProductOfferDocument, LeanProductOffer } from "./models/ProductOffer";
-import ProductNeedRecord, { ProductNeedDocument, LeanProductNeed } from "./models/ProductNeed";
-import { ProductQuery } from "./models/Product"
+import ProductNeedRecord, { LeanProductNeed, ProductNeedDocument } from "./models/ProductNeed";
+import ProductOfferRecord, { LeanProductOffer, ProductOfferDocument, ProductOfferPatch } from "./models/ProductOffer";
 
 async function getCategories(): Promise<string[]> {
     return (await ProductCategory.find().lean()).map(doc => doc.name)
