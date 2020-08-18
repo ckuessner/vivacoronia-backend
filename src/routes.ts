@@ -29,5 +29,5 @@ router.get('/trading/categories/', tradingController.getCategories)
 router.post('/trading/categories/', authAdmin, tradingController.postCategory)
 
 router.get('/trading/needs/', tradingController.getNeeds)
-router.post('/trading/needs/', tradingController.postNeed)
-router.patch('/trading/needs/:needId/', tradingController.patchNeed)
+router.post('/trading/needs/', authUser, tradingController.postNeed)
+router.patch('/trading/needs/:needId/', authUser, tradingController.deleteNeed)

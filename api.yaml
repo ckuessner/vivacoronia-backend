@@ -460,6 +460,12 @@ paths:
             type: int64
           example: 10000
           description: Radius in meters, default is 25000
+        - name: includeInactive
+          in: query
+          schema:
+            type: boolean
+          example: true
+          description: if true returns inactive (deleted/fulfilled) offers as well, default is false
           
     post:
       tags: [Trading]
@@ -479,7 +485,7 @@ paths:
   /trading/needs/{needId}:
     patch:
       tags: [Trading]
-      description: Delete an already existing need.
+      description: Update an already existing need.
       requestBody:
         required: true
         content:

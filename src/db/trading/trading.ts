@@ -119,10 +119,9 @@ async function addProductNeed(productNeed: LeanProductNeed): Promise<ProductNeed
     return ProductNeedRecord.create(productNeed)
 }
 
-async function deactivateProductNeed(id: string, patch: Record<string, unknown>): Promise<ProductNeedDocument | null> {
+async function deactivateProductNeed(id: string, fulfilled: boolean): Promise<ProductNeedDocument | null> {
     // TODO: add userId from JWT to query, so that users can't modify other users ProductOffers
-    const sanitizedPatch = sanitizeProductPatch(patch)
-    return ProductNeedRecord.findOneAndUpdate({ _id: id }, sanitizedPatch, { new: true, runValidators: true })
+    return ProductNeedRecord.findOneAndUpdate({ _id: id }, {deactivatedAt: new Date(), fulfilled}, { new: true, runValidators: true })
 }
 
 export default { getCategories, addCategory, getProductOffers, addProductOffer, updateProductOffer, addProductNeed, getProductNeeds, deactivateProductNeed, deactivateProductOffer }

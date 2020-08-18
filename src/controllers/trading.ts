@@ -148,7 +148,7 @@ async function getNeeds(req: Request, res: Response): Promise<void> {
     res.status(200).json(needs)
 }
 
-async function postNeed(req: Request, res: Response): Promise<void> {
+async function postNeed(req: Request, res: AuthenticatedUserResponse): Promise<void> {
     try {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         delete req.body._id
@@ -156,20 +156,20 @@ async function postNeed(req: Request, res: Response): Promise<void> {
         res.status(201).json(productNeed)
     } catch (e) {
         console.error("Error trying to create ProductNeed from POST body: ", e)
-        res.sendStatus(400)
+        res.sendStatus(400).json(e)
     }
 
 }
 
-async function patchNeed(req: PatchNeedRequest, res: Response): Promise<void> {
+async function deleteNeed(req: PatchNeedRequest, res: AuthenticatedUserResponse): Promise<void> {
     const id = req.params.needId
     const fulfilled = req.body.fulfilled
-    const deactivatedAt = req.body.deactivatedAt
 
-    const patch = {
-        fulfilled: fulfilled,
-        deactivatedAt: deactivatedAt
+    if (!fulfilled) {
+        res.statusMessage = "Fulfilled has to be True or False"
+        res.sendStatus(400)
     }
+
 
     const existingRecord = await tradingDb.getProductNeeds({ id })
     if (!existingRecord) {
@@ -178,7 +178,7 @@ async function patchNeed(req: PatchNeedRequest, res: Response): Promise<void> {
     }
 
     try {
-        const need = await tradingDb.deactivateProductNeed(id, patch)
+        const need = await tradingDb.deactivateProductNeed(id, fulfilled as boolean)
         res.status(200).json(need)
     } catch (e) {
         res.statusMessage = `Cannot delete need ${id} because of invalid arguments`
@@ -187,4 +187,4 @@ async function patchNeed(req: PatchNeedRequest, res: Response): Promise<void> {
 
 }
 
-export default { getCategories, postCategory, getOffers, postOffer, patchOffer, postNeed, getNeeds, patchNeed }
+export default { getCategories, postCategory, getOffers, postOffer, patchOffer, postNeed, getNeeds, deleteNeed }
