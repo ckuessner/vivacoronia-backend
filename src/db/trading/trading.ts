@@ -1,7 +1,7 @@
-import ProductCategory, { ProductCategoryDocument } from "./models/ProductCategory";
-import ProductOfferRecord, { ProductOfferPatch, ProductOfferQuery, ProductOfferDocument, LeanProductOffer } from "./models/ProductOffer";
+import { escapeRegExp } from 'lodash';
 import sanitize from "mongo-sanitize";
-import { escapeRegExp } from 'lodash'
+import ProductCategory, { ProductCategoryDocument } from "./models/ProductCategory";
+import ProductOfferRecord, { LeanProductOffer, ProductOfferDocument, ProductOfferPatch, ProductOfferQuery } from "./models/ProductOffer";
 
 async function getCategories(): Promise<string[]> {
     return (await ProductCategory.find().lean()).map(doc => doc.name)
@@ -24,7 +24,7 @@ const priceTotalConversion = {
 function extractAggregateQuery(queryOptions: ProductOfferQuery): Record<string, unknown>[] {
     // Should be sanitized, to prevent query injection
     queryOptions.product = escapeRegExp(queryOptions.product)
-    const { offerId, userId, product, productCategory, longitude, latitude, radiusInMeters, includeInactive } = sanitize(queryOptions)
+    const { offerId, userId, product, productCategory, longitude, latitude, radiusInMeters, includeInactive, sortBy, priceMin, priceMax } = sanitize(queryOptions)
 
     const productQuery = {
         $match: {
@@ -33,6 +33,12 @@ function extractAggregateQuery(queryOptions: ProductOfferQuery): Record<string, 
             ...(product && { product: new RegExp(product, 'i') }),
             ...(productCategory && { productCategory }),
             ...(!includeInactive && { deactivatedAt: null }),
+            ...((priceMin || priceMax) && {
+                priceTotal: {
+                    ...(priceMin && { $gte: priceMin * 100 }),
+                    ...(priceMax && { $lte: priceMax * 100 })
+                }
+            }),
         }
     }
 
@@ -42,13 +48,24 @@ function extractAggregateQuery(queryOptions: ProductOfferQuery): Record<string, 
             $geoNear: {
                 near: { type: "Point", coordinates: [longitude, latitude] },
                 distanceField: "distanceToUser",
-                maxDistance: radiusInMeters
+                distanceMultiplier: 0.001,
+                spherical: true,
+                ...(radiusInMeters > 0 && { maxDistance: radiusInMeters })
             }
         })
     }
 
+    const sortQuery = {
+        ...(sortBy) &&
+        {
+            $sort: {
+                [sortBy]: 1
+            }
+        }
+    }
+
     // The aggregation doesn't accept empty pipeline stages, if no parameters for some stage are provided, remove the empty pipeline stages.
-    return [locationQuery, productQuery, priceTotalConversion].filter(query => Object.keys(query).length != 0)
+    return [locationQuery, productQuery, priceTotalConversion, sortQuery].filter(query => Object.keys(query).length != 0)
 }
 
 async function addProductOffer(offer: LeanProductOffer): Promise<ProductOfferDocument> {

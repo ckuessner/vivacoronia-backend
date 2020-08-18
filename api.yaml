@@ -294,18 +294,34 @@ paths:
           in: query
           schema:
             $ref: "#/components/schemas/lat_long"
-        - name: radius
+        - name: radiusInKm
           in: query
           schema:
             type: integer
           example: 10000
-          description: Radius in meters, default is 25000
+          description: Maximum radius in kilometers, default is unlimited
         - name: includeInactive
           in: query
           schema:
             type: boolean
           example: true
           description: if true returns inactive (deleted/sold) offers as well, default is false
+        - name: sortBy
+          in: query
+          schema:
+            type: string
+            enum:
+              - name
+              - distance
+              - price
+        - name: priceMin
+          in: query
+          schema:
+            type: double
+        - name: priceMax
+          in: query
+          schema:
+            type: double
 
     post:
       tags: [Trading]

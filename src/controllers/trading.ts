@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
-import { ProductOfferPatch, LeanProductOffer } from '../db/trading/models/ProductOffer';
+import { LeanProductOffer, ProductOfferPatch } from '../db/trading/models/ProductOffer';
 import tradingDb from '../db/trading/trading';
-import { PatchOfferRequest, PostCategoryRequest } from '../types/trading'
+import { PatchOfferRequest, PostCategoryRequest } from '../types/trading';
 
 async function getCategories(_: Request, res: Response): Promise<void> {
     try {
@@ -36,10 +36,27 @@ async function getOffers(req: Request, res: Response): Promise<void> {
     const productCategory: string = req.query.productCategory as string
     const longitude: number | undefined = req.query.longitude ? +req.query.longitude : undefined
     const latitude: number | undefined = req.query.latitude ? +req.query.latitude : undefined
-    const radiusInMeters: number = +(req.query.radius || 25000) // default radius 25km
+    const radiusInMeters: number = req.query.radiusInKm ? (+req.query.radiusInKm) * 1000 : -1
     const includeInactive: boolean = req.query.includeInactive === 'true'
+    const priceMin: number | undefined = req.query.priceMin ? +req.query.priceMin : undefined
+    const priceMax: number | undefined = req.query.priceMax ? +req.query.priceMax : undefined
+    let sortBy: string = req.query.sortBy as string
 
-    const queryOptions = { userId, product, productCategory, longitude, latitude, radiusInMeters, includeInactive }
+    if (sortBy) {
+        if (sortBy === 'name') {
+            sortBy = 'product'
+        }
+        else if (sortBy === 'price') {
+            sortBy = 'priceTotal'
+        }
+        else if (sortBy === 'distance' && longitude && latitude) {
+            sortBy = 'distanceToUser'
+        } else {
+            sortBy = ''
+        }
+    }
+
+    const queryOptions = { userId, product, productCategory, longitude, latitude, radiusInMeters, includeInactive, sortBy, priceMin, priceMax }
     const offers = await tradingDb.getProductOffers(queryOptions)
     res.status(200).json(offers)
 }

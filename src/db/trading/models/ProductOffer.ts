@@ -9,7 +9,7 @@ const ProductOfferSchema: Schema = new Schema({
     },
     product: {
         type: String,
-        required: true
+        required: true,
     },
     amount: {
         type: Number,
@@ -86,6 +86,9 @@ export interface ProductOfferQuery {
     latitude?: number;
     radiusInMeters?: number; // default radius 25km
     includeInactive?: boolean;
+    sortBy?: string;
+    priceMin?: number;
+    priceMax?: number;
 }
 
 export interface ProductOfferPatch {
