@@ -13,6 +13,7 @@ void mongoose.connect(connectionString, opts)
 mongoose.connection.on('error', console.error.bind(console, 'connection error:'));
 mongoose.connection.once('open', () => console.log('connected to db'))
 
+
 async function setupAdminAccount(): Promise<void> {
     const adminPassword = await AdminPasswordRecord.findOne()
 
@@ -23,7 +24,9 @@ async function setupAdminAccount(): Promise<void> {
             passwordHash = await bcrypt.hash(process.env.ADMIN_PASSWORD, 10)
         } else {
             const filePath = path.join(__dirname, '..', '..', 'res', 'adminPassword');
-            const password = await fs.readFile(filePath, 'utf8');
+            const data = await fs.readFile(filePath, 'utf8');
+            const lines = data.split(/r?\n/);
+            const password = lines[0]
 
             passwordHash = await bcrypt.hash(password, 10)
         }
