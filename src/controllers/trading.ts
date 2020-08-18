@@ -148,20 +148,28 @@ async function getNeeds(req: Request, res: Response): Promise<void> {
     res.status(200).json(needs)
 }
 
-async function postNeed(req: Request, res: AuthenticatedUserResponse): Promise<void> {
+async function postNeed(req: Request, res: Response): Promise<void> {
     try {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         delete req.body._id
-        const productNeed = await tradingDb.addProductNeed(req.body as LeanProductNeed)
+        // An array wouldn't be checked correctly by the middleware
+        if (req.body instanceof Array) {
+            res.sendStatus(400)
+            return
+        }
+
+        const reqNeed = req.body as LeanProductNeed
+        reqNeed.userId = req.params.userId
+        const productNeed = await tradingDb.addProductNeed(reqNeed)
         res.status(201).json(productNeed)
     } catch (e) {
         console.error("Error trying to create ProductNeed from POST body: ", e)
-        res.sendStatus(400).json(e)
+        res.sendStatus(400)
     }
 
 }
 
-async function deleteNeed(req: PatchNeedRequest, res: AuthenticatedUserResponse): Promise<void> {
+async function deleteNeed(req: PatchNeedRequest, res: Response): Promise<void> {
     const id = req.params.needId
     const fulfilled = req.body.fulfilled
 
