@@ -81,7 +81,6 @@ async function postOffer(req: Request, res: Response): Promise<void> {
         else {
             res.status(400).send("User does not exist or match to token")
         }
-
     } catch (e) {
         console.error("Error trying to create ProductOfferRecord from POST body: ", e)
         res.sendStatus(400)
@@ -111,6 +110,7 @@ async function patchOffer(req: PatchOfferRequest, res: Response): Promise<void> 
         priceTotal: req.body.priceTotal && +req.body.priceTotal,
         details: req.body.details,
         location: req.body.location,
+        phoneNumber: req.body.phoneNumber,
         deactivatedAt: req.body.deactivatedAt && new Date(req.body.deactivatedAt),
         sold: req.body.sold,
     } as ProductOfferPatch

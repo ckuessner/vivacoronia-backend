@@ -38,6 +38,9 @@ const ProductOfferSchema: Schema = new Schema({
         required: true,
         index: '2dsphere'
     },
+    phoneNumber: {
+        type: String,
+    },
     deactivatedAt: {
         type: Date,
     },
@@ -71,6 +74,7 @@ export interface LeanProductOffer {
         type: 'Point';
         coordinates: Array<number>;
     };
+    phoneNumber: string;
     deactivatedAt?: Date;
     sold: boolean;
 }
@@ -101,6 +105,7 @@ export interface ProductOfferPatch {
         type: 'Point',
         coordinates: Array<number>;
     };
+    phoneNumber?: string;
     deactivatedAt?: Date
     sold?: boolean
 }
