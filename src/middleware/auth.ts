@@ -30,15 +30,11 @@ async function authUser(req: Request, res: Response, next: NextFunction): Promis
 }
 
 async function checkTokenAndExtractUserId(req: Request, res: Response, next: NextFunction): Promise<void> {
-    // checks if a jwt is provided and 
-    if (!isString(req.headers.jwt)) {
-        res.status(400).send("Invalid format or missing JWT")
-        return
-    }
-
-    const userId = await getUserIdFromToken(req.headers.jwt)
-
-    if (!isString(req.headers.jwt)) {
+    let userId;
+    try {
+        if (!isString(req.headers.jwt)) throw new Error()
+        userId = await getUserIdFromToken(req.headers.jwt)
+    } catch (err) {
         res.status(400).send("Invalid format or missing JWT")
         return
     }

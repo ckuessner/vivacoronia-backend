@@ -24,10 +24,11 @@ export async function getAllUserAccounts(): Promise<IUserAccountRecord[]> {
 export async function getUserAccount(userId: string): Promise<IUserAccountRecord | null> {
 
   // check if valid ObjectId format, otherwise findOne will raise an CastError
-  if (mongoose.Types.ObjectId.isValid(userId))
+  if (mongoose.Types.ObjectId.isValid(userId)) {
     return await UserAccountRecord.findOne({ _id: userId })
+  }
 
-  return Promise.reject()
+  return Promise.reject("Invalid userId")
 }
 
 export async function validatePassword(userId: string, password: string): Promise<boolean> {

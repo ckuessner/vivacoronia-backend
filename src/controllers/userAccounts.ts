@@ -31,10 +31,16 @@ export async function newJSONWebToken(req: Request, res: Response): Promise<void
   const body = req.body as Record<string, string>
   const password = body.password
 
-  const validator: boolean = await userAccountDb.validatePassword(userId, password)
+  let valid: boolean;
+  try {
+    valid = await userAccountDb.validatePassword(userId, password)
+  } catch (err) {
+    console.error("Could not create jwt for user", userId, err)
+    res.sendStatus(401)
+    return
+  }
 
-  if (validator) {
-
+  if (valid) {
     const token = await generateAccessJWT(userId)
 
     const json = {

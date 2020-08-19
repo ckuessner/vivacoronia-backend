@@ -99,6 +99,10 @@ async function patchOffer(req: PatchOfferRequest, res: Response): Promise<void> 
     } as ProductOfferPatch
 
     const userId = res.locals.userId
+    if (userId == undefined) {
+        res.sendStatus(500)
+        return
+    }
 
     try {
         const updatedOffer = await tradingDb.updateProductOffer(offerId, userId, patch)
