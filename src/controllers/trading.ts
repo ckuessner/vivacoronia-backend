@@ -47,7 +47,7 @@ async function getOffers(req: Request, res: Response): Promise<void> {
             sortBy = 'product'
         }
         else if (sortBy === 'price') {
-            sortBy = 'priceTotal'
+            sortBy = 'price'
         }
         else if (sortBy === 'distance' && longitude && latitude) {
             sortBy = 'distanceToUser'
@@ -107,7 +107,7 @@ async function patchOffer(req: PatchOfferRequest, res: Response): Promise<void> 
         product: req.body.product,
         amount: req.body.amount && +req.body.amount,
         productCategory: req.body.productCategory,
-        priceTotal: req.body.priceTotal && +req.body.priceTotal,
+        price: req.body.price && +req.body.price,
         details: req.body.details,
         location: req.body.location,
         phoneNumber: req.body.phoneNumber,

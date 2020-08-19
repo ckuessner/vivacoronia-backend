@@ -607,10 +607,11 @@ components:
           example: 5
         productCategory:
           $ref: "#/components/schemas/productCategory"
-        priceTotal:
+        price:
           type: double
           example: 8.50
-        details:
+          description: Price per piece
+        details: 
           type: string
           details: Additional information or description of the offer or product
         location:
@@ -622,6 +623,9 @@ components:
         sold:
           type: boolean
           description: True if this product has sold, false if it was deleted without being sold. Only valid if deactivatedAt is not null.
+        phoneNumber:
+          type: string
+          example: "+49 6151 16 23190"
 
     product:
       type: string

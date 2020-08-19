@@ -22,13 +22,13 @@ const ProductOfferSchema: Schema = new Schema({
         index: true,
         validate: validateCategory
     },
-    priceTotal: {
+    price: {
         // stores the money internally as cents, that's why we need get/set
         type: Number,
         required: true,
         get: getPrice,
         set: setPrice,
-        min: [0, 'priceTotal cannot be negative']
+        min: [0, 'price cannot be negative']
     },
     details: {
         type: String,
@@ -68,7 +68,7 @@ export interface LeanProductOffer {
     product: string;
     amount: number;
     productCategory: string;
-    priceTotal: number;
+    price: number;
     details: string;
     location: {
         type: 'Point';
@@ -99,7 +99,7 @@ export interface ProductOfferPatch {
     product?: string;
     amount?: number;
     productCategory?: string;
-    priceTotal?: number;
+    price?: number;
     details?: string;
     location?: {
         type: 'Point',

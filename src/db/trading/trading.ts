@@ -15,9 +15,9 @@ async function getProductOffers(queryOptions: ProductOfferQuery): Promise<Produc
     return (await ProductOfferRecord.aggregate(extractAggregateQuery(queryOptions)))
 }
 
-const priceTotalConversion = {
+const priceConversion = {
     $addFields: {
-        priceTotal: { $multiply: ["$priceTotal", .01] }
+        price: { $multiply: ["$price", .01] }
     }
 }
 
@@ -34,7 +34,7 @@ function extractAggregateQuery(queryOptions: ProductOfferQuery): Record<string, 
             ...(productCategory && { productCategory }),
             ...(!includeInactive && { deactivatedAt: null }),
             ...((priceMin || priceMax) && {
-                priceTotal: {
+                price: {
                     ...(priceMin && { $gte: priceMin * 100 }),
                     ...(priceMax && { $lte: priceMax * 100 })
                 }
@@ -65,7 +65,7 @@ function extractAggregateQuery(queryOptions: ProductOfferQuery): Record<string, 
     }
 
     // The aggregation doesn't accept empty pipeline stages, if no parameters for some stage are provided, remove the empty pipeline stages.
-    return [locationQuery, productQuery, priceTotalConversion, sortQuery].filter(query => Object.keys(query).length != 0)
+    return [locationQuery, productQuery, priceConversion, sortQuery].filter(query => Object.keys(query).length != 0)
 }
 
 async function addProductOffer(offer: LeanProductOffer): Promise<ProductOfferDocument> {
