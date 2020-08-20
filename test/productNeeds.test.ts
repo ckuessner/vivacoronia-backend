@@ -50,7 +50,6 @@ describe('POST /trading/needs/', function () {
             .post('/trading/needs/')
             .set({ jwt: testAccounts[1].jwt })
             .send(need)
-        console.log("body: ", res.body)
         expect(res.status).to.equal(201)
     })
 
@@ -58,7 +57,7 @@ describe('POST /trading/needs/', function () {
         await request(app)
             .post('/trading/needs/')
             .set({ jwt: testAccounts[0].jwt })
-            .send({ userId: "45", product: "Flour 1kg" })
+            .send({ userId: testAccounts[0].userId, product: "Flour 1kg" })
             .expect(400)
     })
 })
@@ -67,6 +66,7 @@ describe('GET /trading/needs/', function () {
 
     it("Non-empty Get", async function () {
         await ProductNeedRecord.insertMany(getValidProductNeed())
+        // TODO es muss noch getestet werden das nur die needs fuer einen user returned werden
         const res = await request(app).get('/trading/needs/')
         expect(res.status).to.equal(200)
         expect(res.body).to.have.lengthOf(2)

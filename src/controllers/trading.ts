@@ -159,7 +159,6 @@ async function postNeed(req: Request, res: Response): Promise<void> {
         }
 
         const reqNeed = req.body as LeanProductNeed
-        reqNeed.userId = req.params.userId
         const productNeed = await tradingDb.addProductNeed(reqNeed)
         res.status(201).json(productNeed)
     } catch (e) {

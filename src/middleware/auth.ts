@@ -9,9 +9,9 @@ async function authUser(req: Request, res: Response, next: NextFunction): Promis
         res.status(400).send("Invalid userId")
         return
     }
-
-    const userId: string = req.params.userId
-
+        
+    const userId = req.params.userId
+    
     if (!isString(req.headers.jwt)) {
         res.status(400).send("Invalid format or missing JWT")
         return

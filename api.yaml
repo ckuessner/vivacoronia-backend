@@ -481,6 +481,12 @@ paths:
           description: Created
         "400":
           description: Error creating the product need record
+      parameters:
+        - name: jwt
+          in: header
+          schema:
+            type: string
+          required: true
   
   /trading/needs/{needId}:
     patch:
