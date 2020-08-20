@@ -4,6 +4,7 @@ import tradingDb from '../db/trading/trading';
 import { PatchOfferRequest, PostCategoryRequest, PatchNeedRequest } from '../types/trading'
 import { LeanProductNeed } from '../db/trading/models/ProductNeed';
 import { ProductQuery } from '../db/trading/models/Product';
+import { isEmpty } from 'lodash';
 
 function getRequestParameters(req: Request): ProductQuery {
     const userId: string = req.query.userId as string
@@ -143,9 +144,16 @@ async function patchOffer(req: PatchOfferRequest, res: Response): Promise<void> 
 // Needs
 
 async function getNeeds(req: Request, res: Response): Promise<void> {
-    const queryOptions = getRequestParameters(req)
-    const needs = await tradingDb.getProductNeeds(queryOptions)
-    res.status(200).json(needs)
+    const userId = res.locals.userId
+
+    if (!isEmpty(req.query.userId) && userId === req.query.userId) {
+        const queryOptions = getRequestParameters(req)
+        const needs = await tradingDb.getProductNeeds(queryOptions)
+        res.status(200).json(needs)
+    }
+    else {
+        res.status(400).send("Queried userId doesnt matches JWT")
+    }
 }
 
 async function postNeed(req: Request, res: Response): Promise<void> {
@@ -159,8 +167,16 @@ async function postNeed(req: Request, res: Response): Promise<void> {
         }
 
         const reqNeed = req.body as LeanProductNeed
-        const productNeed = await tradingDb.addProductNeed(reqNeed)
-        res.status(201).json(productNeed)
+        const userId = res.locals.userId
+
+        if (userId === reqNeed.userId) {
+            const productNeed = await tradingDb.addProductNeed(reqNeed)
+            res.status(201).json(productNeed)
+        }
+        else {
+            res.status(400).send("User does not exist or match to token")
+        }
+
     } catch (e) {
         console.error("Error trying to create ProductNeed from POST body: ", e)
         res.sendStatus(400)
@@ -182,6 +198,12 @@ async function deleteNeed(req: PatchNeedRequest, res: Response): Promise<void> {
     if (!existingRecord) {
         res.statusMessage = `No record exists with Id ${id}.`
         res.sendStatus(404)
+    }
+
+    const userId = res.locals.userId
+    if (userId == undefined) {
+        res.sendStatus(500)
+        return
     }
 
     try {

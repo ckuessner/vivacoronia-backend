@@ -28,6 +28,6 @@ router.patch('/trading/offers/:offerId/', checkTokenAndExtractUserId, tradingCon
 router.get('/trading/categories/', tradingController.getCategories)
 router.post('/trading/categories/', authAdmin, tradingController.postCategory)
 
-router.get('/trading/needs/', tradingController.getNeeds)
-router.post('/trading/needs/', authUser, tradingController.postNeed)
-router.patch('/trading/needs/:needId/', authUser, tradingController.deleteNeed)
+router.get('/trading/needs/', checkTokenAndExtractUserId, tradingController.getNeeds)
+router.post('/trading/needs/', checkTokenAndExtractUserId, tradingController.postNeed)
+router.patch('/trading/needs/:needId/', checkTokenAndExtractUserId, tradingController.deleteNeed)

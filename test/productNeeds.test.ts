@@ -64,17 +64,18 @@ describe('POST /trading/needs/', function () {
 
 describe('GET /trading/needs/', function () {
 
-    it("Non-empty Get", async function () {
-        await ProductNeedRecord.insertMany(getValidProductNeed())
-        // TODO es muss noch getestet werden das nur die needs fuer einen user returned werden
-        const res = await request(app).get('/trading/needs/')
+    it("Right user-only get", async function () {
+        await ProductNeedRecord.insertMany(testNeeds)
+        const res = await request(app).get('/trading/needs')
+            .set({ jwt: testAccounts[1].jwt })
+            .query({ userId: testAccounts[1].userId })
         expect(res.status).to.equal(200)
-        expect(res.body).to.have.lengthOf(2)
+        expect(res.body).to.have.lengthOf(1)
+        expect(res.body[0].product).to.equal("Spaghetti")
     })
 
-    it('empty Get', async function () {
+    it('No authentication', async function () {
         const res = await request(app).get('/trading/needs/')
-        expect(res.status).to.equal(200)
-        expect(res.body).to.have.lengthOf(0)
+        expect(res.status).to.equal(400)
     })
 })
