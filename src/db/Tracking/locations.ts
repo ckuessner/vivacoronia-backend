@@ -23,7 +23,7 @@ export async function getNewestLocationRecords(): Promise<Array<ILocationRecord>
     return LocationRecord.find().sort({ "time": -1 }).limit(1000)
 }
 
-export async function getAllLocationRecords(location: [number, number], distance: number): Promise<Array<ILocationRecord>> {
+export async function getAllLocationRecords(location: [number, number], distance: number, start: string, end: string): Promise<Array<ILocationRecord>> {
 
     const lon = location[0]
     const lat = location[1]
@@ -34,6 +34,14 @@ export async function getAllLocationRecords(location: [number, number], distance
                 near: { type: "Point", coordinates: [lon, lat] },
                 distanceField: "distanceToAdmin",
                 maxDistance: distance
+            }
+        },
+        {
+            $match: {
+                time: {
+                    $gte: new Date(start),
+                    $lt: new Date(end)
+                }
             }
         },
     ])
