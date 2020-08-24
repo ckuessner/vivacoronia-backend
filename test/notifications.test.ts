@@ -9,7 +9,7 @@ import LocationRecord from "../src/db/Tracking/models/LocationRecord";
 
 before('connect to MongoDB', async function () {
     await mongoDBHelper.start()
-    await mongoDBHelper.setupAdminAccount()
+    await mongoDBHelper.setupRootAdminAccount()
 })
 
 after('disconnect from MongoDB', async function () {

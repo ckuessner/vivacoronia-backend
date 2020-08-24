@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { isString } from "util";
 import { validateJWT, getUserIdFromToken } from "../validators/jsonWebTokenValidator";
 import { isEmpty } from "lodash";
+import { hasAdminRights } from "../db/Users/userAccounts";
 
 async function authUser(req: Request, res: Response, next: NextFunction): Promise<void> {
 
@@ -18,7 +19,7 @@ async function authUser(req: Request, res: Response, next: NextFunction): Promis
     }
     const token: string = req.headers.jwt;
 
-    if (!await validateJWT(token, userId)) {
+    if (!await validateJWT(token, userId, "user")) {
         // invalid token
         res.status(401).send("Invalid JWT or user does not exist")
         return
@@ -30,6 +31,7 @@ async function authUser(req: Request, res: Response, next: NextFunction): Promis
 }
 
 async function checkTokenAndExtractUserId(req: Request, res: Response, next: NextFunction): Promise<void> {
+    // just for user authentication
     let userId;
     try {
         if (!isString(req.headers.jwt)) throw new Error()
@@ -40,7 +42,7 @@ async function checkTokenAndExtractUserId(req: Request, res: Response, next: Nex
     }
     const token: string = req.headers.jwt;
 
-    if (!await validateJWT(token, userId)) {
+    if (!await validateJWT(token, userId, "user")) {
         // invalid token
         res.status(401).send("Invalid JWT or user does not exist")
         return
@@ -52,18 +54,29 @@ async function checkTokenAndExtractUserId(req: Request, res: Response, next: Nex
 }
 
 async function authAdmin(req: Request, res: Response, next: NextFunction): Promise<void> {
-    if (!isString(req.headers.adminjwt)) {
+    // just for admin authentication
+    let userId;
+    try {
+        if (!isString(req.headers.adminjwt)) throw new Error()
+        userId = await getUserIdFromToken(req.headers.adminjwt)
+    } catch (err) {
         res.status(400).send("Invalid format or missing JWT")
         return
     }
 
     const token: string = req.headers.adminjwt;
 
-    if (!await validateJWT(token, "admin")) {
+    if (!await validateJWT(token, userId, "admin")) {
         // invalid token
         res.status(401).send("Invalid JWT")
         return
     }
+
+    if (!await hasAdminRights(userId)) {
+        res.status(401).send("No admin rights")
+    }
+
+    res.locals.userId = userId
 
     next()
 }

@@ -1,8 +1,8 @@
 import bcrypt from 'bcryptjs';
-import AdminPasswordRecord from "./models/AdminPasswordRecord";
-import UserAccountRecord, { IUserAccountRecord } from "./models/UserAccountRecord";
+import UserAccountRecord, { IUserAccountRecord, UserAccountPatch } from "./models/UserAccountRecord";
 import { isNull } from 'util';
 import mongoose from 'mongoose'
+import sanitize from "mongo-sanitize";
 
 export async function createNewUserAccount(password: string): Promise<IUserAccountRecord> {
   const date = new Date().toISOString()
@@ -12,13 +12,36 @@ export async function createNewUserAccount(password: string): Promise<IUserAccou
   return UserAccountRecord.create({
     "timeCreated": date,
     "passwordHash": hashPassword,
+    "isAdmin": false,
+    "isRootAdmin": false,
   }).then((record: IUserAccountRecord) => {
     return record
   })
 }
 
+export async function updateUserAccount(patch: UserAccountPatch): Promise<IUserAccountRecord | null> {
+  const { _id, isAdmin } = sanitize(patch)
+  return await UserAccountRecord.findOneAndUpdate({ _id: _id }, { isAdmin: isAdmin }, { new: true, runValidators: true })
+}
+
 export async function getAllUserAccounts(): Promise<IUserAccountRecord[]> {
   return await UserAccountRecord.find()
+}
+
+export async function hasAdminRights(userId: string): Promise<boolean> {
+  if (mongoose.Types.ObjectId.isValid(userId)) {
+    return await UserAccountRecord.exists({ _id: userId, isAdmin: true })
+  }
+
+  return Promise.reject("Invalid userId")
+}
+
+export async function isRootAdmin(userId: string): Promise<boolean> {
+  if (mongoose.Types.ObjectId.isValid(userId)) {
+    return await UserAccountRecord.exists({ _id: userId, isRootAdmin: true })
+  }
+
+  return Promise.reject("Invalid userId")
 }
 
 export async function getUserAccount(userId: string): Promise<IUserAccountRecord | null> {
@@ -43,23 +66,5 @@ export async function validatePassword(userId: string, password: string): Promis
     }
   }
 
-  return false
-}
-
-export async function validateAdminPassword(password: string): Promise<boolean> {
-  const adminPassword = await AdminPasswordRecord.findOne()
-
-  if (isNull(adminPassword)) {
-    console.log("No Admin Account exists")
-    return false
-  }
-  else {
-
-    const checkPassHash: boolean = await bcrypt.compare(password, adminPassword.passwordHash.toString())
-
-    if (checkPassHash) {
-      return true
-    }
-  }
   return false
 }

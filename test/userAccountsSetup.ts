@@ -19,10 +19,10 @@ export async function getUserJWT(userId: string, password: string): Promise<stri
         })
 }
 
-export async function getAdminJWT(): Promise<string> {
+export async function getAdminJWT(userId: string, password: string): Promise<string> {
     return await request(app)
-        .post('/admin/login/')
-        .send({ password: "testPassword!!!" })
+        .post('/admin/' + userId + '/login/')
+        .send({ password: password })
         .then(response => {
             return response.body.jwt
         })

@@ -19,18 +19,19 @@ const testRecords = getTestRecords();
 
 let testAccounts: Array<Record<string, string>>
 
+let rootAdmin: Record<string, string>
 let adminJWT: string
 
 before('connect to MongoDB', async function () {
     await mongoDBHelper.start()
-    await mongoDBHelper.setupAdminAccount()
+    rootAdmin = await mongoDBHelper.setupRootAdminAccount()
 
     testAccounts = await getUserAccountRecords(2)
 
     testRecords[0].userId = testAccounts[0].userId
     testRecords[1].userId = testRecords[2].userId = testAccounts[1].userId
 
-    adminJWT = await getAdminJWT()
+    adminJWT = await getAdminJWT(rootAdmin.userId, rootAdmin.password)
 })
 
 after('disconnect from MongoDB', async function () {

@@ -24,7 +24,7 @@ async function getKeyFromBuffer(filename: string): Promise<string> {
   return String(buffer)
 }
 
-async function generateJWT(userId: string): Promise<string> {
+async function generateJWT(userId: string, mode: string): Promise<string> {
   // generates an access token for a user with userId or admin
   // we can use this function with userId = "admin" as admin jwt generation
 
@@ -38,10 +38,11 @@ async function generateJWT(userId: string): Promise<string> {
 
   // Payload
   let oPayload = {
-    sub: userId
+    sub: userId,
+    jti: mode
   }
 
-  if (userId === "admin") {
+  if (mode === "admin") {
     // admin token expires in one day from now
     oPayload = Object.assign(oPayload, { exp: KJUR.jws.IntDate.get('now + 1day') })
   }
@@ -64,14 +65,14 @@ export async function getUserIdFromToken(jwt: string): Promise<string> {
 }
 
 export async function generateAccessJWT(userId: string): Promise<string> {
-  return await generateJWT(userId)
+  return await generateJWT(userId, "user")
 }
 
-export async function generateAdminJWT(): Promise<string> {
-  return await generateJWT("admin")
+export async function generateAdminJWT(userId: string): Promise<string> {
+  return await generateJWT(userId, "admin")
 }
 
-export async function validateJWT(token: string, userId: string): Promise<boolean> {
+export async function validateJWT(token: string, userId: string, mode: string): Promise<boolean> {
   // we can use this function with userId = "admin" as admin jwt validation
   // https://kjur.github.io/jsrsasign/api/symbols/KJUR.jws.JWS.html#.verifyJWT
   // https://kjur.github.io/jsrsasign/api/symbols/KJUR.jws.IntDate.html
@@ -82,6 +83,7 @@ export async function validateJWT(token: string, userId: string): Promise<boolea
       alg: ['RS256'],
       iss: [],
       sub: [userId],
+      jti: mode,
       verifyAt: KJUR.jws.IntDate.getNow(),
       aud: []
     });

@@ -10,9 +10,11 @@ let userId: string
 let password = "abc"
 let jwt: string
 
+let adminInfo: Record<string, string>
+
 before('connect to MongoDB', async function () {
     await mongoDBHelper.start()
-    await mongoDBHelper.setupAdminAccount()
+    adminInfo = await mongoDBHelper.setupRootAdminAccount()
 })
 
 after('disconnect from MongoDB', async function () {
@@ -78,8 +80,8 @@ describe('Test admin authentication', function () {
 
     it('returns a new admin jwt for correct admin password', function (done) {
         request(app)
-            .post('/admin/login/')
-            .send({ password: 'testPassword!!!' })
+            .post('/admin/' + adminInfo.userId + '/login/')
+            .send({ password: adminInfo.password })
             .expect(200)
             .expect('Content-Type', /json/)
             .then(response => {
@@ -91,7 +93,7 @@ describe('Test admin authentication', function () {
 
     it('denies a new admin jwt for incorrect admin password', function (done) {
         request(app)
-            .post('/admin/login/')
+            .post('/admin/' + adminInfo.userId + '/login/')
             .send({ password: 'wrongPassword' })
             .expect(401)
             .end(done)

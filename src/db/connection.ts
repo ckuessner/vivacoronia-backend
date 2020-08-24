@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import bcrypt from 'bcryptjs';
-import AdminPasswordRecord, { IAdminPasswordRecord } from "./Users/models/AdminPasswordRecord";
+import UserAccountRecord, { IUserAccountRecord } from "./Users/models/UserAccountRecord";
 import { isNull } from "util";
 import { promises as fs } from 'fs';
 import path from 'path';
@@ -14,16 +14,17 @@ mongoose.connection.on('error', console.error.bind(console, 'connection error:')
 mongoose.connection.once('open', () => console.log('connected to db'))
 
 
-async function setupAdminAccount(): Promise<void> {
-    const adminPassword = await AdminPasswordRecord.findOne()
+async function setupRootAdminAccount(): Promise<void> {
+    const rootAdmin = await UserAccountRecord.findOne({ isRootAdmin: true })
+    let recordId
 
-    if (isNull(adminPassword)) {
+    if (isNull(rootAdmin)) {
         // Check if the ADMIN_PASSWORD is set in the process environment. Ignore if the string is empty.
         let passwordHash;
         if (process.env.ADMIN_PASSWORD && process.env.ADMIN_PASSWORD !== "") {
             passwordHash = await bcrypt.hash(process.env.ADMIN_PASSWORD, 10)
         } else {
-            const filePath = path.join(__dirname, '..', '..', 'res', 'adminPassword');
+            const filePath = path.join(__dirname, '..', '..', 'res', 'rootAdminPassword');
             const data = await fs.readFile(filePath, 'utf8');
             const lines = data.split(/\r?\n/);
             const password = lines[0]
@@ -31,15 +32,23 @@ async function setupAdminAccount(): Promise<void> {
             passwordHash = await bcrypt.hash(password, 10)
         }
 
-        await AdminPasswordRecord.create({
+        await UserAccountRecord.create({
             "timeCreated": new Date().toISOString(),
             "passwordHash": passwordHash,
-        }).then((record: IAdminPasswordRecord) => {
+            "isAdmin": true,
+            "isRootAdmin": true
+        }).then((record: IUserAccountRecord) => {
             console.log("Created Admin account: \n" + String(record))
+            recordId = record._id as string
         })
     }
+    else {
+        recordId = rootAdmin._id as string
+    }
+
+    await fs.writeFile(path.join(__dirname, '..', '..', 'res', 'rootAdminUserId'), String(recordId))
 }
 
-void setupAdminAccount()
+void setupRootAdminAccount()
 
 export { opts, connectionString }

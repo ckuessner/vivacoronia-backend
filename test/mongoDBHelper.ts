@@ -1,29 +1,28 @@
 import { MongoMemoryServer } from "mongodb-memory-server";
 import mongoose from "mongoose";
-import AdminPasswordRecord, { IAdminPasswordRecord } from "../src/db/Users/models/AdminPasswordRecord";
-import { isNull } from "util";
+import UserAccountRecord, { IUserAccountRecord } from "../src/db/Users/models/UserAccountRecord";
 import bcrypt from 'bcryptjs';
 
 const opts = { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true }
 let mongoServer: MongoMemoryServer;
 
-async function setupAdminAccount(): Promise<void> {
-    const adminPassword = await AdminPasswordRecord.findOne()
+async function setupRootAdminAccount(): Promise<Record<string, string>> {
+    const password = "testPassword"
+    let recordId
 
-    if (isNull(adminPassword)) {
+    const passwordHash = await bcrypt.hash(password, 10)
 
-        const password = "testPassword!!!"
-        const hashPassword = await bcrypt.hash(password.toString(), 10)
+    await UserAccountRecord.create({
+        "timeCreated": new Date().toISOString(),
+        "passwordHash": passwordHash,
+        "isAdmin": true,
+        "isRootAdmin": true
+    }).then((record: IUserAccountRecord) => {
+        console.log("Created Admin account: \n" + String(record))
+        recordId = record._id as string
+    })
 
-        AdminPasswordRecord.create({
-            "timeCreated": new Date().toISOString(),
-            "passwordHash": hashPassword,
-        }).then((record: IAdminPasswordRecord) => {
-            console.log("Created Admin account: \n" + String(record))
-        }).catch((error: Error) => {
-            throw error
-        });
-    }
+    return { userId: String(recordId), password: password }
 }
 
 async function start() {
@@ -44,4 +43,4 @@ async function stop() {
     }
 }
 
-export default { start, stop, setupAdminAccount }
+export default { start, stop, setupRootAdminAccount }

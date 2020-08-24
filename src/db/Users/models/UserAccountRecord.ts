@@ -8,12 +8,27 @@ const UserAccountRecordSchema: Schema = new Schema({
   passwordHash: {
     type: String,
     required: true
+  },
+  isAdmin: {
+    type: Boolean,
+    required: true
+  },
+  isRootAdmin: {
+    type: Boolean,
+    required: true
   }
 })
 
 export interface IUserAccountRecord extends Document {
   timeCreated: Date;
   passwordHash: string;
+  isAdmin: boolean;
+  isRootAdmin: boolean;
+}
+
+export interface UserAccountPatch {
+  _id: string;
+  isAdmin: boolean;
 }
 
 export default mongoose.model<IUserAccountRecord>('UserAccountRecord', UserAccountRecordSchema);

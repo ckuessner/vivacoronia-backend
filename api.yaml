@@ -31,7 +31,7 @@ paths:
               items:
                 $ref: "#/components/schemas/Password"
             examples:
-              exPassw:
+              exPassword:
                 $ref: "#/components/examples/exPassword"
       responses:
         "200":
@@ -46,7 +46,7 @@ paths:
                 newUser:
                   $ref: "#/components/examples/newUserId"
 
-  /user/{userId}/login:
+  /user/{userId}/login/:
     post:
       tags: [User Creation and Authentication]
       description: Returns a new JWT for a specific userId
@@ -79,7 +79,51 @@ paths:
           schema:
             $ref: "#/components/schemas/userId"
 
-  /admin/login/:
+  /admin/:
+    patch:
+      tags: [Admin feature granting]
+      description: Grants admin status to user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              items:
+                $ref: "#/components/schemas/UserAdminPatch"
+            examples:
+              userAdminPatch:
+                $ref: "#components/examples/userAdminPatch"
+      responses:
+        "201":
+          description: "Granted"
+        "400":
+          description: "Invalid arguments"
+        "401":
+          description: "Not root admin"
+      parameters:
+        - name: adminjwt
+          in: header
+          schema:
+            type: string
+          required: true
+
+  /admin/{userId}/login/:
+    get:
+      tags: [Admin authentication]
+      description:  Check if user has admin rights
+      responses:
+        "200":
+          description: Has admin rights
+        "401":
+          description: Does not have admin rights
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: The id of the user
+          schema:
+            $ref: "#/components/schemas/userId"
+
     post:
       tags: [Admin authentication]
       description: Returns a new JWT for admin functionality
@@ -89,9 +133,9 @@ paths:
             schema:
               type: object
               items:
-                $ref: "#/components/schemas/Password"
+                $ref: "#/components/schemas/password"
             examples:
-              exPassw:
+              exAdminPatch:
                 $ref: "#components/examples/exPassword"
       responses:
         "200":
@@ -104,6 +148,15 @@ paths:
               examples:
                 newJWT:
                   $ref: "#/components/examples/newJWT"
+        "401":
+          description: No admin rights
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: The id of the user
+          schema:
+            $ref: "#/components/schemas/userId"
 
   /locations/:
     get:
@@ -537,7 +590,7 @@ components:
       type: object
       description: Schema for user id object
       example:
-        userID: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
+        userId: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
         time: "2020-05-21T21:39:08+02:00"
       properties:
         userId:
@@ -563,6 +616,18 @@ components:
       properties:
         password:
           $ref: "#/components/schemas/password"
+
+    UserAdminPatch:
+      type: object
+      description: schema for user admin patch
+      example:
+        _id: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
+        isAdmin: "true"
+      properties:
+        _id:
+          $ref: "#components/schemas/userId"
+        isAdmin:
+          $ref: "#components/schemas/isAdmin"
 
     LocationRecord:
       type: object
@@ -627,6 +692,9 @@ components:
 
     password:
       type: string
+    
+    isAdmin:
+      type: boolean
 
     lat_long:
       type: number
@@ -801,6 +869,11 @@ components:
       summary: Json object with the password string for a user account
       value:
         password: "abc123!ZY_5"
+
+    userAdminPatch:
+      value:
+        _id: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
+        isAdmin: "true"
 
     geoJsonPoint2DArrayExample:
       summary: Array with two GeoJSON Point2D ojects
