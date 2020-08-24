@@ -59,14 +59,22 @@ describe('connection', async function () {
 
 describe('notification sending', async function () {
     let ws: WebSocket;
+    let ws42: WebSocket;
     let wrongWs: WebSocket;
 
-    const locRec = await LocationRecord.create({ userId: "1", time: new Date(), location: { type: "Point", coordinates: [0, 0] } })
-    const conRec = await ContactRecord.create({ userId: "0", infectedUserId: "2", locationRecord: locRec })
+    const locRec = [
+        await LocationRecord.create({ userId: "1", time: new Date(), location: { type: "Point", coordinates: [0, 0] } }),
+        await LocationRecord.create({ userId: "2", time: new Date(), location: { type: "Point", coordinates: [1, 1] } })
+    ]
+    const conRec = [
+        await ContactRecord.create({ userId: "0", infectedUserId: "2", locationRecord: locRec[0] }),
+        await ContactRecord.create({ userId: "42", infectedUserId: "2", locationRecord: locRec[0] }),
+        await ContactRecord.create({ userId: "0", infectedUserId: "2", locationRecord: locRec[1] })
+    ]
 
     it('buffers notifications', async function () {
         return new Promise(async (resolve, reject) => {
-            await notifications.sendInfectedContactNotifications([conRec])
+            await notifications.sendInfectedContactNotifications([conRec[0]])
             wrongWs = await createWSClient("2")
             wrongWs.on('message', () => { reject(Error("Should not send notifications to wrong socket")) })
             ws = await createWSClient("0")
@@ -84,4 +92,14 @@ describe('notification sending', async function () {
         })
     });
 
+    it('send only once per infected user', async function () {
+        ws = await createWSClient("0")
+        ws42 = await createWSClient("42")
+        return new Promise(async (resolve, reject) => {
+            await notifications.sendInfectedContactNotifications(conRec)
+            ws.on('message', (message) => message === CONTACT_NOTIFICATION_STRING && resolve())
+            ws42.on('message', (message) => message === CONTACT_NOTIFICATION_STRING && resolve())
+            ws.on('message', () => { reject(Error("Should not send notifications twice for the same infectedUser")) })
+        })
+    })
 })

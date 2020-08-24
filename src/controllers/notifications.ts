@@ -59,13 +59,17 @@ function bufferMessage(userId: string, message: string) {
 
 async function sendInfectedContactNotifications(contacts: Array<IContactRecord>): Promise<void> {
     // send to each user who has contact a notification
+    const notifiedUsers = Array<string>()
     for (const contact of contacts) {
         const userId = String(contact.userId)
-        try {
-            await sendNotification(userId, CONTACT_NOTIFICATION_STRING)
-        } catch (err) {
-            console.error("Could not notifiy user ", userId)
-            bufferMessage(userId, CONTACT_NOTIFICATION_STRING)
+        // a user should only be notified once for a contact with another user
+        if (notifiedUsers.findIndex(element => element == userId) === -1) {
+            try {
+                await sendNotification(userId, CONTACT_NOTIFICATION_STRING)
+            } catch (err) {
+                console.error("Could not notifiy user ", userId)
+                bufferMessage(userId, CONTACT_NOTIFICATION_STRING)
+            }
         }
     }
 }
