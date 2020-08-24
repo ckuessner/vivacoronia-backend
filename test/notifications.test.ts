@@ -63,12 +63,13 @@ describe('notification sending', async function () {
     let wrongWs: WebSocket;
 
     const locRec = [
-        await LocationRecord.create({ userId: "1", time: new Date(), location: { type: "Point", coordinates: [0, 0] } }),
-        await LocationRecord.create({ userId: "2", time: new Date(), location: { type: "Point", coordinates: [1, 1] } })
+        await LocationRecord.create({ userId: "0", time: new Date(), location: { type: "Point", coordinates: [0, 0] } }),
+        await LocationRecord.create({ userId: "0", time: new Date(), location: { type: "Point", coordinates: [1, 1] } }),
+        await LocationRecord.create({ userId: "42", time: new Date(), location: { type: "Point", coordinates: [0, 0] } })
     ]
     const conRec = [
         await ContactRecord.create({ userId: "0", infectedUserId: "2", locationRecord: locRec[0] }),
-        await ContactRecord.create({ userId: "42", infectedUserId: "2", locationRecord: locRec[0] }),
+        await ContactRecord.create({ userId: "42", infectedUserId: "2", locationRecord: locRec[2] }),
         await ContactRecord.create({ userId: "0", infectedUserId: "2", locationRecord: locRec[1] })
     ]
 
