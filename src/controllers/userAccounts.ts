@@ -108,14 +108,7 @@ export async function checkAdminStatus(req: Request, res: Response): Promise<voi
   try {
     const validator: boolean = await userAccountDb.hasAdminRights(userId)
 
-    if (validator) {
-      // user has admin rights
-      res.sendStatus(200)
-    }
-    else {
-      // user does not have admin rights
-      res.sendStatus(401)
-    }
+    res.json({ "isAdmin": validator })
   }
   catch (e) {
     res.statusMessage = `Invalid userId`

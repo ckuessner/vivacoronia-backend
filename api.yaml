@@ -113,9 +113,17 @@ paths:
       description:  Check if user has admin rights
       responses:
         "200":
-          description: Has admin rights
-        "401":
-          description: Does not have admin rights
+          description: Return admin status for userId
+          content:
+            application/json:
+              schema:
+                type: object
+                items: "#components/schemas/AdminStatus"
+              examples:
+                adminStatus:
+                  $ref: "#/components/examples/adminStatus"
+        "400":
+          description: Incorrect userId
       parameters:
         - name: userId
           in: path
@@ -617,6 +625,15 @@ components:
         password:
           $ref: "#/components/schemas/password"
 
+    AdminStatus:
+      type: object
+      description: schema for admin status
+      example:
+        isAdmin: true
+      properties:
+        isAdmin:
+          $ref: "#components/schemas/isAdmin"
+
     UserAdminPatch:
       type: object
       description: schema for user admin patch
@@ -869,6 +886,9 @@ components:
       summary: Json object with the password string for a user account
       value:
         password: "abc123!ZY_5"
+
+    adminStatus:
+      isAdmin: "true"
 
     userAdminPatch:
       value:
