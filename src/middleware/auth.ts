@@ -74,6 +74,7 @@ async function authAdmin(req: Request, res: Response, next: NextFunction): Promi
 
     if (!await hasAdminRights(userId)) {
         res.status(401).send("No admin rights")
+        return
     }
 
     res.locals.userId = userId
