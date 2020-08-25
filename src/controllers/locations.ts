@@ -42,9 +42,11 @@ async function getAllLocationRecords(req: Request, res: Response): Promise<void>
     const longValid: boolean = checkLong(longitude)
     const latValid: boolean = checkLat(latitude)
     const distValid: boolean = checkDist(distance)
+    const start: Date = new Date(req.query.start.toString())
+    const end: Date = new Date(req.query.end.toString())
     //check if all query parameter exist and are valid
     if (longValid && latValid && distValid) {
-        const records: ILocationRecord[] = await locationsDb.getAllLocationRecords([longitude, latitude], distance, req.query.start?.toString(), req.query.end?.toString())
+        const records: ILocationRecord[] = await locationsDb.getAllLocationRecords([longitude, latitude], distance, start, end)
         res.json(records)
     }
     //check if some query parameter exist and is valid
