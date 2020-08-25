@@ -31,7 +31,7 @@ async function postLocationRecords(req: Request, res: Response): Promise<void> {
 }
 
 async function getAllLocationRecords(req: Request, res: Response): Promise<void> {
-    if (req.query.longitude == undefined && req.query.latitute == undefined && req.query.distance == undefined) {
+    if (req.query.longitude == undefined && req.query.latitute == undefined && req.query.distance == undefined && req.query.start == undefined && req.query.end == undefined) {
         const records: ILocationRecord[] = await locationsDb.getNewestLocationRecords()
         res.json(records)
         return
