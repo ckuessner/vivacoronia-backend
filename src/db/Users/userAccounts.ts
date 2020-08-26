@@ -19,9 +19,15 @@ export async function createNewUserAccount(password: string): Promise<IUserAccou
   })
 }
 
-export async function updateUserAccount(patch: UserAccountPatch): Promise<IUserAccountRecord | null> {
+export async function updateUserAccount(patch: UserAccountPatch): Promise<IUserAccountRecord> {
   const { _id, isAdmin } = sanitize(patch)
-  return await UserAccountRecord.findOneAndUpdate({ _id: _id }, { isAdmin: isAdmin }, { new: true, runValidators: true })
+  const ret = await UserAccountRecord.findOneAndUpdate({ _id: _id }, { isAdmin: isAdmin }, { new: true, runValidators: true })
+
+  if (isNull(ret)) {
+    return Promise.reject('Could not update user')
+  }
+
+  return ret
 }
 
 export async function getAllUserAccounts(): Promise<IUserAccountRecord[]> {

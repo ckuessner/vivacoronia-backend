@@ -24,9 +24,10 @@ async function getKeyFromBuffer(filename: string): Promise<string> {
   return String(buffer)
 }
 
-async function generateJWT(userId: string, mode: string): Promise<string> {
+async function generateJWT(userId: string, mode: "admin" | "user"): Promise<string> {
   // generates an access token for a user with userId or admin
-  // we can use this function with userId = "admin" as admin jwt generation
+  // we can use this function with mode="admin" as admin jwt generation
+  // and mode="user" as user jwt
 
   const privateKey = await getKeyFromBuffer('private_key');
 

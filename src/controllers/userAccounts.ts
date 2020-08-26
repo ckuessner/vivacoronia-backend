@@ -72,8 +72,7 @@ export async function newAdminToken(req: Request, res: Response): Promise<void> 
     validator = await userAccountDb.validatePassword(userId, password)
   }
   catch (e) {
-    res.statusMessage = `Invalid userId`
-    res.sendStatus(400)
+    res.status(400).send('Invalid userId')
     return
   }
 
@@ -111,8 +110,7 @@ export async function checkAdminStatus(req: Request, res: Response): Promise<voi
     res.json({ "isAdmin": validator })
   }
   catch (e) {
-    res.statusMessage = `Invalid userId`
-    res.sendStatus(400)
+    res.status(400).send('Invalid userId')
   }
 }
 
@@ -138,8 +136,6 @@ export async function grantAdminRequest(req: Request, res: Response): Promise<vo
       // patch user from body
       const updatedAccount = await userAccountDb.updateUserAccount(patch)
 
-      if (updatedAccount === null) throw new Error()
-
       console.log(String(updatedAccount?._id) + " has now admin status " + String(updatedAccount?.isAdmin))
 
       res.sendStatus(201)
@@ -149,7 +145,6 @@ export async function grantAdminRequest(req: Request, res: Response): Promise<vo
       res.sendStatus(401)
     }
   } catch (e) {
-    res.statusMessage = `Cannot update user Account because of invalid arguments.`
-    res.sendStatus(400)
+    res.status(400).send('Cannot update user Account because of invalid arguments.')
   }
 }
