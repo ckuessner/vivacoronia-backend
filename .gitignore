@@ -4,3 +4,4 @@ node_modules/
 *.key
 !docker/dev.key
 package-lock.json
+res/rootAdminUserId

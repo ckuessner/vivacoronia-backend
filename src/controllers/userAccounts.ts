@@ -116,6 +116,7 @@ export async function checkAdminStatus(req: Request, res: Response): Promise<voi
 
 export async function grantAdminRequest(req: Request, res: Response): Promise<void> {
   const userId = res.locals.userId
+  const reqUserId = req.params.userId
 
   if (userId == undefined) {
     res.sendStatus(500)
@@ -129,12 +130,11 @@ export async function grantAdminRequest(req: Request, res: Response): Promise<vo
 
     if (validator) {
       const patch = {
-        _id: body._id as string,
         isAdmin: body.isAdmin as boolean
       } as UserAccountPatch
 
       // patch user from body
-      const updatedAccount = await userAccountDb.updateUserAccount(patch)
+      const updatedAccount = await userAccountDb.updateUserAccount(reqUserId, patch)
 
       console.log(String(updatedAccount?._id) + " has now admin status " + String(updatedAccount?.isAdmin))
 

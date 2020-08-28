@@ -27,7 +27,6 @@ export interface IUserAccountRecord extends Document {
 }
 
 export interface UserAccountPatch {
-  _id: string;
   isAdmin: boolean;
 }
 

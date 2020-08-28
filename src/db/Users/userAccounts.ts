@@ -19,15 +19,19 @@ export async function createNewUserAccount(password: string): Promise<IUserAccou
   })
 }
 
-export async function updateUserAccount(patch: UserAccountPatch): Promise<IUserAccountRecord> {
-  const { _id, isAdmin } = sanitize(patch)
-  const ret = await UserAccountRecord.findOneAndUpdate({ _id: _id }, { isAdmin: isAdmin }, { new: true, runValidators: true })
+export async function updateUserAccount(userId: string, patch: UserAccountPatch): Promise<IUserAccountRecord> {
+  if (mongoose.Types.ObjectId.isValid(userId)) {
+    const { isAdmin } = sanitize(patch)
+    const ret = await UserAccountRecord.findOneAndUpdate({ _id: userId }, { isAdmin: isAdmin }, { new: true, runValidators: true })
 
-  if (isNull(ret)) {
-    return Promise.reject('Could not update user')
+    if (isNull(ret)) {
+      return Promise.reject('Could not update user')
+    }
+
+    return ret
   }
 
-  return ret
+  return Promise.reject("Invalid userId")
 }
 
 export async function getAllUserAccounts(): Promise<IUserAccountRecord[]> {
