@@ -97,7 +97,7 @@ export async function newAdminToken(req: Request, res: Response): Promise<void> 
   }
   else {
     // no admin rights
-    res.sendStatus(401)
+    res.sendStatus(403)
   }
 }
 
