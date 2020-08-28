@@ -434,6 +434,11 @@ paths:
                 items:
                   $ref: "#/components/schemas/ProductNeedRecord"
       parameters:
+        - name: jwt
+          in: header
+          schema:
+            type: string
+          required: true
         - name: userId
           in: query
           schema:
@@ -489,16 +494,19 @@ paths:
           required: true
   
   /trading/needs/{needId}:
-    patch:
+    delete:
       tags: [Trading]
-      description: Update an already existing need.
+      description: delete an already existing need.
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ProductNeedRecord"
-              description: only property fulfilled is necessary
+              properties:
+                fulfilled: 
+                  type: boolean
+                  example: true
+                  description: only property fulfilled is necessary
       responses:
         "200":
           description: Returns the complete succesfully changed offer
@@ -511,6 +519,11 @@ paths:
         "400":
           description: Either needId was not specified in the url path or there was another error
       parameters:
+        - name: jwt
+          in: header
+          schema:
+            type: string
+          required: true
         - name: needId
           in: path
           required: true
@@ -739,6 +752,10 @@ components:
         productCategory: 
           type: string
           $ref: "#/components/schemas/productCategory"
+        amount:
+          type: number
+          description: How much of the product is offered (1 time, 2 times, 5 times)
+          example: 5
         location: 
           $ref: "#/components/schemas/GeoJSONPoint2D"
         deactivatedAt: 

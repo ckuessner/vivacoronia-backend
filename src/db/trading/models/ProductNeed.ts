@@ -17,6 +17,11 @@ const ProductNeedSchema: Schema = new Schema({
         index: true,
         validate: validateCategory
     },
+    amount: {
+        type: Number,
+        required: true,
+        min: [1, 'amount cannot be negative']
+    },
     location: {
         type: Point2DSchema,
         required: true,
@@ -48,18 +53,18 @@ export interface LeanProductNeed {
 
 export interface ProductNeedDocument extends LeanProductNeed, Document { }
 
-export interface ProductNeedQuery{
+export interface ProductNeedQuery {
     needId?: string;
     userId?: string;
     product?: string;
     productCategory?: string;
     longitude?: number;
     latitude?: number;
-    radiusInMeters?: number; 
+    radiusInMeters?: number;
     includeInactive?: boolean
 }
 
-export interface ProductNeedPatch{
+export interface ProductNeedPatch {
     deactivatedAt?: Date
     fulfilled?: boolean
 }
