@@ -43,6 +43,7 @@ export interface LeanProductNeed {
     userId: string;
     product: string;
     productCategory: string;
+    amount: number,
     location: {
         type: 'Point';
         coordinates: Array<number>;
@@ -58,6 +59,7 @@ export interface ProductNeedQuery {
     userId?: string;
     product?: string;
     productCategory?: string;
+    amount?: number,
     longitude?: number;
     latitude?: number;
     radiusInMeters?: number;
