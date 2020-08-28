@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { isString } from "util";
-import { validateJWT, getUserIdFromToken } from "../validators/jsonWebTokenValidator";
+import { validateJWT, getUserIdFromTokenWithoutValidation } from "../validators/jsonWebTokenValidator";
 import { isEmpty } from "lodash";
 import { hasAdminRights } from "../db/Users/userAccounts";
 
@@ -35,7 +35,7 @@ async function checkTokenAndExtractUserId(req: Request, res: Response, next: Nex
     let userId;
     try {
         if (!isString(req.headers.jwt)) throw new Error()
-        userId = await getUserIdFromToken(req.headers.jwt)
+        userId = await getUserIdFromTokenWithoutValidation(req.headers.jwt)
     } catch (err) {
         res.status(400).send("Invalid format or missing JWT")
         return
@@ -58,7 +58,7 @@ async function authAdmin(req: Request, res: Response, next: NextFunction): Promi
     let userId;
     try {
         if (!isString(req.headers.adminjwt)) throw new Error()
-        userId = await getUserIdFromToken(req.headers.adminjwt)
+        userId = await getUserIdFromTokenWithoutValidation(req.headers.adminjwt)
     } catch (err) {
         res.status(400).send("Invalid format or missing JWT")
         return

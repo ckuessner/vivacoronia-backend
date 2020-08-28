@@ -21,8 +21,8 @@ export async function createNewUserAccount(password: string): Promise<IUserAccou
 
 export async function updateUserAccount(userId: string, patch: UserAccountPatch): Promise<IUserAccountRecord> {
   if (mongoose.Types.ObjectId.isValid(userId)) {
-    const { isAdmin } = sanitize(patch)
-    const ret = await UserAccountRecord.findOneAndUpdate({ _id: userId }, { isAdmin: isAdmin }, { new: true, runValidators: true })
+    const patchObject = sanitize(patch)
+    const ret = await UserAccountRecord.findOneAndUpdate({ _id: userId }, patchObject, { new: true, runValidators: true })
 
     if (isNull(ret)) {
       return Promise.reject('Could not update user')

@@ -54,7 +54,9 @@ async function generateJWT(userId: string, mode: "admin" | "user"): Promise<stri
   return sJWT
 }
 
-export async function getUserIdFromToken(jwt: string): Promise<string> {
+export async function getUserIdFromTokenWithoutValidation(jwt: string): Promise<string> {
+  // extracts the userId from the payload of the token
+  // jwt does not get validated here.
 
   const payloadObj = KJUR.jws.JWS.readSafeJSONString(b64toutf8(jwt.split(".")[1]))
 

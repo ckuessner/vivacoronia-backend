@@ -110,7 +110,7 @@ describe('Test admin authentication', function () {
     it('denies access to all locations with incorrect admin jwt', function (done) {
         request(app)
             .get('/locations/')
-            .set({ adminjwt: 'abc.edf.aaa' })
+            .set({ adminjwt: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1ZjQ5MTdmZDBjMTNkZDAwNjEwNTlkM2UiLCJqdGkiOiJ1c2VyIn0.Jwp_1h1vNMu2ZHx5_WIqAYPRqa0ZhHmbeV-wwvyaDneaft3uNUbBSETP4iq2Oh5zp2Kil4vlqJ3qa1aEB4l1gAd8j3BS61Xk2IZ3MUL-AJDzt1-LoLK2xxdlRokGr5P290SEZSh9R6cl9Y6ncrnO_924ejuzfzn9BJTYOJj2buhUp071f7S-PB44plz8YGBz9DtOULtdnu-DFvKICYNCJlCxut8rcwVlPbF6z16ekybR0ekyDOCTI9ftYExLlK-inkUPnfzr-MK5p_lnlCxDurT4S8nMaXKWvWUAfA3gAyVvNEpTLMXV0-a47oxcLcosfkch6GYwqxWkk39zQDa8Hw' })
             .expect(401)
             .end(done)
     })

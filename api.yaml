@@ -113,13 +113,12 @@ paths:
           schema:
             $ref: "#/components/schemas/userId"
 
-  /admin/{userId}/login/:
     get:
-      tags: [Admin authentication]
-      description:  Check if user has admin rights
+      tags: [User Information]
+      description:  Get user specific informations
       responses:
         "200":
-          description: Return admin status for userId
+          description: Return status information of user
           content:
             application/json:
               schema:
@@ -137,7 +136,13 @@ paths:
           description: The id of the user
           schema:
             $ref: "#/components/schemas/userId"
+        - name: jwt
+          in: header
+          schema:
+            type: string
+          required: true
 
+  /admin/{userId}/login/:
     post:
       tags: [Admin authentication]
       description: Returns a new JWT for admin functionality
