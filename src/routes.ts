@@ -30,6 +30,10 @@ router.get('/trading/offers/', tradingController.getOffers)
 router.post('/trading/offers/', checkTokenAndExtractUserId, tradingController.postOffer)
 router.patch('/trading/offers/:offerId/', checkTokenAndExtractUserId, tradingController.patchOffer)
 
+router.get('/trading/inventory/', tradingController.getInventory)
+router.post('/trading/inventory/', tradingController.postInventory)
+//router.patch('/trading/inventory/:supermarketId/', tradingController.patchInventory)
+
 router.get('/trading/categories/', tradingController.getCategories)
 router.post('/trading/categories/', authAdmin, tradingController.postCategory)
 

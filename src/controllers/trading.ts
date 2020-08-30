@@ -230,6 +230,13 @@ async function deleteNeed(req: DeleteNeedRequest, res: Response): Promise<void> 
 
 }
 
+async function getInventory(req: Request, res: Response): Promise<void>{
+    console.log("Get Inventory")
+    console.log(req.query.supermarketId)
+    const supermarketId = req.query.supermarketId as string
+    const inventory = await tradingDb.getInventory(supermarketId)
+    res.status(200).json(inventory)
+}
 // notifications
 async function notifyForMatchingOffers(need: ProductNeedDocument): Promise<void> {
     const offers = await tradingDb.getOffersMatchesWithNeed(need)
@@ -242,3 +249,30 @@ async function notifyForMatchingNeeds(offer: ProductOfferDocument): Promise<void
 }
 
 export default { getCategories, postCategory, getOffers, postOffer, patchOffer, postNeed, getNeeds, deleteNeed }
+
+async function postInventory(req: Request, res: Response): Promise<void>{
+    console.log("Post Inventory")
+    console.log(req.body)
+    const supermarketId = req.query.supermarketId as string
+    const items = req.body as [[string, number]]
+    if(!Array.isArray(req.body)){
+        res.sendStatus(400)
+    }
+    else {
+        try{
+            const inventory = await tradingDb.addInventory(supermarketId, items)
+            res.status(201).json(inventory)
+        }
+        catch (e) {
+            console.error("Error trying to create SupermarketInventory from POST body: ", e)
+            res.sendStatus(400)
+            return
+        }
+    }
+}
+
+//async function patchInventory(req: Request, res: Response): Promise<void>{
+
+//}
+
+export default { getCategories, postCategory, getOffers, postOffer, patchOffer, postNeed, getNeeds, deleteNeed, getInventory, postInventory }//, patchInventory }
