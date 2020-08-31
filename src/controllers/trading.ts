@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { LeanProductOffer, ProductOfferPatch } from '../db/trading/models/ProductOffer';
 import tradingDb from '../db/trading/trading';
-import { PatchOfferRequest, PostCategoryRequest, PatchNeedRequest } from '../types/trading'
+import { PatchOfferRequest, PostCategoryRequest, DeleteNeedRequest } from '../types/trading'
 import { LeanProductNeed } from '../db/trading/models/ProductNeed';
 import { ProductQuery } from '../db/trading/models/Product';
 import { isEmpty } from 'lodash';
@@ -184,7 +184,7 @@ async function postNeed(req: Request, res: Response): Promise<void> {
 
 }
 
-async function deleteNeed(req: PatchNeedRequest, res: Response): Promise<void> {
+async function deleteNeed(req: DeleteNeedRequest, res: Response): Promise<void> {
     const id = req.params.needId
     const fulfilled = req.body.fulfilled
 

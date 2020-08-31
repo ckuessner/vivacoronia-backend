@@ -85,7 +85,7 @@ async function addProductOffer(offer: LeanProductOffer): Promise<ProductOfferDoc
     return ProductOfferRecord.create(offer)
 }
 
-function sanitizeProductPatch(patch: Record<string, unknown>): Record<string, unknown> {
+function sanitizeProductOfferPatch(patch: Record<string, unknown>): Record<string, unknown> {
     Object.keys(patch).forEach(key => {
         if (patch[key] === undefined || (typeof patch[key] === 'number' && isNaN(patch[key] as number))) {
             delete patch[key]
@@ -96,7 +96,7 @@ function sanitizeProductPatch(patch: Record<string, unknown>): Record<string, un
 }
 
 async function updateProductOffer(id: string, userId: string, patch: ProductOfferPatch): Promise<ProductOfferDocument | null> {
-    const sanitizedPatch = sanitizeProductPatch(patch as Record<string, unknown>)
+    const sanitizedPatch = sanitizeProductOfferPatch(patch as Record<string, unknown>)
     return ProductOfferRecord.findOneAndUpdate({ _id: id, userId: userId }, sanitizedPatch, { new: true, runValidators: true })
 }
 
