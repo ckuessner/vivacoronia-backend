@@ -31,6 +31,7 @@ async function createWSClient(userId: string) {
     return new WebSocket(`http://localhost:${(wss.address() as AddressInfo).port}`, { headers: { userid: userId, jwt: jwt } })
 }
 
+
 describe('connection', async function () {
     let ws: WebSocket;
     it('client connects', function (done) {
@@ -59,7 +60,6 @@ describe('connection', async function () {
 
 describe('notification sending', async function () {
     let ws: WebSocket;
-    let ws42: WebSocket;
     let wrongWs: WebSocket;
 
     const locRec = [
@@ -67,6 +67,7 @@ describe('notification sending', async function () {
         await LocationRecord.create({ userId: "0", time: new Date(), location: { type: "Point", coordinates: [1, 1] } }),
         await LocationRecord.create({ userId: "42", time: new Date(), location: { type: "Point", coordinates: [0, 0] } })
     ]
+
     const conRec = [
         await ContactRecord.create({ userId: "0", infectedUserId: "2", locationRecord: locRec[0] }),
         await ContactRecord.create({ userId: "42", infectedUserId: "2", locationRecord: locRec[2] }),
@@ -92,15 +93,31 @@ describe('notification sending', async function () {
             setTimeout(resolve, 10)
         })
     });
+})
+
+describe('notify only one time', async function () {
+    let ws: WebSocket
 
     it('send only once per infected user', async function () {
         ws = await createWSClient("0")
-        ws42 = await createWSClient("42")
-        return new Promise(async (resolve, reject) => {
+
+        const locRec = [
+            await LocationRecord.create({ userId: "0", time: new Date(), location: { type: "Point", coordinates: [0, 0] } }),
+            await LocationRecord.create({ userId: "0", time: new Date(), location: { type: "Point", coordinates: [1, 1] } }),
+            await LocationRecord.create({ userId: "42", time: new Date(), location: { type: "Point", coordinates: [0, 0] } })
+        ]
+
+        const conRec = [
+            await ContactRecord.create({ userId: "0", infectedUserId: "2", locationRecord: locRec[0] }),
+            await ContactRecord.create({ userId: "42", infectedUserId: "2", locationRecord: locRec[2] }),
+            await ContactRecord.create({ userId: "0", infectedUserId: "2", locationRecord: locRec[1] })
+        ]
+
+        return new Promise(async (resolve) => {
+            let counter = 0
             await notifications.sendInfectedContactNotifications(conRec)
-            ws.on('message', (message) => message === CONTACT_NOTIFICATION_STRING && resolve())
-            ws42.on('message', (message) => message === CONTACT_NOTIFICATION_STRING && resolve())
-            ws.on('message', () => { reject(Error("Should not send notifications twice for the same infectedUser")) })
+            ws.on('message', () => { counter = counter + 1; expect(counter <= 1).to.be.true; })
+            resolve()
         })
     })
 })
