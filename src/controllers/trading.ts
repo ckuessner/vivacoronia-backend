@@ -6,6 +6,12 @@ import { LeanProductNeed, ProductNeedDocument } from '../db/trading/models/Produ
 import { ProductQuery } from '../db/trading/models/Product';
 import notifications from '../controllers/notifications'
 import { isEmpty } from 'lodash';
+import { ProductQuery } from '../db/trading/models/Product';
+import { LeanProductNeed } from '../db/trading/models/ProductNeed';
+import { LeanProductOffer, ProductOfferPatch } from '../db/trading/models/ProductOffer';
+import { LeanInventoryItem, LeanSupermarket } from '../db/trading/models/SupermarketInventory';
+import tradingDb from '../db/trading/trading';
+import { DeleteNeedRequest, PatchOfferRequest, PostCategoryRequest } from '../types/trading';
 
 function getRequestParameters(req: Request): ProductQuery {
     const userId: string = req.query.userId as string
@@ -230,12 +236,16 @@ async function deleteNeed(req: DeleteNeedRequest, res: Response): Promise<void> 
 
 }
 
-async function getInventory(req: Request, res: Response): Promise<void>{
-    console.log("Get Inventory")
-    console.log(req.query.supermarketId)
-    const supermarketId = req.query.supermarketId as string
-    const inventory = await tradingDb.getInventory(supermarketId)
-    res.status(200).json(inventory)
+async function getSupermarketData(req: Request, res: Response): Promise<void> {
+    const supermarketId = req.params.supermarketId
+    try {
+        const inventory = await tradingDb.getSupermarket(supermarketId)
+        res.status(200).json(inventory)
+    } catch (e) {
+        console.error(`Error trying to get supermarket data with supermarketId ${supermarketId}: `, e)
+        res.sendStatus(400)
+        return
+    }
 }
 // notifications
 async function notifyForMatchingOffers(need: ProductNeedDocument): Promise<void> {
@@ -247,32 +257,62 @@ async function notifyForMatchingNeeds(offer: ProductOfferDocument): Promise<void
     const needs = await tradingDb.getNeedsMatchesWithOffer(offer)
     await notifications.sendNoficationAfterOfferPost(offer, needs)
 }
-
 export default { getCategories, postCategory, getOffers, postOffer, patchOffer, postNeed, getNeeds, deleteNeed }
-
-async function postInventory(req: Request, res: Response): Promise<void>{
-    console.log("Post Inventory")
-    console.log(req.body)
-    const supermarketId = req.query.supermarketId as string
-    const items = req.body as [[string, number]]
-    if(!Array.isArray(req.body)){
+async function postSupermarket(req: Request, res: Response): Promise<void> {
+    try {
+        const supermarket = await tradingDb.addSupermarket(req.body as LeanSupermarket)
+        res.status(201).json(supermarket)
+    } catch (e) {
+        console.error("Error trying to create Supermarket from POST body: ", e)
         res.sendStatus(400)
-    }
-    else {
-        try{
-            const inventory = await tradingDb.addInventory(supermarketId, items)
-            res.status(201).json(inventory)
-        }
-        catch (e) {
-            console.error("Error trying to create SupermarketInventory from POST body: ", e)
-            res.sendStatus(400)
-            return
-        }
+        return
     }
 }
 
-//async function patchInventory(req: Request, res: Response): Promise<void>{
+async function deleteSupermarket(req: Request, res: Response): Promise<void> {
+    try {
+        const deleted = await tradingDb.deleteSupermarket(req.params.supermarketId)
+        if (deleted) {
+            res.sendStatus(200)
+        } else {
+            res.sendStatus(400)
+        }
+    } catch (e) {
+        console.error(`Error trying to delete supermarket with id ${req.params.supermarketId}`)
+        res.sendStatus(400)
+    }
+}
 
-//}
+async function postInventoryItem(req: Request, res: Response): Promise<void> {
+    const supermarketId = req.params.supermarketId
+    const item = req.body as LeanInventoryItem
+    try {
+        const inventory = await tradingDb.addInventoryItem(supermarketId, item)
+        res.status(201).json(inventory)
+    }
+    catch (e) {
+        console.error("Error trying to create SupermarketInventory from POST body: ", e)
+        res.sendStatus(400)
+        return
+    }
+}
 
-export default { getCategories, postCategory, getOffers, postOffer, patchOffer, postNeed, getNeeds, deleteNeed, getInventory, postInventory }//, patchInventory }
+async function patchInventoryItem(req: Request, res: Response): Promise<void> {
+    const supermarketId = req.params.supermarketId
+    const itemId = req.params.itemId
+    const availability: number = req.body.availability && +req.body.availability
+    if (!availability || !supermarketId || !itemId) {
+        console.log("No availability specified")
+        res.sendStatus(400)
+        return
+    }
+
+    try {
+        const item = await tradingDb.patchInventoryItem(supermarketId, itemId, availability)
+        res.status(200).json(item)
+    } catch (e) {
+        console.error(`Error trying to patch availability of item "${itemId}" in supermarket "${supermarketId}" to "${availability}"`)
+    }
+}
+
+export default { getCategories, postCategory, getOffers, postOffer, patchOffer, postNeed, getNeeds, deleteNeed, getSupermarketData, postSupermarket, deleteSupermarket, postInventoryItem, patchInventoryItem  }//, patchInventory }

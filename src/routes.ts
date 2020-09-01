@@ -1,7 +1,7 @@
 import { Router } from "express";
+import contactController from "./controllers/contacts";
 import * as infectionController from "./controllers/infection";
 import locationsController from "./controllers/locations";
-import contactController from "./controllers/contacts";
 import tradingController from "./controllers/trading";
 import * as userAccountsController from "./controllers/userAccounts"
 import { authUser, authAdmin, checkTokenAndExtractUserId } from "./middleware/auth"
@@ -30,9 +30,12 @@ router.get('/trading/offers/', tradingController.getOffers)
 router.post('/trading/offers/', checkTokenAndExtractUserId, tradingController.postOffer)
 router.patch('/trading/offers/:offerId/', checkTokenAndExtractUserId, tradingController.patchOffer)
 
-router.get('/trading/inventory/', tradingController.getInventory)
-router.post('/trading/inventory/', tradingController.postInventory)
-//router.patch('/trading/inventory/:supermarketId/', tradingController.patchInventory)
+router.get('/trading/supermarket/:supermarketId/', tradingController.getSupermarketData)
+router.delete('/trading/supermarket/:supermarketId', tradingController.deleteSupermarket)
+router.post('trading/supermarket/', tradingController.postSupermarket)
+
+router.post('/trading/supermarket/:supermarketId/', tradingController.postInventoryItem)
+router.patch('/trading/supermarket/:supermarketId/:itemId', tradingController.patchInventoryItem)
 
 router.get('/trading/categories/', tradingController.getCategories)
 router.post('/trading/categories/', authAdmin, tradingController.postCategory)

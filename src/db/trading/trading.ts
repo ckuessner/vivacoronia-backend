@@ -4,7 +4,7 @@ import { ProductQuery } from "./models/Product";
 import ProductCategory, { ProductCategoryDocument } from "./models/ProductCategory";
 import ProductNeedRecord, { LeanProductNeed, ProductNeedDocument } from "./models/ProductNeed";
 import ProductOfferRecord, { LeanProductOffer, ProductOfferDocument, ProductOfferPatch } from "./models/ProductOffer";
-import SupermarketInventory, { LeanSupermarketInventory, SupermarketInventoryDocument } from './models/SupermarketInventory';
+import Supermarket, { LeanInventoryItem, LeanSupermarket, SupermarketDocument } from './models/SupermarketInventory';
 
 async function getCategories(): Promise<string[]> {
     return (await ProductCategory.find().lean()).map(doc => doc.name)
@@ -149,14 +149,13 @@ async function deactivateProductNeed(id: string, fulfilled: boolean): Promise<Pr
     return ProductNeedRecord.findOneAndUpdate({ _id: id }, { deactivatedAt: new Date(), fulfilled }, { new: true, runValidators: true })
 }
 
-async function getInventory(supermarketId: string): Promise<SupermarketInventoryDocument[]>{
-    return (await SupermarketInventory.find({supermarketId: supermarketId}))
+async function addInventoryItem(supermarketId: string, item: LeanInventoryItem): Promise<SupermarketDocument> {
+    return Supermarket.findOneAndUpdate({ supermarketId }, { $push: { inventory: item } })
 }
 // product matching and notifications
 
-async function addInventory(supermarketId: string, items: [[string, number]]): Promise<SupermarketInventoryDocument>{
-    const newItem: LeanSupermarketInventory = { supermarketId: supermarketId, inventory: items}
-    return SupermarketInventory.create(newItem)
+async function patchInventoryItem(supermarketId: string, inventoryItemId: string, availability: number): Promise<SupermarketDocument> {
+    return Supermarket.findOneAndUpdate({ _id: supermarketId, 'inventory.id': inventoryItemId }, { $set: { 'inventory.$.availability': availability } })
 }
 
 export default { getCategories, addCategory, getProductOffers, addProductOffer, updateProductOffer, addProductNeed, getProductNeeds, deactivateProductNeed, deactivateProductOffer, getInventory, addInventory  }
@@ -186,3 +185,33 @@ async function getNeedsMatchesWithOffer(offer: ProductOfferDocument): Promise<Ar
 }
 
 export default { getCategories, addCategory, getProductOffers, addProductOffer, updateProductOffer, addProductNeed, getProductNeeds, deactivateProductNeed, deactivateProductOffer, getOffersMatchesWithNeed, getNeedsMatchesWithOffer }
+
+async function getSupermarket(supermarketId: string): Promise<SupermarketDocument[]> {
+    return Supermarket.find({ supermarketId: supermarketId })
+}
+
+async function addSupermarket(newItem: LeanSupermarket): Promise<SupermarketDocument> {
+    return Supermarket.create(newItem)
+}
+
+async function deleteSupermarket(supermarketId: string): Promise<boolean> {
+    // TODO richtiger return wert?
+    return (await Supermarket.deleteOne({ supermarketId })) as boolean
+}
+
+export default {
+    getCategories,
+    addCategory,
+    getProductOffers,
+    addProductOffer,
+    updateProductOffer,
+    deactivateProductOffer,
+    addProductNeed, 
+    getProductNeeds, 
+    deactivateProductNeed, 
+    addInventoryItem,
+    patchInventoryItem,
+    getSupermarket,
+    addSupermarket,
+    deleteSupermarket
+}
