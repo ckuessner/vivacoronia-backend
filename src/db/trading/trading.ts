@@ -50,7 +50,7 @@ function extractAggregateQuery(queryOptions: ProductOfferQuery): Record<string, 
                 distanceField: "distanceToUser",
                 distanceMultiplier: 0.001,
                 spherical: true,
-                ...(radiusInMeters > 0 && { maxDistance: radiusInMeters })
+                ...(radiusInMeters && radiusInMeters > 0 && { maxDistance: radiusInMeters })
             }
         })
     }
