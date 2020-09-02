@@ -69,12 +69,12 @@ function extractAggregateProductQuery(queryOptions: ProductQuery, offer: boolean
     const locationQuery = getLocationQuery(longitude as number, latitude as number, radiusInMeters as number)
 
     const sortQuery = {
-        ...(sortBy) &&
+        ...(sortBy &&
         {
             $sort: {
                 [sortBy]: 1
             }
-        }
+        })
     }
 
     if (offer) {
