@@ -18,7 +18,6 @@ before('connect to MongoDB', async function () {
     testAccounts = await getUserAccountRecords(2)
 
     testNeeds[0].userId = testAccounts[0].userId
-    console.log("testaccount0: ", testAccounts[0].userId)
     testNeeds[1].userId = testAccounts[1].userId
 
     await request(app)
