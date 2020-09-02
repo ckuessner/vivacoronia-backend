@@ -77,8 +77,13 @@ function extractAggregateProductQuery(queryOptions: ProductQuery, offer: boolean
         }
     }
 
-    // The aggregation doesn't accept empty pipeline stages, if no parameters for some stage are provided, remove the empty pipeline stages.
-    return [locationQuery, productQuery, priceConversion, sortQuery].filter(query => Object.keys(query).length != 0)
+    if (offer) {
+        // The aggregation doesn't accept empty pipeline stages, if no parameters for some stage are provided, remove the empty pipeline stages.
+        return [locationQuery, productQuery, priceConversion, sortQuery].filter(query => Object.keys(query).length != 0)
+    }
+    else {
+        return [locationQuery, productQuery].filter(query => Object.keys(query).length != 0)
+    }
 }
 
 async function addProductOffer(offer: LeanProductOffer): Promise<ProductOfferDocument> {

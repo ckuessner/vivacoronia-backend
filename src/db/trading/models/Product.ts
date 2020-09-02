@@ -7,5 +7,8 @@ export interface ProductQuery {
     longitude?: number;
     latitude?: number;
     radiusInMeters?: number;
-    includeInactive?: boolean
+    includeInactive?: boolean;
+    sortBy?: string;
+    priceMin?: number;
+    priceMax?: number
 }

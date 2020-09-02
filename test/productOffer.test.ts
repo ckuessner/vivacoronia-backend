@@ -19,11 +19,20 @@ before('connect to MongoDB', async function () {
 
     testOffers[0].userId = testAccounts[0].userId
     testOffers[1].userId = testAccounts[1].userId
+    testOffers[2].userId = testAccounts[1].userId
+})
 
+before('populate database', async function () {
     await request(app)
         .post('/trading/categories/')
         .set({ adminjwt: adminJWT })
         .send({ name: "foods" })
+        .expect(201)
+
+    await request(app)
+        .post('/trading/categories/')
+        .set({ adminjwt: adminJWT })
+        .send({ name: "sanitary" })
         .expect(201)
 })
 
@@ -37,8 +46,9 @@ after('disconnect from MongoDB', async function () {
 
 function getValidProductOffers() {
     return [
-        { userId: "bli", product: "apple", productCategory: "foods", amount: 2, priceTotal: 4.5, details: "lecker", location: { type: "Point", coordinates: [-122.96, 50.114] } },
-        { userId: "bla", product: "strawberry", productCategory: "foods", amount: 65, priceTotal: 100, details: "nicht lecker", location: { type: "Point", coordinates: [-122.90, 50.114] } },
+        { userId: "bli", product: "apple", productCategory: "foods", amount: 2, price: 4.5, details: "lecker", location: { type: "Point", coordinates: [-122.96, 50.114] } },
+        { userId: "bla", product: "strawberry", productCategory: "foods", amount: 65, price: 100, details: "nicht lecker", location: { type: "Point", coordinates: [-122.90, 50.114] } },
+        { userId: "blub", product: "toiletpaper", productCategory: "sanitary", amount: 7, price: 2000000, details: "6 lagig", location: { type: "Point", coordinates: [-122.90, 50.114] } }
     ]
 }
 
@@ -51,5 +61,15 @@ describe('GET /trading/offers/', async function () {
         expect(res.status).to.equal(200)
         expect(res.body).to.have.lengthOf(1)
         expect(res.body[0].product).to.equal('apple')
+    })
+
+    it('sortby test', async function () {
+        await ProductofferRecord.insertMany(testOffers)
+        const res = await request(app).get('/trading/offers')
+            .query({ productCategory: "foods", sortBy: "price" })
+        expect(res.status).to.equal(200)
+        expect(res.body).to.have.lengthOf(2)
+        expect(res.body[0].productCategory).to.equal("foods")
+        expect(res.body[1].productCategory).to.equal("foods")
     })
 })
