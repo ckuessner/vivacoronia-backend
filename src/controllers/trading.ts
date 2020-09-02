@@ -258,10 +258,24 @@ async function deleteNeed(req: DeleteNeedRequest, res: Response): Promise<void> 
 
 }
 
+async function getSupermarkets(_: Request, res: Response): Promise<void> {
+    try {
+        const supermarkets = await tradingDb.getAllSupermarkets()
+        res.status(200).json(supermarkets)
+    } catch (e) {
+        console.error("Error getting all supermarkets: ", e)
+        res.sendStatus(500)
+    }
+}
+
 async function getSupermarketData(req: Request, res: Response): Promise<void> {
     const supermarketId = req.params.supermarketId
     try {
         const inventory = await tradingDb.getSupermarket(supermarketId)
+        if (inventory == null) {
+            res.sendStatus(404)
+            return
+        }
         res.status(200).json(inventory)
     } catch (e) {
         console.error(`Error trying to get supermarket data with supermarketId ${supermarketId}: `, e)
@@ -297,7 +311,7 @@ async function deleteSupermarket(req: Request, res: Response): Promise<void> {
         if (deleted) {
             res.sendStatus(200)
         } else {
-            res.sendStatus(400)
+            res.sendStatus(404)
         }
     } catch (e) {
         console.error(`Error trying to delete supermarket with id ${req.params.supermarketId}`)
@@ -322,18 +336,18 @@ async function postInventoryItem(req: Request, res: Response): Promise<void> {
 async function patchInventoryItem(req: Request, res: Response): Promise<void> {
     const supermarketId = req.params.supermarketId
     const itemId = req.params.itemId
-    const { availability } = req.body as { availability?: number }
-    if (availability === undefined || supermarketId == undefined || !itemId) {
-        console.log("No availability specified")
+    const { availabilityLevel } = req.body as { availabilityLevel?: number }
+    if (availabilityLevel === undefined || supermarketId == undefined || !itemId) {
+        console.log("No availability level specified")
         res.sendStatus(400)
         return
     }
 
     try {
-        const item = await tradingDb.patchInventoryItem(supermarketId, itemId, availability)
+        const item = await tradingDb.patchInventoryItem(supermarketId, itemId, availabilityLevel)
         res.status(200).json(item)
     } catch (e) {
-        console.error(`Error trying to patch availability of item "${itemId}" in supermarket "${supermarketId}" to "${availability}"`, e)
+        console.error(`Error trying to patch availability level of item "${itemId}" in supermarket "${supermarketId}" to "${availabilityLevel}"`, e)
         res.sendStatus(400)
     }
 }
@@ -349,6 +363,7 @@ export default {
     deleteNeed,
     getAvailableProducts,
     getSupermarketData,
+    getSupermarkets,
     postSupermarket,
     deleteSupermarket,
     postInventoryItem,

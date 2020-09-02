@@ -33,12 +33,13 @@ router.get('/trading/offers/', tradingController.getOffers)
 router.post('/trading/offers/', checkTokenAndExtractUserId, tradingController.postOffer)
 router.patch('/trading/offers/:offerId/', checkTokenAndExtractUserId, tradingController.patchOffer)
 
-router.get('/trading/supermarket/:supermarketId/', tradingController.getSupermarketData)
-router.delete('/trading/supermarket/:supermarketId', tradingController.deleteSupermarket)
+router.get('/trading/supermarket/', tradingController.getSupermarkets)
 router.post('/trading/supermarket/', tradingController.postSupermarket)
+router.get('/trading/supermarket/:supermarketId/', tradingController.getSupermarketData)
+router.delete('/trading/supermarket/:supermarketId/', tradingController.deleteSupermarket)
 
 router.post('/trading/supermarket/:supermarketId/', tradingController.postInventoryItem)
-router.patch('/trading/supermarket/:supermarketId/:itemId', tradingController.patchInventoryItem)
+router.patch('/trading/supermarket/:supermarketId/:itemId/', tradingController.patchInventoryItem)
 
 router.get('/trading/categories/', tradingController.getCategories)
 router.post('/trading/categories/', authAdmin, tradingController.postCategory)

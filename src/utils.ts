@@ -52,7 +52,7 @@ function getComparator(sortingStrategy: string | undefined): (valA: OfferSearchR
         return () => false
     }
     else if (sortingStrategy == 'distanceToUser') {
-        return (valA, valB) => valA.distanceToUser != undefined && valB.distanceToUser != undefined
+        return (valA, valB) => valA?.distanceToUser != undefined && valB?.distanceToUser != undefined
             ? valA.distanceToUser < valB.distanceToUser
             : valA.distanceToUser != undefined
     }

@@ -13,7 +13,7 @@ const InventoryItemSchema: Schema = new Schema({
         index: true,
         validate: validateCategory
     },
-    availability: {
+    availabilityLevel: {
         type: Number,
         required: true
     }
@@ -48,7 +48,7 @@ SupermarketSchema.set('toJSON', { getters: true });
 export interface LeanInventoryItem {
     product: string,
     productCategory: string,
-    availability: number
+    availabilityLevel: number
 }
 
 export interface ExtendedInventoryItem extends LeanInventoryItem {
@@ -74,7 +74,7 @@ export interface LeanSupermarket {
 export interface SupermarketDocument extends Document, LeanSupermarket { }
 
 export interface InventoryItemPatch {
-    availability: number
+    availabilityLevel: number
 }
 
 export default mongoose.model<SupermarketDocument>('SupermarketRecord', SupermarketSchema);
