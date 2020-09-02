@@ -12,9 +12,9 @@ let testOffers = getValidProductOffers()
 
 before('connect to MongoDB', async function () {
     await mongoDBHelper.start()
-    await mongoDBHelper.setupAdminAccount()
 
-    adminJWT = await getAdminJWT()
+    const rootAdmin = mongoDBHelper.getRootUserInfo()
+    adminJWT = await getAdminJWT(rootAdmin.userId, rootAdmin.password)
     testAccounts = await getUserAccountRecords(2)
 
     testOffers[0].userId = testAccounts[0].userId

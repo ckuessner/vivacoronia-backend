@@ -12,9 +12,9 @@ let testNeeds = getValidProductNeed()
 
 before('connect to MongoDB', async function () {
     await mongoDBHelper.start()
-    await mongoDBHelper.setupAdminAccount()
 
-    adminJWT = await getAdminJWT()
+    const rootAdmin = mongoDBHelper.getRootUserInfo()
+    adminJWT = await getAdminJWT(rootAdmin.userId, rootAdmin.password)
     testAccounts = await getUserAccountRecords(2)
 
     testNeeds[0].userId = testAccounts[0].userId
@@ -27,7 +27,7 @@ before('connect to MongoDB', async function () {
         .expect(201)
 })
 
-beforeEach('delete LocationRecords', async () => {
+beforeEach('delete ProductNeedRecord', async () => {
     await ProductNeedRecord.deleteMany({})
 })
 

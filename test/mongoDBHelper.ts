@@ -2,7 +2,7 @@ import { MongoMemoryServer } from "mongodb-memory-server";
 import mongoose from "mongoose";
 import * as uac from '../src/db/Users/userAccounts'
 
-const opts = { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true }
+const opts = { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true, useFindAndModify: false }
 let mongoServer: MongoMemoryServer;
 let rootUserInfo: RootUserInfo;
 
@@ -25,12 +25,6 @@ async function start() {
         rootUserInfo = await setupRootAdminAccount()
     } else {
         await clear()
-    }
-    for (const collection in mongoose.connection.collections) {
-        const count = await (mongoose.connection.collections[collection].estimatedDocumentCount({}))
-        if (count > 0) {
-            console.log(collection, count)
-        }
     }
 }
 
