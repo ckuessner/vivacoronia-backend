@@ -9,7 +9,10 @@ import WebSocket from 'ws'
 import notification_connections from './controllers/notifications'
 
 // Connect to mongodb
-require('./db/connection');
+import connection from './db/connection'
+
+// Initialize root admin user
+void connection.initRootAdmin()
 
 // Start HTTP Server
 const httpPort: number = process.env.PORT ? parseInt(process.env.PORT) : 3000;

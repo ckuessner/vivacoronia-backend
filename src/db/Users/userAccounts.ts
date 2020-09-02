@@ -14,21 +14,19 @@ export async function createNewUserAccount(password: string): Promise<IUserAccou
     "passwordHash": hashPassword,
     "isAdmin": false,
     "isRootAdmin": false,
-  }).then((record: IUserAccountRecord) => {
-    return record
   })
 }
 
 export async function updateUserAccount(userId: string, patch: UserAccountPatch): Promise<IUserAccountRecord> {
   if (mongoose.Types.ObjectId.isValid(userId)) {
     const patchObject = sanitize(patch)
-    const ret = await UserAccountRecord.findOneAndUpdate({ _id: userId }, patchObject, { new: true, runValidators: true })
+    const document = await UserAccountRecord.findOneAndUpdate({ _id: userId }, patchObject, { new: true, runValidators: true })
 
-    if (isNull(ret)) {
+    if (isNull(document)) {
       return Promise.reject('Could not update user')
     }
 
-    return ret
+    return document
   }
 
   return Promise.reject("Invalid userId")
@@ -77,4 +75,25 @@ export async function validatePassword(userId: string, password: string): Promis
   }
 
   return false
+}
+
+export async function setupRootAdminAccount(plainTextPassword: string): Promise<IUserAccountRecord> {
+  const rootAdmin = await UserAccountRecord.findOne({ isRootAdmin: true })
+
+  if (isNull(rootAdmin)) {
+    const passwordHash = await bcrypt.hash(plainTextPassword, 10)
+
+    return await UserAccountRecord.create({
+      "timeCreated": new Date().toISOString(),
+      "passwordHash": passwordHash,
+      "isAdmin": true,
+      "isRootAdmin": true
+    })
+  } else if (!await bcrypt.compare(plainTextPassword, rootAdmin.passwordHash)) {
+    const passwordHash = await bcrypt.hash(plainTextPassword, 10)
+    rootAdmin.passwordHash = passwordHash
+    await rootAdmin.save()
+  }
+
+  return rootAdmin
 }

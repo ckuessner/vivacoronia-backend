@@ -25,7 +25,6 @@ export async function getNewestLocationRecords(): Promise<Array<ILocationRecord>
 
 export async function getAllLocationRecords(location: [number, number], distance: number): Promise<Array<ILocationRecord>> {
 
-    const timeStart = process.hrtime.bigint()
     const lon = location[0]
     const lat = location[1]
 
@@ -39,11 +38,5 @@ export async function getAllLocationRecords(location: [number, number], distance
         },
     ])
 
-    const timeEnd = process.hrtime.bigint()
-    console.log("Execution times: aggregate ", timeStampsToString(timeStart, timeEnd))
     return nearbyLocationRecords.sort({ "userId": 1, "time": 1 })
-}
-
-function timeStampsToString(start: bigint, end: bigint): string {
-    return `${(end - start) / BigInt(1000000)}ms`
 }

@@ -1,5 +1,5 @@
 import 'mocha'
-import mongoDBHelper from './mongoDBHelper'
+import mongoDBHelper, { RootUserInfo } from './mongoDBHelper'
 import app from '../src/app'
 import LocationRecord, { ILocationRecord } from '../src/db/Tracking/models/LocationRecord';
 import chai, { expect } from 'chai';
@@ -7,6 +7,8 @@ import request from 'supertest';
 import chaiSubset from "chai-subset";
 import { getUserAccountRecords, getAdminJWT } from './userAccountsSetup';
 chai.use(chaiSubset)
+import '../src/middleware/auth'
+import { authAdmin } from '../src/middleware/auth';
 
 function getTestRecords() {
     return [
@@ -19,19 +21,23 @@ const testRecords = getTestRecords();
 
 let testAccounts: Array<Record<string, string>>
 
-let rootAdmin: Record<string, string>
+let rootAdmin: RootUserInfo
 let adminJWT: string
 
 before('connect to MongoDB', async function () {
     await mongoDBHelper.start()
-    rootAdmin = await mongoDBHelper.setupRootAdminAccount()
+    rootAdmin = mongoDBHelper.getRootUserInfo()
+    adminJWT = await getAdminJWT(rootAdmin.userId, rootAdmin.password)
+
 
     testAccounts = await getUserAccountRecords(2)
 
     testRecords[0].userId = testAccounts[0].userId
     testRecords[1].userId = testRecords[2].userId = testAccounts[1].userId
+})
 
-    adminJWT = await getAdminJWT(rootAdmin.userId, rootAdmin.password)
+before('check adminJWT', function (done) {
+    authAdmin({ headers: { adminjwt: adminJWT } } as any, { locals: {} } as any, done)
 })
 
 after('disconnect from MongoDB', async function () {

@@ -1,28 +1,20 @@
 import { MongoMemoryServer } from "mongodb-memory-server";
 import mongoose from "mongoose";
-import UserAccountRecord, { IUserAccountRecord } from "../src/db/Users/models/UserAccountRecord";
-import bcrypt from 'bcryptjs';
+import * as uac from '../src/db/Users/userAccounts'
 
 const opts = { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true }
 let mongoServer: MongoMemoryServer;
+let rootUserInfo: RootUserInfo;
 
-async function setupRootAdminAccount(): Promise<Record<string, string>> {
+async function setupRootAdminAccount(): Promise<RootUserInfo> {
     const password = "testPassword"
-    let recordId
+    const root = await uac.setupRootAdminAccount(password)
+    return { password, userId: root._id }
+}
 
-    const passwordHash = await bcrypt.hash(password, 10)
-
-    await UserAccountRecord.create({
-        "timeCreated": new Date().toISOString(),
-        "passwordHash": passwordHash,
-        "isAdmin": true,
-        "isRootAdmin": true
-    }).then((record: IUserAccountRecord) => {
-        console.log("Created Admin account: \n" + String(record))
-        recordId = record._id as string
-    })
-
-    return { userId: String(recordId), password: password }
+export type RootUserInfo = {
+    password: string,
+    userId: string
 }
 
 async function start() {
@@ -30,17 +22,38 @@ async function start() {
         mongoServer = new MongoMemoryServer()
         const uri = await mongoServer.getUri()
         await mongoose.connect(uri, opts)
+        rootUserInfo = await setupRootAdminAccount()
+    } else {
+        await clear()
     }
-
     for (const collection in mongoose.connection.collections) {
-        await mongoose.connection.collections[collection].deleteMany({})
+        const count = await (mongoose.connection.collections[collection].estimatedDocumentCount({}))
+        if (count > 0) {
+            console.log(collection, count)
+        }
+    }
+}
+
+async function clear() {
+    for (const collection in mongoose.connection.collections) {
+        if (collection === 'useraccountrecords') {
+            await mongoose.connection.collections[collection].deleteMany({ isRootAdmin: false })
+        } else {
+            await mongoose.connection.collections[collection].deleteMany({})
+        }
     }
 }
 
 async function stop() {
-    for (const collection in mongoose.connection.collections) {
-        await mongoose.connection.collections[collection].deleteMany({})
+    await clear()
+}
+
+function getRootUserInfo(): RootUserInfo {
+    if (!rootUserInfo) {
+        throw new Error("root user not created")
+    } else {
+        return rootUserInfo
     }
 }
 
-export default { start, stop, setupRootAdminAccount }
+export default { start, stop, getRootUserInfo }

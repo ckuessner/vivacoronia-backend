@@ -11,6 +11,7 @@ const userContactNotificationBuffer = new Map<string, string[]>()
 function setupSocketManagement(wsServer: WebSocket.Server): void {
     // called when client connects
     wsServer.on('connection', function (ws: WebSocket, req: express.Request) {
+        // TODO: user authentication
         console.log('New Client connected to websocket', req.headers.userid);
         // add socket to socket map
         if (req.headers != null && typeof req.headers.userid === 'string') {

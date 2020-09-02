@@ -71,7 +71,6 @@ let testAccounts: Array<Record<string, string>>
 
 before('connect to MongoDB', async function () {
     await mongoDBHelper.start()
-    await mongoDBHelper.setupRootAdminAccount()
 
     testAccounts = await getUserAccountRecords(2)
 

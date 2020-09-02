@@ -23,6 +23,7 @@ export async function getAdminJWT(userId: string, password: string): Promise<str
     return await request(app)
         .post('/admin/' + userId + '/login/')
         .send({ password: password })
+        .expect(200)
         .then(response => {
             return response.body.jwt
         })
