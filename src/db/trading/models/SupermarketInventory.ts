@@ -1,5 +1,5 @@
 import mongoose, { Document, Schema } from "mongoose";
-import { Point2DSchema } from "../../models/LocationRecord";
+import { Point2DSchema } from "../../Tracking/models/LocationRecord";
 import { validateCategory } from "./ProductCategory";
 
 const InventoryItemSchema: Schema = new Schema({
@@ -49,6 +49,16 @@ export interface LeanInventoryItem {
     product: string,
     productCategory: string,
     availability: number
+}
+
+export interface ExtendedInventoryItem extends LeanInventoryItem {
+    supermarketId: string;
+    name: string;
+    location: {
+        type: 'Point';
+        coordinates: Array<number>;
+    };
+    distanceToUser?: number;
 }
 
 export interface LeanSupermarket {

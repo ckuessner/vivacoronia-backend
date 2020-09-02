@@ -12,6 +12,7 @@ import { LeanProductOffer, ProductOfferPatch } from '../db/trading/models/Produc
 import { LeanInventoryItem, LeanSupermarket } from '../db/trading/models/SupermarketInventory';
 import tradingDb from '../db/trading/trading';
 import { DeleteNeedRequest, PatchOfferRequest, PostCategoryRequest } from '../types/trading';
+import { mergeSortedArrays } from '../utils';
 
 function getRequestParameters(req: Request): ProductQuery {
     const userId: string = req.query.userId as string
@@ -73,8 +74,29 @@ async function postCategory(req: PostCategoryRequest, res: Response): Promise<vo
 
 async function getOffers(req: Request, res: Response): Promise<void> {
     const queryOptions = getRequestParameters(req)
-    const offers = await tradingDb.getProductOffers(queryOptions)
-    res.status(200).json(offers)
+
+    try {
+        const offers = await tradingDb.getProductOffers(queryOptions)
+        res.status(200).json(offers)
+    } catch (e) {
+        console.error(`Error getting ProductOffers for query with options "${queryOptions.toString()}": `, e)
+    }
+}
+
+async function getAvailableProducts(req: Request, res: Response): Promise<void> {
+    try {
+        const queryOptions = getRequestParameters(req)
+
+        const offers = await tradingDb.getProductOffers(queryOptions)
+        const supermarketItems = await tradingDb.getExtendedInventoryItems(queryOptions)
+
+        const result = mergeSortedArrays(offers, supermarketItems, queryOptions.sortBy)
+        res.status(200).json(result)
+    } catch (e) {
+        console.error("Error getting ProductOffers or InventoryItems or merging the results: ", e)
+        res.status(400)
+        return
+    }
 }
 
 async function postOffer(req: Request, res: Response): Promise<void> {
@@ -300,8 +322,8 @@ async function postInventoryItem(req: Request, res: Response): Promise<void> {
 async function patchInventoryItem(req: Request, res: Response): Promise<void> {
     const supermarketId = req.params.supermarketId
     const itemId = req.params.itemId
-    const availability: number = req.body.availability && +req.body.availability
-    if (!availability || !supermarketId || !itemId) {
+    const { availability } = req.body as { availability?: number }
+    if (availability === undefined || supermarketId == undefined || !itemId) {
         console.log("No availability specified")
         res.sendStatus(400)
         return
@@ -311,8 +333,24 @@ async function patchInventoryItem(req: Request, res: Response): Promise<void> {
         const item = await tradingDb.patchInventoryItem(supermarketId, itemId, availability)
         res.status(200).json(item)
     } catch (e) {
-        console.error(`Error trying to patch availability of item "${itemId}" in supermarket "${supermarketId}" to "${availability}"`)
+        console.error(`Error trying to patch availability of item "${itemId}" in supermarket "${supermarketId}" to "${availability}"`, e)
+        res.sendStatus(400)
     }
 }
 
-export default { getCategories, postCategory, getOffers, postOffer, patchOffer, postNeed, getNeeds, deleteNeed, getSupermarketData, postSupermarket, deleteSupermarket, postInventoryItem, patchInventoryItem  }//, patchInventory }
+export default {
+    getCategories,
+    postCategory,
+    getOffers,
+    postOffer,
+    patchOffer,
+    postNeed,
+    getNeeds,
+    deleteNeed,
+    getAvailableProducts,
+    getSupermarketData,
+    postSupermarket,
+    deleteSupermarket,
+    postInventoryItem,
+    patchInventoryItem
+}

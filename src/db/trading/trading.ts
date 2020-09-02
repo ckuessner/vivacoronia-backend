@@ -4,7 +4,7 @@ import { ProductQuery } from "./models/Product";
 import ProductCategory, { ProductCategoryDocument } from "./models/ProductCategory";
 import ProductNeedRecord, { LeanProductNeed, ProductNeedDocument } from "./models/ProductNeed";
 import ProductOfferRecord, { LeanProductOffer, ProductOfferDocument, ProductOfferPatch } from "./models/ProductOffer";
-import Supermarket, { LeanInventoryItem, LeanSupermarket, SupermarketDocument } from './models/SupermarketInventory';
+import Supermarket, { ExtendedInventoryItem, LeanInventoryItem, LeanSupermarket, SupermarketDocument } from './models/SupermarketInventory';
 
 async function getCategories(): Promise<string[]> {
     return (await ProductCategory.find().lean()).map(doc => doc.name)
@@ -149,13 +149,83 @@ async function deactivateProductNeed(id: string, fulfilled: boolean): Promise<Pr
     return ProductNeedRecord.findOneAndUpdate({ _id: id }, { deactivatedAt: new Date(), fulfilled }, { new: true, runValidators: true })
 }
 
-async function addInventoryItem(supermarketId: string, item: LeanInventoryItem): Promise<SupermarketDocument> {
-    return Supermarket.findOneAndUpdate({ supermarketId }, { $push: { inventory: item } })
+async function addInventoryItem(supermarketId: string, item: LeanInventoryItem): Promise<SupermarketDocument | null> {
+    return Supermarket.findOneAndUpdate({ supermarketId }, { $push: { inventory: item } }, { new: true })
 }
 // product matching and notifications
 
-async function patchInventoryItem(supermarketId: string, inventoryItemId: string, availability: number): Promise<SupermarketDocument> {
-    return Supermarket.findOneAndUpdate({ _id: supermarketId, 'inventory.id': inventoryItemId }, { $set: { 'inventory.$.availability': availability } })
+async function getExtendedInventoryItems(queryOptions: ProductQuery): Promise<ExtendedInventoryItem[]> {
+    const query = extractInventoryQuery(queryOptions)
+    return Supermarket.aggregate(query)
+}
+
+function extractInventoryQuery(queryOptions: ProductQuery): Record<string, unknown>[] {
+    queryOptions.product = escapeRegExp(queryOptions.product)
+    queryOptions.productCategory = escapeRegExp(queryOptions.productCategory)
+    const { product, productCategory, longitude, latitude, radiusInMeters, sortBy } = sanitize(queryOptions)
+
+    const locationQuery = {
+        ...(longitude && latitude &&
+        {
+            $geoNear: {
+                near: { type: "Point", coordinates: [longitude, latitude] },
+                distanceField: "distanceToUser",
+                distanceMultiplier: 0.001,
+                spherical: true,
+                ...(radiusInMeters && radiusInMeters > 0 && { maxDistance: radiusInMeters })
+            }
+        })
+    }
+
+    const supermarketIntoItemsProjection = {
+        $addFields: {
+            "inventory.supermarketId": "$supermarketId",
+            "inventory.name": "$name",
+            "inventory.location": "$location",
+            "inventory.distanceToUser": "$distanceToUser"
+        }
+    }
+
+    const filterProjection = {
+        $project: {
+            inventory: {
+                $filter: {
+                    input: "$inventory",
+                    as: "item",
+                    cond: {
+                        $and: [
+                            { ...(product && { $regexMatch: { input: "$$item.product", regex: new RegExp(product, 'i') } }) },
+                            { ...(productCategory && { $eq: ["$$item.productCategory", productCategory] }) },
+                            { $gt: ["$$item.availability", 0] }
+                        ]
+                    }
+                }
+            }
+        }
+    }
+
+    const unwindItems = { $unwind: "$inventory" }
+    const replaceRoot = { $replaceRoot: { newRoot: "$inventory" } }
+
+    const sortQuery = {
+        ...(sortBy && (sortBy == 'product' || sortBy == 'distanceToUser') &&
+        {
+            $sort: {
+                [sortBy]: 1
+            }
+        })
+    }
+    // The aggregation doesn't accept empty pipeline stages, if no parameters for some stage are provided, remove the empty pipeline stages.
+    return [locationQuery, supermarketIntoItemsProjection, filterProjection, unwindItems, replaceRoot, sortQuery].filter(query => Object.keys(query).length != 0)
+}
+
+// TODO funktioniert noch nicht
+async function patchInventoryItem(supermarketId: string, inventoryItemId: string, availability: number): Promise<SupermarketDocument | null> {
+    return Supermarket.findOneAndUpdate(
+        { supermarketId },
+        { $set: { '$[inventory].availability': availability } },
+        { new: true, arrayFilters: [{ 'inventory._id': { $eq: inventoryItemId } }] }
+    )
 }
 
 export default { getCategories, addCategory, getProductOffers, addProductOffer, updateProductOffer, addProductNeed, getProductNeeds, deactivateProductNeed, deactivateProductOffer, getInventory, addInventory  }
@@ -187,7 +257,7 @@ async function getNeedsMatchesWithOffer(offer: ProductOfferDocument): Promise<Ar
 export default { getCategories, addCategory, getProductOffers, addProductOffer, updateProductOffer, addProductNeed, getProductNeeds, deactivateProductNeed, deactivateProductOffer, getOffersMatchesWithNeed, getNeedsMatchesWithOffer }
 
 async function getSupermarket(supermarketId: string): Promise<SupermarketDocument[]> {
-    return Supermarket.find({ supermarketId: supermarketId })
+    return Supermarket.find({ supermarketId })
 }
 
 async function addSupermarket(newItem: LeanSupermarket): Promise<SupermarketDocument> {
@@ -206,10 +276,11 @@ export default {
     addProductOffer,
     updateProductOffer,
     deactivateProductOffer,
-    addProductNeed, 
-    getProductNeeds, 
-    deactivateProductNeed, 
+    addProductNeed,
+    getProductNeeds,
+    deactivateProductNeed,
     addInventoryItem,
+    getExtendedInventoryItems,
     patchInventoryItem,
     getSupermarket,
     addSupermarket,
