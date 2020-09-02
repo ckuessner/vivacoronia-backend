@@ -3,7 +3,8 @@ export interface ProductQuery {
     userId?: string;
     product?: string;
     productCategory?: string;
-    amount?: number,
+    amountMin?: number,
+    amountMax?: number,
     longitude?: number;
     latitude?: number;
     radiusInMeters?: number;

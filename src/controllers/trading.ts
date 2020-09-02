@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { LeanProductOffer, ProductOfferPatch } from '../db/trading/models/ProductOffer';
+import { LeanProductOffer, ProductOfferPatch, ProductOfferDocument } from '../db/trading/models/ProductOffer';
 import tradingDb from '../db/trading/trading';
 import { PatchOfferRequest, PostCategoryRequest, DeleteNeedRequest } from '../types/trading'
 import { LeanProductNeed, ProductNeedDocument } from '../db/trading/models/ProductNeed';
@@ -11,7 +11,8 @@ function getRequestParameters(req: Request): ProductQuery {
     const userId: string = req.query.userId as string
     const product: string = req.query.product as string
     const productCategory: string = req.query.productCategory as string
-    const amount: number | undefined = req.query.amount ? +req.query.amount : undefined
+    const amountMin: number | undefined = req.query.amountMin ? +req.query.amountMin : undefined
+    const amountMax: number | undefined = req.query.amountMax ? +req.query.amountMax : undefined
     const longitude: number | undefined = req.query.longitude ? +req.query.longitude : undefined
     const latitude: number | undefined = req.query.latitude ? +req.query.latitude : undefined
     const radiusInMeters: number = req.query.radiusInKm ? (+req.query.radiusInKm) * 1000 : -1
@@ -34,7 +35,7 @@ function getRequestParameters(req: Request): ProductQuery {
         }
     }
 
-    return { userId, product, productCategory, amount, longitude, latitude, radiusInMeters, includeInactive, sortBy, priceMin, priceMax }
+    return { userId, product, productCategory, amountMin, amountMax, longitude, latitude, radiusInMeters, includeInactive, sortBy, priceMin, priceMax }
 
 }
 
@@ -86,6 +87,9 @@ async function postOffer(req: Request, res: Response): Promise<void> {
 
         if (userId === reqOffer.userId) {
             const offer = await tradingDb.addProductOffer(reqOffer)
+
+            void notifyForMatchingNeeds(offer)
+
             res.status(201).json(offer)
         }
         else {
@@ -134,6 +138,9 @@ async function patchOffer(req: PatchOfferRequest, res: Response): Promise<void> 
     try {
         const updatedOffer = await tradingDb.updateProductOffer(offerId, userId, patch)
         console.log(updatedOffer)
+        if (updatedOffer != null) {
+            void notifyForMatchingNeeds(updatedOffer)
+        }
         res.status(200).json(updatedOffer)
     } catch (e) {
         console.error(`Error trying to update offer ${offerId}`, e)
@@ -174,7 +181,7 @@ async function postNeed(req: Request, res: Response): Promise<void> {
         if (userId === reqNeed.userId) {
             const productNeed = await tradingDb.addProductNeed(reqNeed)
 
-            notifyForMatchingOffers(productNeed)
+            void notifyForMatchingOffers(productNeed)
 
             res.status(201).json(productNeed)
         }
@@ -225,8 +232,14 @@ async function deleteNeed(req: DeleteNeedRequest, res: Response): Promise<void> 
 
 // notifications
 async function notifyForMatchingOffers(need: ProductNeedDocument): Promise<void> {
-    const offers = await tradingDb.getProductMatchesWithNeed(need)
-    notifications.sendMatchingProductsNotification(need, offers)
+    const offers = await tradingDb.getOffersMatchesWithNeed(need)
+    await notifications.sendMatchingProductsNotification(need, offers)
+}
+
+async function notifyForMatchingNeeds(offer: ProductOfferDocument): Promise<void> {
+    const needs = await tradingDb.getNeedsMatchesWithOffer(offer)
+    console.log("matching needs found: ", needs)
+    await notifications.sendNoficationAfterOfferPost(offer, needs)
 }
 
 export default { getCategories, postCategory, getOffers, postOffer, patchOffer, postNeed, getNeeds, deleteNeed }

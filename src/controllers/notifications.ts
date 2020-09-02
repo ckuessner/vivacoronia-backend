@@ -7,7 +7,7 @@ import { ProductNeedDocument } from '../db/trading/models/ProductNeed'
 // map with userID and corresponding websocket
 export const userIDToSocketMap = new Map<string, WebSocket>()
 // map from userId to contact notification message buffer 
-const userContactNotificationBuffer = new Map<string, any[]>()
+const userContactNotificationBuffer = new Map<string, string[]>()
 
 
 function setupSocketManagement(wsServer: WebSocket.Server): void {
@@ -49,7 +49,7 @@ function setupSocketManagement(wsServer: WebSocket.Server): void {
     });
 }
 
-function bufferMessage(userId: string, message: any) {
+function bufferMessage(userId: string, message: string) {
     const buffer = userContactNotificationBuffer.get(userId)
     if (buffer == undefined || buffer.length === 0) {
         userContactNotificationBuffer.set(userId, [message])
@@ -84,13 +84,26 @@ async function sendMatchingProductsNotification(need: ProductNeedDocument, offer
             console.error("Could not notifiy user ", notifiedUser)
             bufferMessage(notifiedUser, msg)
         }
-        finally {
-            console.log("offer: ", msg)
+    }
+}
+
+async function sendNoficationAfterOfferPost(offer: ProductOfferDocument, needs: Array<ProductNeedDocument>): Promise<void> {
+    // if a user has a need matching his own offer he will no be notified 
+    // if a user has more than one matching need it suffices to notify him once
+    const userSet = new Set(needs.filter(n => offer.userId != n.userId).map(n => n.userId))
+    const msg = JSON.stringify({ userId: offer.userId, product: offer.product.toLowerCase(), productCategory: offer.productCategory.toLowerCase(), amount: offer.amount, price: offer.price, location: offer.location.coordinates })
+    for (const userId of userSet) {
+        console.log("notify user ", userId)
+        try {
+            await sendNotification(userId, msg)
+        } catch (err) {
+            console.error("Could not notify user ", userId)
+            bufferMessage(userId, msg)
         }
     }
 }
 
-async function sendNotification(userId: string, message: any): Promise<void> {
+async function sendNotification(userId: string, message: string): Promise<void> {
     const sock = userIDToSocketMap.get(userId)
     if (sock != null) {
         return new Promise((resolve, reject) => {
@@ -105,4 +118,4 @@ async function sendNotification(userId: string, message: any): Promise<void> {
 }
 
 export const CONTACT_NOTIFICATION_STRING = "you had contact with an infected person"
-export default { setupSocketManagement, sendInfectedContactNotifications, sendNotification, sendMatchingProductsNotification }
+export default { setupSocketManagement, sendInfectedContactNotifications, sendNotification, sendMatchingProductsNotification, sendNoficationAfterOfferPost }
