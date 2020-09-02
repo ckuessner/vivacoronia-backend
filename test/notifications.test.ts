@@ -6,10 +6,35 @@ import notifications, { userIDToSocketMap, CONTACT_NOTIFICATION_STRING } from ".
 import { AddressInfo } from "net";
 import ContactRecord from "../src/db/Tracking/models/ContactRecord";
 import LocationRecord from "../src/db/Tracking/models/LocationRecord";
+import ProductOfferRecord from "../src/db/trading/models/ProductOffer"
+import request from 'supertest';
+import app from '../src/app'
+import { getAdminJWT, getUserAccountRecords } from "./userAccountsSetup";
 import { generateAccessJWT } from "../src/validators/jsonWebTokenValidator";
+
+let adminJWT: string
+let testAccounts: Record<string, string>[]
 
 before('connect to MongoDB', async function () {
     await mongoDBHelper.start()
+
+    const rootAdmin = mongoDBHelper.getRootUserInfo()
+    adminJWT = await getAdminJWT(rootAdmin.userId, rootAdmin.password)
+    testAccounts = await getUserAccountRecords(1)
+})
+
+before('add categories to db', async function () {
+    await request(app)
+        .post('/trading/categories/')
+        .set({ adminjwt: adminJWT })
+        .send({ name: "foods" })
+        .expect(201)
+
+    await request(app)
+        .post('/trading/categories/')
+        .set({ adminjwt: adminJWT })
+        .send({ name: "sanitary" })
+        .expect(201)
 })
 
 after('disconnect from MongoDB', async function () {
@@ -118,6 +143,28 @@ describe('notify only one time', async function () {
             await notifications.sendInfectedContactNotifications(conRec)
             ws.on('message', () => { counter = counter + 1; expect(counter <= 1).to.be.true; })
             setTimeout(resolve, 10)
+        })
+    })
+})
+
+describe('notifications for product matches', async function () {
+    let ws: WebSocket
+
+    it('send after posting need', async function () {
+        await ProductOfferRecord.insertMany([
+            { userId: "bli", product: "spaghetti", productCategory: "foods", amount: 5, price: 4.5, details: "lecker", location: { type: "Point", coordinates: [-122.94, 50.112] } },
+            { userId: "bli", product: "SPAGHETTI", productCategory: "foods", amount: 2, price: 4.5, details: "lecker", location: { type: "Point", coordinates: [-122.96, 50.114] }, deactivatedAt: new Date() },
+            { userId: "bli", product: "spagHEtti", productCategory: "foods", amount: 2, price: 4.5, details: "lecker", location: { type: "Point", coordinates: [-122.95, 50.114] } },
+            { userId: "bli", product: "nudeln", productCategory: "foods", amount: 2, price: 4.5, details: "lecker", location: { type: "Point", coordinates: [-122.90, 50.114] } },
+
+        ])
+        ws = await createWSClient(testAccounts[0].userId)
+        const answer = JSON.stringify({ product: "spaghetti", productCategory: "foods", minAmount: 1, location: [-122.96, 50.114], perimeter: 30000, numberOfOffers: 2 })
+        return new Promise(async (resolve) => {
+            await request(app).post("/trading/needs")
+                .set({ jwt: testAccounts[0].jwt })
+                .send({ userId: testAccounts[0].userId, product: "SPAGHETTI", productCategory: "foods", amount: 1, location: { type: "Point", coordinates: [-122.96, 50.114] } })
+            ws.on('message', (msg) => { expect(msg).to.equal(answer) && resolve() })
         })
     })
 })

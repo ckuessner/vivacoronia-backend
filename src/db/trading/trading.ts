@@ -52,7 +52,7 @@ function getLocationQuery(lon: number, lat: number, radiusInMeters: number): {
 function extractAggregateProductQuery(queryOptions: ProductQuery, offer: boolean): Record<string, unknown>[] {
     // Should be sanitized, to prevent query injection
     queryOptions.product = escapeRegExp(queryOptions.product)
-    const { id, userId, product, productCategory, longitude, latitude, radiusInMeters, includeInactive, sortBy, priceMin, priceMax } = sanitize(queryOptions)
+    const { id, userId, product, productCategory, amount, longitude, latitude, radiusInMeters, includeInactive, sortBy, priceMin, priceMax } = sanitize(queryOptions)
 
     const productQuery = {
         $match: {
@@ -67,6 +67,7 @@ function extractAggregateProductQuery(queryOptions: ProductQuery, offer: boolean
                     ...(priceMax && { $lte: priceMax * 100 })
                 }
             }),
+            ...(amount && { "amount": { $gte: queryOptions.amount } })
         }
     }
 
@@ -132,4 +133,25 @@ async function deactivateProductNeed(id: string, fulfilled: boolean): Promise<Pr
     return ProductNeedRecord.findOneAndUpdate({ _id: id }, { deactivatedAt: new Date(), fulfilled }, { new: true, runValidators: true })
 }
 
-export default { getCategories, addCategory, getProductOffers, addProductOffer, updateProductOffer, addProductNeed, getProductNeeds, deactivateProductNeed, deactivateProductOffer }
+// product matching and notifications
+
+// called when someone made a new need
+async function getProductMatchesWithNeed(need: ProductNeedDocument): Promise<ProductOfferDocument[]> {
+    const productName = need.product
+    const productCategory = need.productCategory
+    const minAmount = need.amount
+    const location = need.location
+
+    return getProductOffers(
+        // radius in meters and get sort from nearest to most far away
+        { product: productName, productCategory: productCategory, amount: minAmount, longitude: location.coordinates[0], latitude: location.coordinates[1], radiusInMeters: 30000 }
+    )
+}
+
+// called when someone posted a new offer
+/*async function getProductMatchesWithOffer(offer: ProductOfferDocument): Promise<Array<ProductNeedDocument>> {
+    // get all needs which match with productname, category, min amount and location
+    // for all received needs get the userids of the needs and send a notification
+}*/
+
+export default { getCategories, addCategory, getProductOffers, addProductOffer, updateProductOffer, addProductNeed, getProductNeeds, deactivateProductNeed, deactivateProductOffer, getProductMatchesWithNeed }
