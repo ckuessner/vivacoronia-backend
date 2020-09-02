@@ -15,7 +15,10 @@ const InventoryItemSchema: Schema = new Schema({
     },
     availabilityLevel: {
         type: Number,
-        required: true
+        required: true,
+        validate: {
+            validator: (a: number) => Number.isInteger(a) && a >= 0 && a <= 3
+        }
     }
 });
 

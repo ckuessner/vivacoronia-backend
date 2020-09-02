@@ -150,7 +150,7 @@ async function deactivateProductNeed(id: string, fulfilled: boolean): Promise<Pr
 }
 
 async function addInventoryItem(supermarketId: string, item: LeanInventoryItem): Promise<SupermarketDocument | null> {
-    return Supermarket.findOneAndUpdate({ supermarketId }, { $push: { inventory: item } }, { new: true })
+    return Supermarket.findOneAndUpdate({ supermarketId }, { $push: { inventory: item } }, { new: true, runValidators: true })
 }
 // product matching and notifications
 
@@ -214,7 +214,7 @@ async function patchInventoryItem(supermarketId: string, inventoryItemId: string
     return Supermarket.findOneAndUpdate(
         { supermarketId, "inventory._id": inventoryItemId },
         { $set: { 'inventory.$.availabilityLevel': availabilityLevel } },
-        { new: true }
+        { new: true, runValidators: true }
     )
 }
 

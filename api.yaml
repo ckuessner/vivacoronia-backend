@@ -1,6 +1,6 @@
 openapi: 3.0.2
 info:
-  title: Tracing App Backend API
+  title: Viva Coronia Backend API
   version: 0.1.0
 servers:
   - url: "https://vivacoronia.herokuapp.com"
@@ -15,7 +15,7 @@ tags:
   - name: Contact Tracing
     description: Retrieve information about contact with infected persons
   - name: Trading
-    description: Manage product offers, needs, store inventories and available categories
+    description: Manage product offers, needs, supermarket inventories and available categories
   - name: Authentication
     description: User Creation and Authentication
 
@@ -431,7 +431,7 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/ProductOfferRecord"
-              description: Only the properites to change need to be provided
+              description: Only the properties to change need to be provided
       responses:
         "200":
           description: Returns the complete succesfully changed offer
@@ -608,6 +608,191 @@ paths:
           description: The id of the need
           schema:
             $ref: "#/components/schemas/needId"
+
+  /trading/supermarket/:
+    get:
+      tags: [Trading]
+      description: Get all available supermarkets
+      responses:
+        "200":
+          description: Array of supermarket records (without inventory items)
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SupermarketWithoutInventory"
+    post:
+      tags: [Trading]
+      description: Create a new supermarket
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/supermarket"
+      responses:
+        "201":
+          description: Successfully created new supermarket
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Supermarket"
+    
+  /trading/supermarket/{supermarketId}/:
+    get:
+      tags: [Trading]
+      description: Get the details of the supermarket with specified id
+      parameters:
+        - name: supermarketId
+          in: path
+          required: true
+          description: The id of the supermarket
+          schema:
+            $ref: "#/components/schemas/supermarketId"
+      responses:
+        "200":
+          description: Data associated with this supermarket
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Supermarket"
+    delete:
+      tags: [Trading]
+      description: Delete an existing supermarket with the specified Id
+      parameters:
+        - name: supermarketId
+          in: path
+          required: true
+          description: The id of the supermarket
+          schema:
+            $ref: "#/components/schemas/supermarketId"
+      responses:
+        "200":
+          description: Successfully deleted supermarket
+        "404":
+          description: No supermarket with specified id was found
+    post:
+      tags: [Trading]
+      description: Post a new item to this supermarket's inventory
+      parameters:
+        - name: supermarketId
+          in: path
+          required: true
+          description: The id of the supermarket
+          schema:
+            $ref: "#/components/schemas/supermarketId"
+      requestBody:
+        required: true
+        content: 
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InventoryItem"
+      responses:
+        "201":
+          description: Successfully created inventory item for supermarket. Result contains full supermarket details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Supermarket"
+  
+  /trading/supermarket/{supermarketId}/{itemId}/:
+    patch:
+      tags: [Trading]
+      description: Patches the availability level of the specified inventory item. Returns the full resulting supermarket details.
+      parameters:
+        - name: supermarketId
+          in: path
+          required: true
+          description: The id of the supermarket
+          schema:
+            $ref: "#/components/schemas/supermarketId"
+        - name: itemId
+          in: path
+          required: true
+          description: The id of the inventory item
+          schema:
+            $ref: "#/components/schemas/inventoryItemId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/availabilityLevelObj"
+      responses:
+        "200":
+          description: Successfully updated the availability level
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Supermarket"
+        "400":
+          description: Either there was no availability level specified or an incorrect one or there was another error
+
+  /trading/productSearch/:
+    get:
+      tags: [Trading]
+      description: Retrieve offers and supermarket inventory items by query parameters. Provide either both or none of latitude and longitude. They are also required when using radius
+      responses:
+        "200":
+          description: Array of ProductOfferRecords and/or supermarket inventory items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  anyOf:
+                    - $ref: "#/components/schemas/ProductOfferRecord"
+                    - $ref: "#/components/schemas/InventoryItemWithSupermarketDetails"
+      parameters:
+        - name: userId
+          in: query
+          schema:
+            $ref: "#/components/schemas/userId"
+        - name: product
+          in: query
+          schema:
+            $ref: "#/components/schemas/product"
+        - name: productCategory
+          in: query
+          schema:
+            $ref: "#/components/schemas/productCategory"
+        - name: longitude
+          in: query
+          schema:
+            $ref: "#/components/schemas/lat_long"
+        - name: latitude
+          in: query
+          schema:
+            $ref: "#/components/schemas/lat_long"
+        - name: radiusInKm
+          in: query
+          schema:
+            type: integer
+          example: 10000
+          description: Maximum radius in kilometers, default is unlimited
+        - name: includeInactive
+          in: query
+          schema:
+            type: boolean
+          example: true
+          description: if true returns inactive (deleted/sold) offers as well, default is false
+        - name: sortBy
+          in: query
+          schema:
+            type: string
+            enum:
+              - name
+              - distance
+              - price
+        - name: priceMin
+          in: query
+          schema:
+            type: double
+        - name: priceMax
+          in: query
+          schema:
+            type: double
 
 components:
   schemas:
@@ -872,7 +1057,76 @@ components:
     needId:
       type: string
       example: 5f22c05fa920c7004af2a477
+    
+    Supermarket:
+      description: Contains full details about a supermarket
+      allOf:
+        - $ref: "#/components/schemas/SupermarketWithoutInventory"
+        - type: object
+          properties:
+            inventory:
+              description: Array of inventory items associated with this supermarket
+              type: array
+              items:
+                $ref: "#/components/schemas/InventoryItem"
+                example: TODO
+    
+    SupermarketWithoutInventory:
+      type: object
+      description: Contains details about a supermarket without its inventory
+      properties:
+        supermarketId: 
+          $ref: "#/components/schemas/supermarketId"
+        name:
+          type: string
+          example: Rewe Heinrichstraße Darmstadt
+        location:
+          $ref: "#/components/schemas/GeoJSONPoint2D"
 
+    supermarketId:
+      type: string
+      description: The placeId of the supermarket according to the googleMaps API
+      example: 0123456789
+
+    InventoryItem:
+      type: object
+      description: A shoppable item of a supermarket
+      properties:
+        _id: 
+          $ref: "#/components/schemas/inventoryItemId"
+        product:
+          $ref: "#/components/schemas/product"
+        productCategory:
+          $ref: "#/components/schemas/productCategory"
+        availabilityLevel:
+          $ref: "#/components/schemas/availabilityLevel"
+    
+    InventoryItemWithSupermarketDetails:
+      allOf:
+        - $ref: "#/components/schemas/InventoryItem"
+        - $ref: "#/components/schemas/SupermarketWithoutInventory"
+        - type: object
+          properties:
+            distanceToUser:
+              description: distance in km
+              type: number
+              example: 11.038
+    
+    inventoryItemId:
+      type: string
+      example: 5f22c05fa920c7004af2a477
+
+    availabilityLevelObj:
+      type: object
+      properties:
+        availabilityLevel:
+          $ref: "#/components/schemas/availabilityLevel"
+    
+    availabilityLevel:
+      description: any integer greater or equal to 0 and less than or equal to 3
+      type: number
+      example: 2
+    
   examples:
     locationArrayExample:
       summary: Array with two location ojects
