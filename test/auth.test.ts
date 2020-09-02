@@ -79,7 +79,6 @@ describe('Test admin authentication', function () {
     let adminJWT: string
 
     it('returns a new admin jwt for correct admin password', function (done) {
-        this.timeout(0)
         request(app)
             .post('/admin/' + adminInfo.userId + '/login/')
             .send({ password: adminInfo.password })
