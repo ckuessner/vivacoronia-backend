@@ -32,6 +32,7 @@ function getLocationQuery(lon: number, lat: number, radiusInMeters: number): {
         distanceField: string;
         distanceMultiplier: number,
         spherical: boolean,
+        maxDistance?: number
     };
 } {
     return {
