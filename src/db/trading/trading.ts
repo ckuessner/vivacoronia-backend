@@ -30,7 +30,8 @@ function getLocationQuery(lon: number, lat: number, radiusInMeters: number): {
             coordinates: number[];
         };
         distanceField: string;
-        maxDistance: number;
+        distanceMultiplier: number,
+        spherical: boolean,
     };
 } {
     return {
@@ -39,7 +40,9 @@ function getLocationQuery(lon: number, lat: number, radiusInMeters: number): {
             $geoNear: {
                 near: { type: "Point", coordinates: [lon, lat] },
                 distanceField: "distanceToUser",
-                maxDistance: radiusInMeters
+                distanceMultiplier: 0.001,
+                spherical: true,
+                ...(radiusInMeters && radiusInMeters > 0 && { maxDistance: radiusInMeters })
             }
         })
     }
