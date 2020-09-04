@@ -238,7 +238,6 @@ async function notifyForMatchingOffers(need: ProductNeedDocument): Promise<void>
 
 async function notifyForMatchingNeeds(offer: ProductOfferDocument): Promise<void> {
     const needs = await tradingDb.getNeedsMatchesWithOffer(offer)
-    console.log("matching needs found: ", needs)
     await notifications.sendNoficationAfterOfferPost(offer, needs)
 }
 

@@ -156,9 +156,10 @@ describe('notifications for product matches', async function () {
     it('send after posting need', async function () {
         await ProductOfferRecord.insertMany([
             { userId: "bli", product: "spaghetti", productCategory: "foods", amount: 5, price: 4.5, details: "lecker", location: { type: "Point", coordinates: [-123.356212, 50.113148] } },
-            { userId: "bli", product: "SPAGHETTI", productCategory: "foods", amount: 2, price: 4.5, details: "lecker", location: { type: "Point", coordinates: [-122.96, 50.114] }, deactivatedAt: new Date() },
+            { userId: "bli", product: "spaghetti", productCategory: "foods", amount: 5, price: 4.5, details: "lecker", location: { type: "Point", coordinates: [-125.356212, 50.113148] } },    // does not match because to far away
+            { userId: "bli", product: "SPAGHETTI", productCategory: "foods", amount: 2, price: 4.5, details: "lecker", location: { type: "Point", coordinates: [-122.96, 50.114] }, deactivatedAt: new Date() },    // does not match because deactivate
             { userId: "bli", product: "spagHEtti", productCategory: "foods", amount: 2, price: 4.5, details: "lecker", location: { type: "Point", coordinates: [-122.95, 50.114] } },
-            { userId: "bli", product: "nudeln", productCategory: "foods", amount: 2, price: 4.5, details: "lecker", location: { type: "Point", coordinates: [-122.90, 50.114] } },
+            { userId: "bli", product: "nudeln", productCategory: "foods", amount: 2, price: 4.5, details: "lecker", location: { type: "Point", coordinates: [-122.90, 50.114] } },  // does not match because other product name
 
         ])
         ws = await createWSClient(testAccounts[0].userId)
@@ -175,7 +176,7 @@ describe('notifications for product matches', async function () {
         // user0 should only be notified once, although he has two matching needs, user1 should be notified once and user2 is not notified 
         // because one time it doesnt matches and the other time it matches but user2 makes also the offer post
         await ProductNeedRecord.insertMany([
-            { userId: testAccounts[0].userId, product: "apple", productCategory: "foods", amount: 1, location: { type: "Point", coordinates: [-122.96, 50.114] } },
+            { userId: testAccounts[0].userId, product: "apple", productCategory: "foods", amount: 1, location: { type: "Point", coordinates: [-123.356212, 50.113148] } },
             { userId: testAccounts[1].userId, product: "appLe", productCategory: "foods", amount: 1, location: { type: "Point", coordinates: [-122.96, 50.114] } },
             { userId: testAccounts[0].userId, product: "APPLE", productCategory: "foods", amount: 10, location: { type: "Point", coordinates: [-122.96, 50.114] } },
             { userId: testAccounts[2].userId, product: "apple", productCategory: "foods", amount: 100, location: { type: "Point", coordinates: [-122.96, 50.114] } },
