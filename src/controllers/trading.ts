@@ -188,7 +188,7 @@ async function deleteNeed(req: DeleteNeedRequest, res: Response): Promise<void> 
     const id = req.params.needId
     const fulfilled = req.body.fulfilled
 
-    if (fulfilled === null) {
+    if (fulfilled == null) {
         res.statusMessage = "Fulfilled has to be True or False"
         res.sendStatus(400)
         return
@@ -209,8 +209,7 @@ async function deleteNeed(req: DeleteNeedRequest, res: Response): Promise<void> 
     }
 
     try {
-        const need = await tradingDb.deactivateProductNeed(id, fulfilled as boolean)
-        console.log("need: ", need)
+        const need = await tradingDb.deactivateProductNeed(id, fulfilled)
         res.status(200).json(need)
     } catch (e) {
         res.statusMessage = `Cannot delete need ${id} because of invalid arguments`

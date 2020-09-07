@@ -566,7 +566,7 @@ paths:
           required: true
   
   /trading/needs/{needId}:
-    delete:
+    patch:
       tags: [Trading]
       description: delete an already existing need.
       requestBody:
