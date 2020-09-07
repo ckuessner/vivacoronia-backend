@@ -117,7 +117,7 @@ describe('notify only one time', async function () {
             let counter = 0
             await notifications.sendInfectedContactNotifications(conRec)
             ws.on('message', () => { counter = counter + 1; expect(counter <= 1).to.be.true; })
-            resolve()
+            setTimeout(resolve, 10)
         })
     })
 })
