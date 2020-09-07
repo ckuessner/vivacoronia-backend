@@ -91,7 +91,7 @@ describe('DELETE /trading/needs/', function () {
         const needs = await ProductNeedRecord.insertMany(testNeeds)
         const id = needs[0]._id
         const res = await request(app)
-            .delete('/trading/needs/' + id)
+            .patch('/trading/needs/' + id)
             .set({ jwt: testAccounts[0].jwt })
             .send({ fulfilled: true })
         expect(res.status).to.equal(200)

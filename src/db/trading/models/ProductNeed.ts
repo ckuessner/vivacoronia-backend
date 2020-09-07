@@ -67,7 +67,6 @@ export interface ProductNeedQuery {
 }
 
 export interface ProductNeedPatch {
-    deactivatedAt?: Date
     fulfilled?: boolean
 }
 
