@@ -3,18 +3,23 @@ import UserAccountRecord, { IUserAccountRecord, UserAccountPatch } from "./model
 import { isNull } from 'util';
 import mongoose from 'mongoose'
 import sanitize from "mongo-sanitize";
+import { createAchievementsForNewUser } from '../achievements/achievements';
 
 export async function createNewUserAccount(password: string): Promise<IUserAccountRecord> {
   const date = new Date().toISOString()
 
   const hashPassword = await bcrypt.hash(password, 10)
 
-  return UserAccountRecord.create({
+  const newUser = await UserAccountRecord.create({
     "timeCreated": date,
     "passwordHash": hashPassword,
     "isAdmin": false,
     "isRootAdmin": false,
   })
+
+  await createAchievementsForNewUser(newUser._id)
+
+  return newUser
 }
 
 export async function updateUserAccount(userId: string, patch: UserAccountPatch): Promise<IUserAccountRecord> {

@@ -3,8 +3,9 @@ import contactController from "./controllers/contacts";
 import * as infectionController from "./controllers/infection";
 import locationsController from "./controllers/locations";
 import tradingController from "./controllers/trading";
-import * as userAccountsController from "./controllers/userAccounts";
-import { authAdmin, authUser, checkTokenAndExtractUserId } from "./middleware/auth";
+import * as userAccountsController from "./controllers/userAccounts"
+import * as achievementsController from "./controllers/achievements"
+import { authUser, authAdmin, checkTokenAndExtractUserId } from "./middleware/auth"
 
 export const router = Router();
 
@@ -16,6 +17,8 @@ router.get('/user/:userId/', authUser, userAccountsController.checkAdminStatus)
 router.patch('/user/:userId/', authAdmin, userAccountsController.grantAdminRequest)
 
 router.post('/admin/:userId/login/', userAccountsController.newAdminToken)
+
+router.get('/user/:userId/achievements/', authUser, achievementsController.getAchievementsStatus)
 
 router.get('/infection/:userId/', authUser, infectionController.getInfection)
 router.post('/infection/:userId/', authUser, infectionController.postInfection)

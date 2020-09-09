@@ -146,6 +146,34 @@ paths:
             type: string
           required: true
 
+  /user/{userId}/achievements/:
+    get:
+      tags: [User Information]
+      description: User specific information about achievements
+      responses:
+        "200":
+          description: Returns information about achievements
+          content:
+            application/json:
+              schema:
+                type: array
+                items: "#/components/schemas/Achievement"
+              examples:
+                achievements:
+                  $ref: "#/components/examples/achievements"
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: The id of the user
+          schema:
+            $ref: "#/components/schemas/userId"
+        - name: jwt
+          in: header
+          schema:
+            type: string
+          required: true
+
   /admin/{userId}/login/:
     post:
       tags: [Authentication]
@@ -836,6 +864,40 @@ components:
         isAdmin:
           $ref: "#/components/schemas/isAdmin"
 
+    Achievement:
+      type: object
+      description: schema for achievement
+      example:
+        name: "foreveralone"
+        status: "bronce"
+        remaining: 2
+        howmany: 20
+      properties:
+        name: 
+          $ref: "#components/schemas/achievementName"
+        badge: 
+          $ref: "#components/schemas/achievementBadge"
+        remaining: 
+          $ref: "#components/schemas/achievementRemaining"
+        howmany: 
+          $ref: "#components/schemas/achievementHowMany"
+
+    achievementName:
+      type: string
+      description: name of the achievement
+
+    achievementBadge:
+      type: string
+      description: badge of the achievement, can be bronce/silver/gold
+
+    achievementRemaining:
+      type: number
+      description: how many units remain for the next badge
+
+    achievementHowMany:
+      type: number
+      description: How many users do have this badge in percent
+
     LocationRecord:
       type: object
       description: Location record with location and userId
@@ -1148,6 +1210,26 @@ components:
     adminStatus:
       value:
         isAdmin: "true"
+
+    achievements:
+      summary: Array with achievements of a specific user
+      value:
+        - name: "foreveralone"
+          badge: "none"
+          remaining: 2
+          howmany: 100
+        - name: moneyboy
+          badge: "silver"
+          remaining: 30
+          howmany: 3
+        - name: "hamsterbuyer"
+          badge: "bronce"
+          remaining: 20
+          howmany: 30
+        - name: "superspreader"
+          badge: "gold"
+          remaining: -1
+          howmany: 1
 
     geoJsonPoint2DArrayExample:
       summary: Array with two GeoJSON Point2D ojects
