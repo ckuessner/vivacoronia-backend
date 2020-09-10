@@ -4,6 +4,7 @@ import { IContactRecord } from "../db/Tracking/models/ContactRecord"
 import { ProductOfferDocument } from "../db/trading/models/ProductOffer"
 import { ProductNeedDocument } from '../db/trading/models/ProductNeed'
 import { checkUserIdForWebSockets } from '../middleware/auth'
+import { AchievementNameType, AchievementBadgeType } from '../db/achievements/models/AchievementRecord'
 
 // map with userID and corresponding websocket
 export const userIDToSocketMap = new Map<string, WebSocket>()
@@ -68,6 +69,16 @@ function bufferMessage(userId: string, message: string) {
     }
 }
 
+async function sendAchievementNotification(userId: string, achievement: AchievementNameType, badge: AchievementBadgeType): Promise<void> {
+    const message = "Congratulations!!! You achieved " + achievement + " " + badge
+    try {
+        await sendNotification(userId, message)
+    }
+    catch (err) {
+        console.error("Achievement - Could not notify user ", userId)
+        bufferMessage(userId, CONTACT_NOTIFICATION_STRING)
+    }
+}
 
 async function sendInfectedContactNotifications(contacts: Array<IContactRecord>): Promise<void> {
     // send to each user who has contact a notification
@@ -132,4 +143,4 @@ function getConnectedUsers(): string[] {
 }
 
 export const CONTACT_NOTIFICATION_STRING = "you had contact with an infected person"
-export default { setupSocketManagement, sendInfectedContactNotifications, sendNotification, getConnectedUsers, sendMatchingProductsNotification, sendNoficationAfterOfferPost, addUserToSocketMapAfterAuthentication }
+export default { setupSocketManagement, sendInfectedContactNotifications, sendNotification, getConnectedUsers, sendMatchingProductsNotification, sendNoficationAfterOfferPost, addUserToSocketMapAfterAuthentication, sendAchievementNotification }

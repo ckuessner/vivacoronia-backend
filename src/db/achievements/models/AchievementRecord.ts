@@ -32,33 +32,33 @@ export const AchievementNames: AchievementNameType[] = ["foreveralone", "zombie"
 export const AchievementsInformations: AchievementInfo[] = [
     {
         name: "foreveralone",
-        forBronce: 2,
-        forSilver: 5,
-        forGold: 10
+        bronce: 2,
+        silver: 5,
+        gold: 10
     },
     {
         name: "zombie",
-        forBronce: 1,
-        forSilver: 10,
-        forGold: 30
+        bronce: 1,
+        silver: 10,
+        gold: 30
     },
     {
         name: "moneyboy",
-        forBronce: 5,
-        forSilver: 10,
-        forGold: 100
+        bronce: 5,
+        silver: 10,
+        gold: 100
     },
     {
         name: "hamsterbuyer",
-        forBronce: 10,
-        forSilver: 20,
-        forGold: 50
+        bronce: 10,
+        silver: 20,
+        gold: 50
     },
     {
         name: "superspreader",
-        forBronce: 5,
-        forSilver: 50,
-        forGold: 100
+        bronce: 5,
+        silver: 50,
+        gold: 100
     },
 ]
 
@@ -67,9 +67,9 @@ AchievementRecordSchema.index({ userId: 1, name: 1 }, { unique: true })
 
 interface AchievementInfo {
     name: AchievementNameType,
-    forBronce: number,
-    forSilver: number,
-    forGold: number
+    bronce: number,
+    silver: number,
+    gold: number
 }
 
 export interface IAchievementRecord extends Document {

@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import * as locationsDb from "../db/Tracking/locations";
 import { ILocationRecord } from "../db/Tracking/models/LocationRecord";
+import * as achievements from "../db/achievements//achievements";
 
 async function postLocationRecords(req: Request, res: Response): Promise<void> {
     const userId = req.params.userId
@@ -23,6 +24,15 @@ async function postLocationRecords(req: Request, res: Response): Promise<void> {
                 res.sendStatus(400)
                 return
             }
+
+            // use locations for achievement zombie
+            try {
+                await achievements.updateZombie(userId, req.body as ILocationRecord[])
+            }
+            catch (err) {
+                console.error("Could not update achievements zombie: " + String(err))
+            }
+
             res.sendStatus(201)
         } catch (error) {
             console.error(error)
