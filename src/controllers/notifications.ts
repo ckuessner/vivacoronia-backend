@@ -91,7 +91,7 @@ async function sendNoficationAfterOfferPost(offer: ProductOfferDocument, needs: 
     // if a user has a need matching his own offer he will no be notified 
     // if a user has more than one matching need it suffices to notify him once
     const userSet = new Set(needs.filter(n => offer.userId != n.userId).map(n => n.userId))
-    const msg = JSON.stringify({ userId: offer.userId, product: offer.product.toLowerCase(), productCategory: offer.productCategory.toLowerCase(), amount: offer.amount, price: offer.price, location: offer.location.coordinates })
+    const msg = JSON.stringify({ userId: offer.userId, product: offer.product.toLowerCase(), productCategory: offer.productCategory.toLowerCase(), minAmount: offer.amount, price: offer.price, location: offer.location.coordinates, perimeter: 30000 })
     for (const userId of userSet) {
         console.log("notify user ", userId)
         try {

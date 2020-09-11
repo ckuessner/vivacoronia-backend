@@ -138,7 +138,8 @@ async function patchOffer(req: PatchOfferRequest, res: Response): Promise<void> 
     try {
         const updatedOffer = await tradingDb.updateProductOffer(offerId, userId, patch)
         console.log(updatedOffer)
-        if (updatedOffer != null) {
+        // only notify if the product was not deactivated
+        if (updatedOffer != null && !req.body.deactivatedAt) {
             void notifyForMatchingNeeds(updatedOffer)
         }
         res.status(200).json(updatedOffer)
