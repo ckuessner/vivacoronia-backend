@@ -99,9 +99,8 @@ function toRad(value: number) {
     return value * Math.PI / 180;
 }
 
-export async function updateMoneyboy(): Promise<void> {
-    // TODO
-    console.log("moneyboy")
+export async function updateMoneyboy(userId: string, numberOfSoldItems: number): Promise<void> {
+    await updateAchievement(userId, "moneyboy", numberOfSoldItems)
 }
 
 export async function updateHamsterbuyer(): Promise<void> {
@@ -112,6 +111,11 @@ export async function updateHamsterbuyer(): Promise<void> {
 export async function updateSuperspreader(): Promise<void> {
     // TODO
     console.log("superspreader")
+}
+
+export async function updateQuizmaster(): Promise<void> {
+    // TODO
+    console.log("quizmaster")
 }
 
 async function updateAchievement(userId: string, achievement: AchievementNameType, updateRemaining: number): Promise<void> {
@@ -177,7 +181,8 @@ export async function getAchievementStatus(userId: string): Promise<AchievementS
         for (let i = AchievementBadges.length - 1; i >= 0; i--) {
             const tmpBadge = AchievementBadges[i]
 
-            howmany += await AchievementRecord.countDocuments({ name: record.name, badge: record.badge })
+            const tmp = await AchievementRecord.countDocuments({ name: record.name, badge: tmpBadge })
+            howmany += tmp
 
             // we finish counting if we reach all possible badges that are better or equal than the user badge
             if (tmpBadge === record.badge) break

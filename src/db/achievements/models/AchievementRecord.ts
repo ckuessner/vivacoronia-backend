@@ -25,8 +25,8 @@ export type AchievementBadgeType = "none" | "bronce" | "silver" | "gold"
 export const AchievementBadges: AchievementBadgeType[] = ["none", "bronce", "silver", "gold"]
 
 // different achievements, type and const should cover the same achievements
-export type AchievementNameType = "foreveralone" | "zombie" | "moneyboy" | "hamsterbuyer" | "superspreader"
-export const AchievementNames: AchievementNameType[] = ["foreveralone", "zombie", "moneyboy", "hamsterbuyer", "superspreader"]
+export type AchievementNameType = "foreveralone" | "zombie" | "moneyboy" | "hamsterbuyer" | "superspreader" | "quizmaster"
+export const AchievementNames: AchievementNameType[] = ["foreveralone", "zombie", "moneyboy", "hamsterbuyer", "superspreader", "quizmaster"]
 
 // the decision boundary for each badge of a achievement can be modified here
 export const AchievementsInformations: AchievementInfo[] = [
@@ -57,6 +57,12 @@ export const AchievementsInformations: AchievementInfo[] = [
     {
         name: "superspreader",
         bronce: 5,
+        silver: 50,
+        gold: 100
+    },
+    {
+        name: "quizmaster",
+        bronce: 10,
         silver: 50,
         gold: 100
     },

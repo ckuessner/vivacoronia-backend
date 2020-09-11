@@ -5,6 +5,7 @@ import ProductCategory, { ProductCategoryDocument } from "./models/ProductCatego
 import ProductNeedRecord, { LeanProductNeed, ProductNeedDocument } from "./models/ProductNeed";
 import ProductOfferRecord, { LeanProductOffer, ProductOfferDocument, ProductOfferPatch } from "./models/ProductOffer";
 import Supermarket, { ExtendedInventoryItem, LeanInventoryItem, LeanSupermarket, SupermarketDocument } from './models/SupermarketInventory';
+import * as achievement from "../achievements/achievements"
 
 async function getCategories(): Promise<string[]> {
     return (await ProductCategory.find().lean()).map(doc => doc.name)
@@ -129,6 +130,12 @@ async function updateProductOffer(id: string, userId: string, patch: ProductOffe
 async function deactivateProductOffer(id: string, userId: string, sold: boolean): Promise<boolean> {
     try {
         await ProductOfferRecord.findOneAndUpdate({ _id: id, userId: userId }, { deactivatedAt: new Date(), sold })
+
+        // update achievement moneyboy for user if he sold a product
+        if (sold) {
+            await achievement.updateMoneyboy(userId, 1)
+        }
+
         return true
     } catch (e) {
         console.error(`Unable to delete offer with "${id}": `, e)

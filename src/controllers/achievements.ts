@@ -7,8 +7,6 @@ export async function getAchievementsStatus(req: Request, res: Response): Promis
     try {
         const status = await achievementDB.getAchievementStatus(userId)
 
-        console.log(status)
-
         res.json(status)
     }
     catch (err) {
