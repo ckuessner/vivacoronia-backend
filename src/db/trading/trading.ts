@@ -67,7 +67,6 @@ function extractAggregateProductQuery(queryOptions: ProductQuery, offer: boolean
                     ...(priceMax && { $lte: priceMax * 100 })
                 }
             }),
-            // for 
             ...((amountMin || amountMax) && {
                 amount: {
                     ...(amountMin && { $gte: amountMin }),

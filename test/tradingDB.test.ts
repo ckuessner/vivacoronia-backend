@@ -38,7 +38,7 @@ after('disconnect from MongoDB', async function () {
 })
 
 describe("right getNeedsMatchesWithOffer", async function () {
-    it("test", async function () {
+    it("right getNeedsMatchesWithOffer", async function () {
         await ProductNeedRecord.insertMany([
             { userId: testAccounts[0].userId, product: "apple", productCategory: "foods", amount: 1, location: { type: "Point", coordinates: [-123.356212, 50.113148] } },
             { userId: testAccounts[0].userId, product: "apple", productCategory: "foods", amount: 2, location: { type: "Point", coordinates: [-125.356212, 50.113148] } },
@@ -55,14 +55,13 @@ describe("right getNeedsMatchesWithOffer", async function () {
         expect(res.status).to.equal(201)
 
         const offerDocument = res.body
-        console.log("offerDocument  ", offerDocument)
         const needs = await tradingDb.getNeedsMatchesWithOffer(offerDocument)
         expect(needs).to.have.lengthOf(4)
     })
 })
 
 describe("right getOffersMatchesWithNeed", async function () {
-    it("test", async function () {
+    it("right getOffersMatchesWithNeed", async function () {
         await ProductOfferRecord.insertMany([
             { userId: "bli", product: "spaghetti", productCategory: "foods", amount: 5, price: 4.5, details: "lecker", location: { type: "Point", coordinates: [-123.356212, 50.113148] } },
             { userId: "bli", product: "spaghetti", productCategory: "foods", amount: 5, price: 4.5, details: "lecker", location: { type: "Point", coordinates: [-125.356212, 50.113148] } },    // does not match because to far away
@@ -79,7 +78,6 @@ describe("right getOffersMatchesWithNeed", async function () {
         expect(res.status).to.equal(201)
 
         const needDocument = res.body
-        console.log("offerDocument  ", needDocument)
         const needs = await tradingDb.getOffersMatchesWithNeed(needDocument)
         expect(needs).to.have.lengthOf(2)
     })

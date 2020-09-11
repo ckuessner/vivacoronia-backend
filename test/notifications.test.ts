@@ -168,7 +168,7 @@ describe('notifications for product matches', async function () {
             await request(app).post("/trading/needs")
                 .set({ jwt: testAccounts[0].jwt })
                 .send({ userId: testAccounts[0].userId, product: "SPAGHETTI", productCategory: "foods", amount: 1, location: { type: "Point", coordinates: [-122.96, 50.114] } })
-            ws.on('message', (msg) => { console.log("here"); expect(msg).to.equal(answer) && resolve() })
+            ws.on('message', (msg) => { expect(msg).to.equal(answer) && resolve() })
         })
     })
 
@@ -187,15 +187,23 @@ describe('notifications for product matches', async function () {
         ws2 = await createWSClient(testAccounts[2].userId)
         let counter0 = 0
         const offer = { userId: testAccounts[2].userId, product: "AppLE", productCategory: "foods", amount: 20, price: 50, location: { type: "Point", coordinates: [-122.96, 50.114] } }
-        const answer = { userId: testAccounts[2].userId, product: "apple", productCategory: "foods", amount: 20, price: 50, location: [-122.96, 50.114] }
-        return new Promise(async (resolve, reject) => {
+        const answer = { userId: testAccounts[2].userId, product: "apple", productCategory: "foods", minAmount: 20, price: 50, location: [-122.96, 50.114], perimeter: 30000 }
+        const promise = new Promise(async (resolve, reject) => {
             await request(app).post('/trading/offers')
                 .set({ jwt: testAccounts[2].jwt })
                 .send(offer)
                 .expect(201)
-            ws.on("message", () => { counter0 = counter0 + 1; expect(counter0 <= 1).to.be.true && resolve(); })
-            ws1.on("message", (msg) => { expect(msg).to.equal(JSON.stringify(answer)) && resolve() })
-            ws2.on("message", () => reject(Error("nothing should be sent")))
+            ws.on("message", () => {
+                counter0 = counter0 + 1;
+                if (counter0 > 1) reject()
+            })
+            setTimeout(resolve, 10, 1)
         })
+
+        const promise1 = new Promise(async (resolve) => ws1.on("message", (msg) => { expect(msg).to.equal(JSON.stringify(answer)) && resolve(2) }))
+
+        const promise2 = new Promise(async (resolve, reject) => { ws2.on("message", () => reject()); setTimeout(resolve, 10, 3) })
+
+        return Promise.all([promise, promise1, promise2])
     })
 })
