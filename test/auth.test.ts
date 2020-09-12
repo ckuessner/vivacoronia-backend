@@ -8,8 +8,6 @@ chai.use(require('chai-subset'))
 
 let adminInfo: RootUserInfo
 
-let adminInfo: Record<string, string>
-
 before('connect to MongoDB', async function () {
     await mongoDBHelper.start()
     adminInfo = mongoDBHelper.getRootUserInfo()
