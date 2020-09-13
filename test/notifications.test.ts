@@ -163,13 +163,14 @@ describe('notifications for product matches', async function () {
 
         ])
         ws = await createWSClient(testAccounts[0].userId)
-        const answer = JSON.stringify({ product: "spaghetti", productCategory: "foods", minAmount: 1, location: [-122.96, 50.114], perimeter: 30000, numberOfOffers: 2 })
-        return new Promise(async (resolve) => {
+        const answer = { product: "spaghetti", productCategory: "foods", minAmount: 1, location: [-122.96, 50.114], perimeter: 30000, numberOfOffers: 2 }
+        const res = await new Promise(async (resolve) => {
             await request(app).post("/trading/needs")
                 .set({ jwt: testAccounts[0].jwt })
                 .send({ userId: testAccounts[0].userId, product: "SPAGHETTI", productCategory: "foods", amount: 1, location: { type: "Point", coordinates: [-122.96, 50.114] } })
-            ws.on('message', (msg) => { expect(msg).to.equal(answer) && resolve() })
+            ws.on('message', (msg) => { resolve(msg) })
         })
+        expect(JSON.parse(res as string)).to.eql(answer)
     })
 
     it('send after posting offer', async function () {
@@ -200,7 +201,8 @@ describe('notifications for product matches', async function () {
             setTimeout(resolve, 10, 1)
         })
 
-        const promise1 = new Promise(async (resolve) => ws1.on("message", (msg) => { expect(msg).to.equal(JSON.stringify(answer)) && resolve(2) }))
+        const promise1 = await new Promise(async (resolve) => ws1.on("message", (msg) => { resolve(msg) }))
+        expect(JSON.parse(promise1 as string)).to.eql(answer)
 
         const promise2 = new Promise(async (resolve, reject) => { ws2.on("message", () => reject()); setTimeout(resolve, 10, 3) })
 
