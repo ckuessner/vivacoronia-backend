@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import * as locationsDb from "../db/Tracking/locations";
 import { ILocationRecord } from "../db/Tracking/models/LocationRecord";
-import isEmpty from 'lodash'
 
 async function postLocationRecords(req: Request, res: Response): Promise<void> {
     const userId = req.params.userId
@@ -32,7 +31,7 @@ async function postLocationRecords(req: Request, res: Response): Promise<void> {
 }
 
 async function getAllLocationRecords(req: Request, res: Response): Promise<void> {
-    if (isEmpty(req.query)) {
+    if (Object.keys(req.query).length === 0) {
         const records: ILocationRecord[] = await locationsDb.getNewestLocationRecords()
         res.json(records)
         return
