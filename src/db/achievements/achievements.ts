@@ -5,6 +5,11 @@ import { ILocationRecord } from "../Tracking/models/LocationRecord";
 import { getInfectionStatusOfUser } from "../Tracking/infection"
 import notifications from "../../controllers/notifications";
 
+export async function calculateInfectionScore(userId: string): Promise<number> {
+    console.log("Infection Score for " + userId)
+    return 0.4
+}
+
 export async function createAchievementsForNewUser(userId: string): Promise<void> {
 
     // create a record for each achievement for the user

@@ -14,3 +14,19 @@ export async function getAchievementsStatus(req: Request, res: Response): Promis
         res.status(500).send("Could not get achievements for user")
     }
 }
+
+export async function getInfectionScore(req: Request, res: Response): Promise<void> {
+    const userId = req.params.userId
+
+    try {
+        // get a number as infection score
+        const score = await achievementDB.calculateInfectionScore(userId)
+
+        res.json({
+            infectionScore: score
+        })
+    }
+    catch (err) {
+        console.error("Error getting infectionScore: " + String(err))
+    }
+}

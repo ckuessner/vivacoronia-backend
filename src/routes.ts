@@ -19,6 +19,7 @@ router.patch('/user/:userId/', authAdmin, userAccountsController.grantAdminReque
 router.post('/admin/:userId/login/', userAccountsController.newAdminToken)
 
 router.get('/user/:userId/achievements/', authUser, achievementsController.getAchievementsStatus)
+router.get('/user/:userId/infectionScore', authUser, achievementsController.getInfectionScore)
 
 router.get('/infection/:userId/', authUser, infectionController.getInfection)
 router.post('/infection/:userId/', authUser, infectionController.postInfection)
