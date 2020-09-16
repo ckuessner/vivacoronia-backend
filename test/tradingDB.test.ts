@@ -68,6 +68,7 @@ describe("right getOffersMatchesWithNeed", async function () {
             { userId: "bli", product: "SPAGHETTI", productCategory: "foods", amount: 2, price: 4.5, details: "lecker", location: { type: "Point", coordinates: [-122.96, 50.114] }, deactivatedAt: new Date() },    // does not match because deactivate
             { userId: "bli", product: "spagHEtti", productCategory: "foods", amount: 2, price: 4.5, details: "lecker", location: { type: "Point", coordinates: [-122.95, 50.114] } },
             { userId: "bli", product: "nudeln", productCategory: "foods", amount: 2, price: 4.5, details: "lecker", location: { type: "Point", coordinates: [-122.90, 50.114] } },  // does not match because other product name
+            { userId: testAccounts[0].userId, product: "spaghetti", productCategory: "foods", amount: 3, price: 4.5, details: "lecker", location: { type: "Point", coordinates: [-122.90, 50.114] } } // does not match because same userid as posted need
 
         ])
 

@@ -14,7 +14,7 @@ async function addCategory(name: string): Promise<ProductCategoryDocument> {
 }
 
 async function getProductOffers(queryOptions: ProductQuery): Promise<ProductOfferDocument[]> {
-    return (await ProductOfferRecord.aggregate(extractAggregateProductQuery(queryOptions, true)))
+    return (await ProductOfferRecord.aggregate(extractAggregateProductQuery(queryOptions, true, false)))
 }
 
 const priceConversion = {
@@ -49,15 +49,25 @@ function getLocationQuery(lon: number, lat: number, radiusInMeters: number): {
     }
 }
 
-function extractAggregateProductQuery(queryOptions: ProductQuery, offer: boolean): Record<string, unknown>[] {
+function extractAggregateProductQuery(queryOptions: ProductQuery, offer: boolean, notUserId: boolean): Record<string, unknown>[] {
     // Should be sanitized, to prevent query injection
     queryOptions.product = escapeRegExp(queryOptions.product)
     const { id, userId, product, productCategory, amountMin, amountMax, longitude, latitude, radiusInMeters, includeInactive, sortBy, priceMin, priceMax } = sanitize(queryOptions)
 
+    let userIdMatch
+    if (!notUserId) {
+        userIdMatch = (userId && { userId })
+    }
+    else {
+        userIdMatch = (userId && {
+            userId: { $ne: userId }
+        })
+    }
+
     const productQuery = {
         $match: {
             ...(id && { id }),
-            ...(userId && { userId }),
+            ...userIdMatch,
             ...(product && { product: new RegExp(product, 'i') }),
             ...(productCategory && { productCategory }),
             ...(!includeInactive && { deactivatedAt: null }),
@@ -73,7 +83,7 @@ function extractAggregateProductQuery(queryOptions: ProductQuery, offer: boolean
                     ...(amountMax && { $lte: amountMax })
                 }
             })
-        }
+        },
     }
 
     const locationQuery = getLocationQuery(longitude as number, latitude as number, radiusInMeters as number)
@@ -127,7 +137,7 @@ async function deactivateProductOffer(id: string, userId: string, sold: boolean)
 
 // Product needs from here
 async function getProductNeeds(queryOptions: ProductQuery): Promise<ProductNeedDocument[]> {
-    return (await ProductNeedRecord.aggregate(extractAggregateProductQuery(queryOptions, false)))
+    return (await ProductNeedRecord.aggregate(extractAggregateProductQuery(queryOptions, false, false)))
 }
 
 async function addProductNeed(productNeed: LeanProductNeed): Promise<ProductNeedDocument> {
@@ -146,11 +156,13 @@ async function getOffersMatchesWithNeed(need: ProductNeedDocument): Promise<Prod
     const productCategory = need.productCategory
     const minAmount = need.amount
     const location = need.location
+    const userId = need.userId
 
-    return await getProductOffers(
+    return (await ProductOfferRecord.aggregate(extractAggregateProductQuery(
         // radius in meters and get sort from nearest to most far away
-        { product: productName, productCategory: productCategory, amountMin: minAmount, longitude: location.coordinates[0], latitude: location.coordinates[1], radiusInMeters: 30000 }
-    )
+        { userId: userId, product: productName, productCategory: productCategory, amountMin: minAmount, longitude: location.coordinates[0], latitude: location.coordinates[1], radiusInMeters: 30000 },
+        true, true
+    )))
 }
 
 // called when someone posted a new offer

@@ -77,7 +77,7 @@ async function sendMatchingProductsNotification(need: ProductNeedDocument, offer
     const notifiedUser = need.userId
     if (offers.length >= 1) {
         // the message contains the parameters for the product search
-        const msg = JSON.stringify({ product: offers[0].product.toLowerCase(), productCategory: offers[0].productCategory.toLowerCase(), minAmount: need.amount, location: need.location.coordinates, perimeter: 30000, numberOfOffers: offers.length })
+        const msg = JSON.stringify({ product: need.product.toLowerCase(), productCategory: need.productCategory.toLowerCase(), minAmount: need.amount, location: need.location.coordinates, perimeter: 30000, numberOfOffers: offers.length })
         try {
             await sendNotification(notifiedUser, msg)
         } catch (err) {
