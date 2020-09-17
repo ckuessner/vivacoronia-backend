@@ -1,7 +1,8 @@
 import AchievementRecord, { AchievementStatus, AchievementsInformations, AchievementBadges, AchievementNameType } from "./models/AchievementRecord";
 import UserAccountRecord from "../Users/models/UserAccountRecord";
 import { toInteger, isEmpty, isNull } from "lodash";
-import { ILocationRecord } from "../Tracking/models/LocationRecord";
+import LocationRecord, { ILocationRecord } from "../Tracking/models/LocationRecord";
+import ContactRecord from "../Tracking/models/ContactRecord"
 import { getInfectionStatusOfUser } from "../Tracking/infection"
 import notifications from "../../controllers/notifications";
 
@@ -26,9 +27,23 @@ export async function createAchievementsForNewUser(userId: string): Promise<void
     console.log("created achievements for user " + userId)
 }
 
-export async function updateForeverAlone(): Promise<void> {
-    // TODO
-    console.log("foreveralone")
+export async function updateForeverAlone(userId: string, date: Date): Promise<void> {
+    // increases if the user does not have contact with infected persons over a long period of time
+    // you cannot skip from none to gold or bronce to gold 
+
+    const locIds = (await ContactRecord.find({ userId: userId }, { locationRecord: 1 })).map(r => r.locationRecord)
+    //console.log("locIds ", locIds)
+    const locRecs = await LocationRecord.find({ _id: { $in: locIds } }).sort({ time: -1 })
+    console.log("locRecs ", locRecs)
+
+    if (locRecs.length > 0) {
+        // millsecs from 1970-1-1
+        const dayDiff = date.valueOf() - new Date(locRecs[0].time).valueOf()
+        const days = Math.floor(dayDiff / 1000 / 60 / 60 / 24)
+        console.log("dayDiff ", days)
+
+        await updateAchievement(userId, "foreveralone", days)
+    }
 }
 
 export async function updateZombie(userId: string, locations: ILocationRecord[]): Promise<void> {
