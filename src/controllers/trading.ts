@@ -8,6 +8,7 @@ import notifications from '../controllers/notifications'
 import { isEmpty } from 'lodash';
 import { LeanInventoryItem, LeanSupermarket } from '../db/trading/models/SupermarketInventory';
 import { mergeSortedArrays } from '../utils';
+import { updateHamsterbuyer } from '../db/achievements/achievements';
 
 function getRequestParameters(req: Request): ProductQuery {
     const userId: string = req.query.userId as string
@@ -245,6 +246,20 @@ async function deleteNeed(req: DeleteNeedRequest, res: Response): Promise<void> 
 
     try {
         const need = await tradingDb.deactivateProductNeed(id, fulfilled)
+
+        try {
+            // achievement stuff for hamsterbuyer
+            if (fulfilled) {
+                const amount = need?.amount
+                if (amount !== undefined) {
+                    await updateHamsterbuyer(userId, amount)
+                }
+            }
+        }
+        catch (e) {
+            console.log("Error in delete Need updating achievement hamsterbuyer")
+        }
+
         res.status(200).json(need)
     } catch (e) {
         res.statusMessage = `Cannot delete need ${id} because of invalid arguments`

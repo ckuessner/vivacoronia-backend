@@ -108,9 +108,8 @@ export async function updateMoneyboy(userId: string, numberOfSoldItems: number):
     await updateAchievement(userId, "moneyboy", numberOfSoldItems)
 }
 
-export async function updateHamsterbuyer(): Promise<void> {
-    // TODO
-    console.log("hamsterbuyer")
+export async function updateHamsterbuyer(userId: string, numberOfBuyedItems: number): Promise<void> {
+    await updateAchievement(userId, "hamsterbuyer", numberOfBuyedItems)
 }
 
 export async function updateSuperspreader(): Promise<void> {
@@ -131,19 +130,25 @@ async function updateAchievement(userId: string, achievement: AchievementNameTyp
     const ach = await AchievementRecord.findOne({ userId: userId, name: achievement })
 
     if (!isNull(ach)) {
-        const newRemaining = updateRemaining + ach.remaining
+        // how many steps the user needs to unlock the new badge (zero or negative if he unlocks it)
+        const newRemaining = ach.remaining - updateRemaining
 
         // if user does not already have the highest badge type we check how far he is from the next badge now
         if (ach.badge !== AchievementBadges[AchievementBadges.length - 1]) {
+            // get information of the current badge
             const achievementInfo = AchievementsInformations.find(e => e.name === achievement)
+            // get information of the next badge
+            const currentBadge = AchievementBadges[AchievementBadges.indexOf(ach.badge) + 1]
             const nextBadge = AchievementBadges[AchievementBadges.indexOf(ach.badge) + 1]
 
-            if (!(achievementInfo === undefined || nextBadge === undefined || nextBadge === "none")) {
+            if (!(achievementInfo === undefined || nextBadge === undefined || currentBadge === undefined || currentBadge === "none" || nextBadge === "none")) {
+                // value for the next badge
                 const remainingForNextBadge = achievementInfo[nextBadge]
+                const remainingForCurrentBadge = achievementInfo[currentBadge]
 
                 const update = { badge: ach.badge, remaining: newRemaining }
 
-                if (newRemaining >= remainingForNextBadge) {
+                if (newRemaining <= 0) {
                     // user unlocks the next achievement
 
                     // update to new achievement
@@ -154,6 +159,15 @@ async function updateAchievement(userId: string, achievement: AchievementNameTyp
 
                     // send notification to user
                     await notifications.sendAchievementNotification(userId, achievement, nextBadge)
+                }
+
+                // if achievement is hamsterbuyer or foreveralone we do not count intermediate steps
+                // TODO: for foreveralone too???
+                if (newRemaining <= 0 && achievement in ["hamsterbuyer"]) {
+                    update.remaining = remainingForNextBadge
+                }
+                else if (achievement in ["hamsterbuyer"]) {
+                    update.remaining = remainingForCurrentBadge
                 }
 
                 // update db
