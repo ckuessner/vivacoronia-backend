@@ -6,12 +6,7 @@ import { LeanProductNeed, ProductNeedDocument } from '../db/trading/models/Produ
 import { ProductQuery } from '../db/trading/models/Product';
 import notifications from '../controllers/notifications'
 import { isEmpty } from 'lodash';
-import { ProductQuery } from '../db/trading/models/Product';
-import { LeanProductNeed } from '../db/trading/models/ProductNeed';
-import { LeanProductOffer, ProductOfferPatch } from '../db/trading/models/ProductOffer';
 import { LeanInventoryItem, LeanSupermarket } from '../db/trading/models/SupermarketInventory';
-import tradingDb from '../db/trading/trading';
-import { DeleteNeedRequest, PatchOfferRequest, PostCategoryRequest } from '../types/trading';
 import { mergeSortedArrays } from '../utils';
 
 function getRequestParameters(req: Request): ProductQuery {
@@ -293,7 +288,7 @@ async function notifyForMatchingNeeds(offer: ProductOfferDocument): Promise<void
     const needs = await tradingDb.getNeedsMatchesWithOffer(offer)
     await notifications.sendNoficationAfterOfferPost(offer, needs)
 }
-export default { getCategories, postCategory, getOffers, postOffer, patchOffer, postNeed, getNeeds, deleteNeed }
+
 async function postSupermarket(req: Request, res: Response): Promise<void> {
     try {
         const supermarket = await tradingDb.addSupermarket(req.body as LeanSupermarket)
@@ -369,3 +364,4 @@ export default {
     postInventoryItem,
     patchInventoryItem
 }
+

@@ -218,7 +218,6 @@ async function patchInventoryItem(supermarketId: string, inventoryItemId: string
     )
 }
 
-export default { getCategories, addCategory, getProductOffers, addProductOffer, updateProductOffer, addProductNeed, getProductNeeds, deactivateProductNeed, deactivateProductOffer, getInventory, addInventory  }
 // called when someone made a new need
 async function getOffersMatchesWithNeed(need: ProductNeedDocument): Promise<ProductOfferDocument[]> {
     const productName = need.product
@@ -243,8 +242,6 @@ async function getNeedsMatchesWithOffer(offer: ProductOfferDocument): Promise<Ar
     // amountMax because only needs with less or equal to the amount of this offer match
     return getProductNeeds({ product: productName, productCategory: productCategory, amountMax: amount, longitude: location.coordinates[0], latitude: location.coordinates[1], radiusInMeters: 30000 })
 }
-
-export default { getCategories, addCategory, getProductOffers, addProductOffer, updateProductOffer, addProductNeed, getProductNeeds, deactivateProductNeed, deactivateProductOffer, getOffersMatchesWithNeed, getNeedsMatchesWithOffer }
 
 async function getAllSupermarkets(): Promise<SupermarketDocument[]> {
     return Supermarket.find({}, { inventory: 0 })
@@ -274,6 +271,8 @@ export default {
     deactivateProductNeed,
     addInventoryItem,
     getExtendedInventoryItems,
+    getOffersMatchesWithNeed,
+    getNeedsMatchesWithOffer,
     patchInventoryItem,
     getSupermarket,
     getAllSupermarkets,
