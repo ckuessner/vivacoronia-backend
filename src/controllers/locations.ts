@@ -27,7 +27,7 @@ async function postLocationRecords(req: Request, res: Response): Promise<void> {
 
             // use locations for achievement zombie
             try {
-                await achievements.updateZombie(userId, req.body as ILocationRecord[])
+                await achievements.updateZombie(userId, req.body)
             }
             catch (err) {
                 console.error("Could not update achievements zombie: " + String(err))
@@ -36,7 +36,7 @@ async function postLocationRecords(req: Request, res: Response): Promise<void> {
                 await achievements.updateForeverAlone(userId, new Date())
             }
             catch (err) {
-                console.error("Could not update achievements foreveralone ", err)
+                console.error("Could not update achievements foreveralone ", String(err))
             }
 
             res.sendStatus(201)

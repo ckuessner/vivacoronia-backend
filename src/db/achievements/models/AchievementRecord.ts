@@ -38,14 +38,14 @@ export const AchievementsInformations: AchievementInfo[] = [
     },
     {
         name: "zombie",
-        bronce: 1,
-        silver: 10,
-        gold: 30
+        bronce: 50,
+        silver: 200,
+        gold: 300
     },
     {
         name: "moneyboy",
-        bronce: 5,
-        silver: 10,
+        bronce: 20,
+        silver: 50,
         gold: 100
     },
     {

@@ -1,4 +1,4 @@
-import AchievementRecord, { AchievementStatus, AchievementsInformations, AchievementBadges, AchievementNameType } from "./models/AchievementRecord";
+import AchievementRecord, { AchievementStatus, AchievementsInformations, AchievementBadges, AchievementNameType, AchievementBadgeType } from "./models/AchievementRecord";
 import UserAccountRecord from "../Users/models/UserAccountRecord";
 import { toInteger, isEmpty, isNull } from "lodash";
 import LocationRecord, { ILocationRecord } from "../Tracking/models/LocationRecord";
@@ -34,68 +34,62 @@ export async function updateForeverAlone(userId: string, date: Date): Promise<vo
     const locIds = (await ContactRecord.find({ userId: userId }, { locationRecord: 1 })).map(r => r.locationRecord)
     //console.log("locIds ", locIds)
     const locRecs = await LocationRecord.find({ _id: { $in: locIds } }).sort({ time: -1 })
-    console.log("locRecs ", locRecs)
+    //console.log("locRecs ", locRecs)
 
     if (locRecs.length > 0) {
         // millsecs from 1970-1-1
         const dayDiff = date.valueOf() - new Date(locRecs[0].time).valueOf()
         const days = Math.floor(dayDiff / 1000 / 60 / 60 / 24)
-        console.log("dayDiff ", days)
+        //console.log("dayDiff ", days)
 
         await updateAchievement(userId, "foreveralone", days)
     }
 }
 
 export async function updateZombie(userId: string, locations: ILocationRecord[]): Promise<void> {
-    // infection dates descending
+    if (isEmpty(locations)) {
+        return
+    }
+
+    // check if user is currently infected
     const infectionDates = await getInfectionStatusOfUser(userId)
 
-    // location records ascending
-    const sortedLocations = locations.sort((a: ILocationRecord, b: ILocationRecord) => a.time < b.time ? -1 : 1)
-
+    // if empty he is not infected
     if (!isEmpty(infectionDates)) {
+        // check last infection status 
+        if (infectionDates[0].newStatus === "infected") {
+            // sort new locations in ascending order (oldest date should be the first one)
+            const sortedLocations = locations.sort((a: ILocationRecord, b: ILocationRecord) => a.time < b.time ? -1 : 1)
 
-        // compute distance of user while he is infected
-        const infectedLocations = infectionDates.map(infection => {
-            const ret = []
-            if (infection.newStatus === "infected") {
-                // find locations for specific infection time and return if it has status infected
-
-                for (let i = sortedLocations.length - 1; i >= 0; i--) {
-                    const locationCand = sortedLocations[i]
-
-                    if (locationCand.time >= infection.dateOfTest) {
-                        ret.push(locationCand)
-                        sortedLocations.pop()
-                    }
-                    else {
-                        break
-                    }
+            // get last location record to concat from db
+            // TODO: make this more efficient since with time there are a lots of location records...
+            const lastLocRecord = await LocationRecord.find(
+                {
+                    $and: [
+                        { "userId": userId },
+                        { "time": { $gte: infectionDates[0].dateOfTest, $lt: sortedLocations[0].time } }
+                    ]
                 }
+            ).sort({ "time": -1 }).limit(1)
+
+            const infectedLocations = lastLocRecord.concat(sortedLocations)
+
+            // compute all infected distances
+            let dist = 0
+
+            // compute distances in infectedLocations
+            for (let i = 1; i < infectedLocations.length; i++) {
+
+                const point1 = infectedLocations[i - 1].location.coordinates
+                const point2 = infectedLocations[i].location.coordinates
+
+                dist += calcCrow(point1[1], point1[0], point2[1], point2[0])
             }
 
-            return ret
-        })
+            //console.log("total distance: " + dist)
 
-        // compute all infected distances
-        let dist = 0
-
-        // compute distances of each array in infectedLocations
-        for (let i = 0; i < infectedLocations.length; i++) {
-            const locationsArray = infectedLocations[i]
-
-            let tmpDist = 0
-            for (let i = 1; i < locationsArray.length; i++) {
-                const point1 = locationsArray[i - 1].location.coordinates
-                const point2 = locationsArray[i].location.coordinates
-
-                tmpDist += calcCrow(point1[0], point1[1], point2[0], point2[1])
-            }
-
-            dist += tmpDist
+            await updateAchievement(userId, "zombie", dist)
         }
-
-        await updateAchievement(userId, "zombie", dist)
     }
 }
 
@@ -150,16 +144,26 @@ async function updateAchievement(userId: string, achievement: AchievementNameTyp
 
         // if user does not already have the highest badge type we check how far he is from the next badge now
         if (ach.badge !== AchievementBadges[AchievementBadges.length - 1]) {
+
             // get information of the current badge
             const achievementInfo = AchievementsInformations.find(e => e.name === achievement)
             // get information of the next badge
-            const currentBadge = AchievementBadges[AchievementBadges.indexOf(ach.badge) + 1]
-            const nextBadge = AchievementBadges[AchievementBadges.indexOf(ach.badge) + 1]
+            let nextBadge = AchievementBadges[AchievementBadges.indexOf(ach.badge) + 1]
 
-            if (!(achievementInfo === undefined || nextBadge === undefined || currentBadge === undefined || currentBadge === "none" || nextBadge === "none")) {
+            // none for next badge means invalid state
+            let nextNextBadge: AchievementBadgeType = "none"
+            if (ach.badge !== AchievementBadges[AchievementBadges.length - 2]) {
+                nextNextBadge = AchievementBadges[AchievementBadges.indexOf(ach.badge) + 2]
+            }
+
+            if (!(achievementInfo === undefined || nextBadge === undefined || nextBadge === "none")) {
                 // value for the next badge
                 const remainingForNextBadge = achievementInfo[nextBadge]
-                const remainingForCurrentBadge = achievementInfo[currentBadge]
+
+                let remainingForNextNextBadge = -1
+                if (nextNextBadge !== undefined && nextNextBadge !== "none") {
+                    remainingForNextNextBadge = achievementInfo[nextNextBadge]
+                }
 
                 const update = { badge: ach.badge, remaining: newRemaining }
 
@@ -169,20 +173,26 @@ async function updateAchievement(userId: string, achievement: AchievementNameTyp
                     // update to new achievement
                     update.badge = nextBadge
 
-                    // update to new remaining value
-                    update.remaining = remainingForNextBadge - newRemaining
+                    //console.log("update nextremaining to " + remainingForNextBadge + " user unlocks " + nextBadge)
+
+                    if (nextBadge === "gold") {
+                        update.remaining = 0
+                    }
+                    else if (remainingForNextNextBadge !== -1) {
+                        update.remaining = remainingForNextNextBadge + newRemaining
+                    }
 
                     // send notification to user
                     await notifications.sendAchievementNotification(userId, achievement, nextBadge)
                 }
 
                 // if achievement is hamsterbuyer or foreveralone we do not count intermediate steps
-                // TODO: for foreveralone too???
-                if (newRemaining <= 0 && achievement in ["hamsterbuyer"]) {
-                    update.remaining = remainingForNextBadge
+                if (newRemaining <= 0 && achievement in ["hamsterbuyer", "foreveralone"]) {
+                    update.remaining = remainingForNextNextBadge
                 }
-                else if (achievement in ["hamsterbuyer"]) {
-                    update.remaining = remainingForCurrentBadge
+                else if (achievement in ["hamsterbuyer", "foreveralone"]) {
+                    // update with next badge / stay the same as before
+                    update.remaining = remainingForNextBadge
                 }
 
                 // update db
