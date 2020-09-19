@@ -914,7 +914,14 @@ components:
       type: object
       description: schema for infection score
       example: 
-        infectionScore: "100"
+        infectionScore: 0.4
+      properties:
+        infectionScore:
+          $ref: "#components/schemas/infectionScore"
+
+    infectionScore:
+      type: number
+      description: infection score
 
     achievementName:
       type: string
@@ -1232,6 +1239,10 @@ components:
         userId: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
         time: "2020-06-11T17:51:30.000Z"
 
+    infectionScore:
+      value:
+        infectionScore: 0.4
+
     newJWT:
       value:
         jwt: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
@@ -1264,6 +1275,10 @@ components:
           badge: "gold"
           remaining: -1
           howmany: 1
+        - name: "quizmaster"
+          badge: "gold"
+          remaining: -1
+          howmany: 3
 
     geoJsonPoint2DArrayExample:
       summary: Array with two GeoJSON Point2D ojects
