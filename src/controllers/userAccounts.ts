@@ -57,13 +57,23 @@ export async function newJSONWebToken(req: Request, res: Response): Promise<void
 }
 
 export async function newAdminToken(req: Request, res: Response): Promise<void> {
-  const userId = req.params.userId
+  let userId = req.params.userId
   const body = req.body as Record<string, string>
   const password = body.password
 
   if (!isString(password) || password === "") {
     res.sendStatus(400)
     return
+  }
+
+  if (userId === "root") {
+    try {
+      userId = await userAccountDb.getRootAdminUserId()
+    }
+    catch (err) {
+      console.error(err)
+      res.status(400).send('Cannot resolve userId from root')
+    }
   }
 
   let validator: boolean

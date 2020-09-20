@@ -44,6 +44,16 @@ export async function hasAdminRights(userId: string): Promise<boolean> {
   return Promise.reject("Invalid userId")
 }
 
+export async function getRootAdminUserId(): Promise<string> {
+  const ret = await UserAccountRecord.findOne({ isRootAdmin: true })
+
+  if (!(typeof ret === null)) {
+    return (ret as IUserAccountRecord)._id as string
+  }
+
+  return Promise.reject("Cannot get root user id")
+}
+
 export async function isRootAdmin(userId: string): Promise<boolean> {
   if (mongoose.Types.ObjectId.isValid(userId)) {
     return await UserAccountRecord.exists({ _id: userId, isRootAdmin: true })
