@@ -152,7 +152,6 @@ async function deactivateProductNeed(id: string, fulfilled: boolean): Promise<Pr
 async function addInventoryItem(supermarketId: string, item: LeanInventoryItem): Promise<SupermarketDocument | null> {
     return Supermarket.findOneAndUpdate({ supermarketId }, { $push: { inventory: item } }, { new: true, runValidators: true })
 }
-// product matching and notifications
 
 async function getExtendedInventoryItems(queryOptions: ProductQuery): Promise<ExtendedInventoryItem[]> {
     const query = extractInventoryQuery(queryOptions)
