@@ -93,9 +93,8 @@ export async function postAnswer(req: Request<never, never, PostAnswerBody>, res
     }
 
     // Check if it's the users turn
-    // The user that initiated the game has to wait for the other player to answer the first question,
-    // therefore the first player is at index 1 (not 0)
-    if ((game.answers.length + 1) % game.players.length !== game.players.indexOf(userId)) {
+    // The user that initiated the game is the first player and is the first player to answer a question
+    if (game.answers.length % game.players.length !== game.players.indexOf(userId)) {
         res.status(400).send("It's not your turn, wait for the other player to answer a question")
         return
     }
