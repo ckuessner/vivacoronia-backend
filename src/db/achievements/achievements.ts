@@ -170,6 +170,7 @@ export async function updateSuperspreader(newInfectedUser: string, dateOfTest: D
 
 }
 
+//eslint-disable-next-line
 export async function updateQuizmaster(): Promise<void> {
     // TODO
     console.log("quizmaster")
