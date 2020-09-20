@@ -133,7 +133,7 @@ async function deactivateProductOffer(id: string, userId: string, sold: boolean)
 
         // update achievement moneyboy for user if he sold a product
         if (sold) {
-            await achievement.updateMoneyboy(userId, 1)
+            void achievement.updateMoneyboy(userId, 1)
         }
 
         return true

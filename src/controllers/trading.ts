@@ -247,12 +247,14 @@ async function deleteNeed(req: DeleteNeedRequest, res: Response): Promise<void> 
     try {
         const need = await tradingDb.deactivateProductNeed(id, fulfilled)
 
+        res.status(200).json(need)
+
         try {
             // achievement stuff for hamsterbuyer
             if (fulfilled) {
                 const amount = need?.amount
                 if (amount !== undefined) {
-                    await updateHamsterbuyer(userId, amount)
+                    void updateHamsterbuyer(userId, amount)
                 }
             }
         }
@@ -260,7 +262,6 @@ async function deleteNeed(req: DeleteNeedRequest, res: Response): Promise<void> 
             console.log("Error in delete Need updating achievement hamsterbuyer")
         }
 
-        res.status(200).json(need)
     } catch (e) {
         res.statusMessage = `Cannot delete need ${id} because of invalid arguments`
         res.sendStatus(400)

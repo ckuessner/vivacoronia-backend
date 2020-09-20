@@ -25,21 +25,21 @@ async function postLocationRecords(req: Request, res: Response): Promise<void> {
                 return
             }
 
+            res.sendStatus(201)
+
             // use locations for achievement zombie
             try {
-                await achievements.updateZombie(userId, req.body)
+                void achievements.updateZombie(userId, req.body)
             }
             catch (err) {
                 console.error("Could not update achievements zombie: " + String(err))
             }
             try {
-                await achievements.updateForeverAlone(userId, new Date())
+                void achievements.updateForeverAlone(userId, new Date())
             }
             catch (err) {
                 console.error("Could not update achievements foreveralone ", String(err))
             }
-
-            res.sendStatus(201)
         } catch (error) {
             console.error(error)
             res.sendStatus(400)

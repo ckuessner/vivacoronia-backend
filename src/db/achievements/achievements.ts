@@ -5,10 +5,42 @@ import LocationRecord, { ILocationRecord } from "../Tracking/models/LocationReco
 import ContactRecord from "../Tracking/models/ContactRecord"
 import { getInfectionStatusOfUser } from "../Tracking/infection"
 import notifications from "../../controllers/notifications";
+import InfectionRecord from "../Tracking/models/InfectionRecord";
 
 export async function calculateInfectionScore(userId: string): Promise<number> {
-    console.log("Infection Score for " + userId)
-    return 0.4
+    // score / probablilty of how likely a user could be infected 
+    // 1 -> if user is infected
+    // else a score between (0, 1)
+
+    const status = await getInfectionStatusOfUser(userId)
+    if (!isEmpty(status) && status[0].newStatus === "infected") {
+        // if user is infected his score is 1
+        return 1.0
+    }
+
+    // amount of infected contacts of user
+    const sumInfectedContacts = await ContactRecord.estimatedDocumentCount({
+        $and: [
+            { time: { $gte: new Date(Date.now() - 12096e5) } },
+            { userId: userId }
+        ]
+    })
+
+    // total amount of infected users
+    const infectedUsers = await InfectionRecord.estimatedDocumentCount({})
+
+    // total amount of users
+    const totalUsers = await UserAccountRecord.estimatedDocumentCount({})
+
+    // compute a score
+    // if user has more contact with infected contacts this should weight most
+    let score = (sumInfectedContacts * 5 + infectedUsers * 0.3) / (sumInfectedContacts + infectedUsers + totalUsers)
+
+    if (score >= 1) {
+        score = 0.99
+    }
+
+    return score
 }
 
 export async function createAchievementsForNewUser(userId: string): Promise<void> {
@@ -121,9 +153,21 @@ export async function updateHamsterbuyer(userId: string, numberOfBuyedItems: num
     await updateAchievement(userId, "hamsterbuyer", numberOfBuyedItems)
 }
 
-export async function updateSuperspreader(): Promise<void> {
-    // TODO
-    console.log("superspreader")
+export async function updateSuperspreader(newInfectedUser: string, dateOfTest: Date): Promise<void> {
+    // get infected users that the new infected user had contact with the last two weeks
+    const possibleSpreader = await ContactRecord.find({
+        $and: [
+            { time: { $gte: new Date(dateOfTest.getDate() - 12096e5) } },
+            { time: { $lt: dateOfTest } },
+            { userId: newInfectedUser }
+        ]
+    })
+
+    // update achievement for every possible spreader
+    for (let i = 0; i < possibleSpreader.length; i++) {
+        await updateAchievement(possibleSpreader[i].infectedUserId, "superspreader", 1)
+    }
+
 }
 
 export async function updateQuizmaster(): Promise<void> {
@@ -148,7 +192,7 @@ async function updateAchievement(userId: string, achievement: AchievementNameTyp
             // get information of the current badge
             const achievementInfo = AchievementsInformations.find(e => e.name === achievement)
             // get information of the next badge
-            let nextBadge = AchievementBadges[AchievementBadges.indexOf(ach.badge) + 1]
+            const nextBadge = AchievementBadges[AchievementBadges.indexOf(ach.badge) + 1]
 
             // none for next badge means invalid state
             let nextNextBadge: AchievementBadgeType = "none"
@@ -247,33 +291,3 @@ export async function getAchievementStatus(userId: string): Promise<AchievementS
 
     return ret
 }
-
-
-// -------------------------- Test Functions ---------------------------------
-// TODO: delete
-/*export async function testFunction(): Promise<void> {
-    const a = [13, 11, 9, 7, 6, 5, 4, 2, 1, 0].reverse()
-    const b = [10, 8, 3]
-
-    const c = b.map(valueB => {
-        const ret = []
-
-        // find every element that
-        for (let i = a.length - 1; i >= 0; i--) {
-            const aCand = a[i]
-            if (aCand >= valueB) {
-                ret.push(aCand)
-                a.pop()
-            }
-            else {
-                break
-            }
-        }
-
-        console.log(ret)
-
-        return ret
-    })
-
-    console.log(c)
-}*/

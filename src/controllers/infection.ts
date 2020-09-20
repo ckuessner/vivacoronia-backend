@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { updateSuperspreader } from "../db/achievements/achievements";
 import { getInfectionStatusOfUser } from "../db/Tracking/infection";
 import InfectionRecord, { IInfectionRecord } from "../db/Tracking/models/InfectionRecord";
 import validateSignature from "../validators/rsaSignatureValidator";
@@ -45,12 +46,19 @@ export async function postInfection(req: Request, res: Response): Promise<void> 
             return;
         }
 
-        if (infectionRecord.newStatus === "infected") {
+        const validator = infectionRecord.newStatus === "infected"
+        if (validator) {
             // Start contact tracing for new infection in background
             void contacts.startContactTracing(infectionRecord)
         }
 
         res.sendStatus(201);
+
+        if (validator) {
+            // update achievement superspreader
+            void updateSuperspreader(infectionRecord.userId, infectionRecord.dateOfTest)
+        }
+
     } catch (error) {
         console.error(error);
         res.sendStatus(400);
