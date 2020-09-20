@@ -16,11 +16,13 @@ tags:
     description: Retrieve information about contact with infected persons
   - name: Trading
     description: Manage product offers, needs, store inventories and available categories
+  - name: Authentication
+    description: User Creation and Authentication
 
 paths:
   /user/:
     post:
-      tags: [User Creation and Authentication]
+      tags: [Authentication]
       description: Returns a new unique userId
       requestBody:
         description: Password for user account
@@ -48,7 +50,7 @@ paths:
 
   /user/{userId}/login/:
     post:
-      tags: [User Creation and Authentication]
+      tags: [Authentication]
       description: Returns a new JWT for a specific userId
       requestBody:
         content:
@@ -59,7 +61,7 @@ paths:
                 $ref: "#/components/schemas/Password"
             examples:
               exPassw:
-                $ref: "#components/examples/exPassword"
+                $ref: "#/components/examples/exPassword"
       responses:
         "200":
           description: JSON Web Token
@@ -67,7 +69,8 @@ paths:
             application/json:
               schema:
                 type: string
-                items: "#components/schemas/JWT"
+                items: 
+                  $ref: "#/components/schemas/JWT"
               examples:
                 newJWT:
                   $ref: "#/components/examples/newJWT"
@@ -81,7 +84,7 @@ paths:
 
   /user/{userId}/:
     patch:
-      tags: [Admin feature granting]
+      tags: [Authentication]
       description: Grants admin status to user
       requestBody:
         content:
@@ -92,7 +95,7 @@ paths:
                 $ref: "#/components/schemas/AdminStatus"
             examples:
               userAdminPatch:
-                $ref: "#components/examples/adminStatus"
+                $ref: "#/components/examples/adminStatus"
       responses:
         "201":
           description: "Granted"
@@ -114,8 +117,8 @@ paths:
             $ref: "#/components/schemas/userId"
 
     get:
-      tags: [User Information]
-      description:  Get user specific informations
+      tags: [Authentication]
+      description: Get user specific informations
       responses:
         "200":
           description: Return status information of user
@@ -123,7 +126,8 @@ paths:
             application/json:
               schema:
                 type: object
-                items: "#components/schemas/AdminStatus"
+                items: 
+                  $ref: "#/components/schemas/AdminStatus"
               examples:
                 adminStatus:
                   $ref: "#/components/examples/adminStatus"
@@ -144,7 +148,7 @@ paths:
 
   /admin/{userId}/login/:
     post:
-      tags: [Admin authentication]
+      tags: [Authentication]
       description: Returns a new JWT for admin functionality
       requestBody:
         content:
@@ -155,7 +159,7 @@ paths:
                 $ref: "#/components/schemas/password"
             examples:
               exAdminPatch:
-                $ref: "#components/examples/exPassword"
+                $ref: "#/components/examples/exPassword"
       responses:
         "200":
           description: JSON Web Token
@@ -163,7 +167,8 @@ paths:
             application/json:
               schema:
                 type: string
-                items: "#components/schemas/JWT"
+                items:
+                  $ref: "#/components/schemas/JWT"
               examples:
                 newJWT:
                   $ref: "#/components/examples/newJWT"
@@ -389,11 +394,11 @@ paths:
         - name: priceMin
           in: query
           schema:
-            type: double
+            type: number
         - name: priceMax
           in: query
           schema:
-            type: double
+            type: number
 
     post:
       tags: [Trading]
@@ -460,10 +465,11 @@ paths:
           description: OK
           content:
             application/json:
-              type: array
-              items:
-                $ref: "#/components/schemas/productCategory"
-              example: ["foods", "hygiene", "protection"]
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/productCategory"
+                example: ["foods", "hygiene", "protection"]
     post:
       tags: [Trading]
       description: Adds a new category
@@ -491,7 +497,7 @@ paths:
           schema:
             type: string
           required: true
-  
+
   /trading/needs/:
     get:
       tags: [Trading]
@@ -522,7 +528,7 @@ paths:
         - name: productCategory
           in: query
           schema:
-            $ref: "#/components/schemas/productCategory" 
+            $ref: "#/components/schemas/productCategory"
         - name: longitude
           in: query
           schema:
@@ -534,7 +540,7 @@ paths:
         - name: radius
           in: query
           schema:
-            type: int64
+            type: integer
           example: 10000
           description: Radius in meters, default is 25000
         - name: includeInactive
@@ -543,11 +549,11 @@ paths:
             type: boolean
           example: true
           description: if true returns inactive (deleted/fulfilled) offers as well, default is false
-          
+
     post:
       tags: [Trading]
       description: Adds a new product need
-      requestBody: 
+      requestBody:
         required: true
         content:
           application/json:
@@ -564,7 +570,7 @@ paths:
           schema:
             type: string
           required: true
-  
+
   /trading/needs/{needId}:
     patch:
       tags: [Trading]
@@ -575,7 +581,7 @@ paths:
           application/json:
             schema:
               properties:
-                fulfilled: 
+                fulfilled:
                   type: boolean
                   example: true
                   description: only property fulfilled is necessary
@@ -601,7 +607,7 @@ paths:
           required: true
           description: The id of the need
           schema:
-            $ref: "#/components/schemas/needId"   
+            $ref: "#/components/schemas/needId"
 
 components:
   schemas:
@@ -613,7 +619,7 @@ components:
         time: "2020-05-21T21:39:08+02:00"
       properties:
         userId:
-          $ref: "#components/schemas/userId"
+          $ref: "#/components/schemas/userId"
         time:
           type: string
           format: date-time
@@ -643,7 +649,7 @@ components:
         isAdmin: true
       properties:
         isAdmin:
-          $ref: "#components/schemas/isAdmin"
+          $ref: "#/components/schemas/isAdmin"
 
     LocationRecord:
       type: object
@@ -708,7 +714,7 @@ components:
 
     password:
       type: string
-    
+
     isAdmin:
       type: boolean
 
@@ -721,11 +727,11 @@ components:
       type: integer
       format: int64
       example: 500
-
+      
     date:
-      type: date
-      format: string
-      example: Thu Jul 09 02:00:00 GMT+02:00 2020
+      type: string
+      format: date-time
+      example: "2020-05-12T00:00:00.000Z"
 
     GetInfectionRecordDto:
       type: object
@@ -803,12 +809,12 @@ components:
         productCategory:
           $ref: "#/components/schemas/productCategory"
         price:
-          type: double
+          type: number
           example: 8.50
           description: Price per piece
-        details: 
+        details:
           type: string
-          details: Additional information or description of the offer or product
+          description: Additional information or description of the offer or product
         location:
           $ref: "#/components/schemas/GeoJSONPoint2D"
         deactivatedAt:
@@ -826,27 +832,27 @@ components:
       type: object
       description: Contains details about a product need provided by a user
       properties:
-        _id: 
+        _id:
           $ref: "#/components/schemas/needId"
-        userId: 
+        userId:
           $ref: "#/components/schemas/userId"
-        product: 
+        product:
           type: string
           $ref: "#/components/schemas/product"
-        productCategory: 
+        productCategory:
           type: string
           $ref: "#/components/schemas/productCategory"
         amount:
           type: number
           description: How much of the product is offered (1 time, 2 times, 5 times)
           example: 5
-        location: 
+        location:
           $ref: "#/components/schemas/GeoJSONPoint2D"
-        deactivatedAt: 
+        deactivatedAt:
           type: string
           format: date-time
           description: Timestamp of deactivation
-        fulfilled: 
+        fulfilled:
           type: boolean
           description: True if this product need is fullfilled
 
@@ -866,8 +872,7 @@ components:
     needId:
       type: string
       example: 5f22c05fa920c7004af2a477
-    
-    
+
   examples:
     locationArrayExample:
       summary: Array with two location ojects

@@ -5,15 +5,15 @@ import validateSignature from '../src/validators/rsaSignatureValidator';
 import 'mocha'
 import { expect } from 'chai'
 
-function getSignature(toSign: string, hashAlgo = 'sha256'): string {
-    const keyPath = path.join(__dirname, 'res', 'qrcode_private_key')
-    const privateKey = readFileSync(keyPath, 'utf8');
-    const key = new RSAKey();
-    key.readPrivateKeyFromPEMString(privateKey);
-    return key.sign(toSign, hashAlgo)
-}
-
 describe('RSA Signature Validation', function () {
+    function getSignature(toSign: string, hashAlgo = 'sha256'): string {
+        const keyPath = path.join(__dirname, 'res', 'qrcode_private_key')
+        const privateKey = readFileSync(keyPath, 'utf8');
+        const key = new RSAKey();
+        key.readPrivateKeyFromPEMString(privateKey);
+        return key.sign(toSign, hashAlgo)
+    }
+
     it('simple object is correctly verified', () => {
         const data = { "a": "x", "b": ["y", "z"], "c": 1 };
         const signature = getSignature(JSON.stringify(data, Object.keys(data).sort()));

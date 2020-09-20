@@ -23,6 +23,15 @@ export const Point2DSchema: Schema = new Schema({
     }
 })
 
+export interface LeanLocationRecord {
+    userId: string;
+    time: Date;
+    location: {
+        type: 'Point';
+        coordinates: Array<number>;
+    };
+}
+
 const LocationRecordSchema: Schema = new Schema({
     userId: {
         type: String,
@@ -39,13 +48,6 @@ const LocationRecordSchema: Schema = new Schema({
     }
 })
 
-export interface ILocationRecord extends Document {
-    userId: string;
-    time: Date;
-    location: {
-        type: 'Point';
-        coordinates: Array<number>;
-    };
-}
+export interface ILocationRecord extends Document, LeanLocationRecord { }
 
 export default mongoose.model<ILocationRecord>('LocationRecord', LocationRecordSchema);

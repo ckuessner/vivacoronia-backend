@@ -117,5 +117,9 @@ async function sendNotification(userId: string, message: string): Promise<void> 
     }
 }
 
+function getConnectedUsers(): string[] {
+    return Array.from(userIDToSocketMap.keys())
+}
+
 export const CONTACT_NOTIFICATION_STRING = "you had contact with an infected person"
-export default { setupSocketManagement, sendInfectedContactNotifications, sendNotification, sendMatchingProductsNotification, sendNoficationAfterOfferPost }
+export default { setupSocketManagement, sendInfectedContactNotifications, sendNotification, getConnectedUsers, sendMatchingProductsNotification, sendNoficationAfterOfferPost }

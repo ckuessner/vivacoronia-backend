@@ -52,8 +52,7 @@ async function getCategories(_: Request, res: Response): Promise<void> {
 async function postCategory(req: PostCategoryRequest, res: Response): Promise<void> {
     const categoryName = req.body.name
     if (!categoryName) {
-        res.statusMessage = 'Please provide the attribute "name" in the request body'
-        res.sendStatus(400)
+        res.status(400).send('Please provide the attribute "name" in the request body')
         return
     }
 

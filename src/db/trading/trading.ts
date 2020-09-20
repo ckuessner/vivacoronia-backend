@@ -10,7 +10,7 @@ async function getCategories(): Promise<string[]> {
 }
 
 async function addCategory(name: string): Promise<ProductCategoryDocument> {
-    return ProductCategory.create({ name })
+    return await ProductCategory.create({ name })
 }
 
 async function getProductOffers(queryOptions: ProductQuery): Promise<ProductOfferDocument[]> {

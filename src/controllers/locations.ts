@@ -7,6 +7,7 @@ async function postLocationRecords(req: Request, res: Response): Promise<void> {
 
     if (!Array.isArray(req.body)) {
         res.sendStatus(400)
+        return
     } else {
         try {
             // Set userId of each field to userId of request
