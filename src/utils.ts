@@ -21,7 +21,7 @@ function mergeSortedArrays(a: OfferSearchResult[], b: InventoryItemSearchResult[
     let indexA = 0, indexB = 0, indexResult = 0;
 
     while (indexA < a.length && indexB < b.length) {
-        if (comparator(a[indexA], b[indexA])) {
+        if (comparator(a[indexA], b[indexB])) {
             result[indexResult] = a[indexA];
             indexA++;
         }
