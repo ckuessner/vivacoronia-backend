@@ -3,6 +3,7 @@ import express from 'express'
 import { IContactRecord } from "../db/Tracking/models/ContactRecord"
 import { ProductOfferDocument } from "../db/trading/models/ProductOffer"
 import { ProductNeedDocument } from '../db/trading/models/ProductNeed'
+import { checkUserIdForWebSockets } from '../middleware/auth'
 
 // map with userID and corresponding websocket
 export const userIDToSocketMap = new Map<string, WebSocket>()
@@ -13,24 +14,26 @@ const userContactNotificationBuffer = new Map<string, string[]>()
 function setupSocketManagement(wsServer: WebSocket.Server): void {
     // called when client connects
     wsServer.on('connection', function (ws: WebSocket, req: express.Request) {
+
         // TODO: user authentication
         console.log('New Client connected to websocket', req.headers.userid);
         // add socket to socket map
-        if (req.headers != null && typeof req.headers.userid === 'string') {
-            const userId = req.headers.userid;
-            userIDToSocketMap.set(userId, ws)
-            // if a new websocket connects, maybe it a user with a pending notification
-            const userBuffer = userContactNotificationBuffer.get(userId)
-            if (userBuffer) {
-                userContactNotificationBuffer.delete(userId)
-                userBuffer.forEach((message) => {
-                    sendNotification(userId, message).catch(() => bufferMessage(userId, message))
-                });
-            }
+        if (req.headers != null && typeof req.headers.userid === 'string' && typeof req.headers.jwt === 'string') {
+            // since the function after connection event has to be synchron we first have to let the connection establish
+            void checkUserIdForWebSockets(req, ws)
         } else {
             console.error("Client connected, but no userId found. Headers: ", req.headers)
             ws.close()
         }
+
+
+        ws.on('message', function (message: string) {
+            console.log(message)
+        })
+
+        ws.on('ping', function () {
+            ws.pong()
+        })
 
         ws.on('close', function () {
             userIDToSocketMap.forEach(function deleteSocket(value, key) {
@@ -47,6 +50,19 @@ function setupSocketManagement(wsServer: WebSocket.Server): void {
         console.log("Error in websocket ", e);
         userIDToSocketMap.clear();
     });
+}
+
+function addUserToSocketMapAfterAuthentication(userId: string, ws: WebSocket): void {
+    userIDToSocketMap.set(userId, ws)
+    console.log("added user ", userId, " to socket map")
+    // if a new websocket connects, maybe it is a user with a pending notification
+    const userBuffer = userContactNotificationBuffer.get(userId)
+    if (userBuffer) {
+        userContactNotificationBuffer.delete(userId)
+        userBuffer.forEach((message) => {
+            sendNotification(userId, message).catch(() => bufferMessage(userId, message))
+        });
+    }
 }
 
 function bufferMessage(userId: string, message: string) {
@@ -122,4 +138,4 @@ function getConnectedUsers(): string[] {
 }
 
 export const CONTACT_NOTIFICATION_STRING = "you had contact with an infected person"
-export default { setupSocketManagement, sendInfectedContactNotifications, sendNotification, getConnectedUsers, sendMatchingProductsNotification, sendNoficationAfterOfferPost }
+export default { setupSocketManagement, sendInfectedContactNotifications, sendNotification, getConnectedUsers, sendMatchingProductsNotification, sendNoficationAfterOfferPost, addUserToSocketMapAfterAuthentication }
