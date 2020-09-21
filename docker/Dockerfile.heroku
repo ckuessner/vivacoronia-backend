@@ -1,0 +1,15 @@
+FROM node:14
+
+RUN mkdir -p /usr/src/app/src && chown -R node:node /usr/src/app
+WORKDIR /usr/src/app
+COPY --chown=node:node package*.json api.yaml tsconfig.json /usr/src/app/
+COPY --chown=node:node src /usr/src/app/src/
+COPY --chown=node:node res /usr/src/app/res/
+COPY --chown=node:node patches /usr/src/app/patches/
+
+USER node
+ENV NODE_ENV=production
+RUN npm install && npm cache clean --force --loglevel=error && npm run tsc
+
+EXPOSE 3000
+CMD ["npm", "run", "heroku"]

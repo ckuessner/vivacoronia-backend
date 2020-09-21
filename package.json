@@ -5,6 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "start": "tsc && node build/index.js",
+    "heroku": "node --optimize_for_size --max_old_space_size=460 build/index.js",
     "test": "mocha --require ts-node/register --trace-warnings test/**.test.ts --exit",
     "precommit": "npm install && npm run tsc && npm run lint && npm run test",
     "watch": "nodemon",
