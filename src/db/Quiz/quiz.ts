@@ -10,11 +10,12 @@ export async function createGameWithRandomQuestions(userA: string, userB: string
     const questions = await QuizQuestion.aggregate([{
         $sample: { size: 4 }
     }])
-    return QuizGame.create({
+    const doc = await QuizGame.create({
         players: [userA, userB],
         questions,
         answers: [],
     })
+    return await doc.populate('questions').execPopulate()
 }
 
 export async function getGame(gameId: string): Promise<QuizGameDocument | null> {
