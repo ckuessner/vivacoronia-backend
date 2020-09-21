@@ -47,8 +47,8 @@ export async function hasAdminRights(userId: string): Promise<boolean> {
 export async function getRootAdminUserId(): Promise<string> {
   const ret = await UserAccountRecord.findOne({ isRootAdmin: true })
 
-  if (!(typeof ret === null)) {
-    return (ret as IUserAccountRecord)._id as string
+  if (ret !== null) {
+    return ret._id as string
   }
 
   return Promise.reject("Cannot get root user id")
