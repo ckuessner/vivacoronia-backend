@@ -1,7 +1,8 @@
 import { Request, Response } from "express";
 import * as locationsDb from "../db/Tracking/locations";
 import { ILocationRecord } from "../db/Tracking/models/LocationRecord";
-import * as achievements from "../db/achievements//achievements";
+import * as achievements from "../db/achievements/achievements";
+import { checkDist, checkLat, checkLon } from "../validators/coordinates";
 
 async function postLocationRecords(req: Request, res: Response): Promise<void> {
     const userId = req.params.userId
@@ -56,7 +57,7 @@ async function getAllLocationRecords(req: Request, res: Response): Promise<void>
     const longitude: number = +(req.query.longitude || NaN)
     const latitude: number = +(req.query.latitude || NaN)
     const distance: number = +(req.query.distance || NaN)
-    const longValid: boolean = checkLong(longitude)
+    const longValid: boolean = checkLon(longitude)
     const latValid: boolean = checkLat(latitude)
     const distValid: boolean = checkDist(distance)
     const start: Date = new Date(req.query.start as string)
@@ -72,16 +73,6 @@ async function getAllLocationRecords(req: Request, res: Response): Promise<void>
     else {
         res.sendStatus(400)
     }
-}
-
-function checkLat(lat: number) {
-    return !isNaN(lat) && isFinite(lat) && Math.abs(lat) <= 90
-}
-function checkLong(long: number) {
-    return !isNaN(long) && isFinite(long) && Math.abs(long) <= 180
-}
-function checkDist(dist: number) {
-    return !isNaN(dist) && isFinite(dist) && dist >= 0
 }
 
 async function getUserLocationRecord(req: Request, res: Response): Promise<void> {

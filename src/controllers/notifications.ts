@@ -9,7 +9,7 @@ import { AchievementNameType, AchievementBadgeType } from '../db/achievements/mo
 // map with userID and corresponding websocket
 export const userIDToSocketMap = new Map<string, WebSocket>()
 // map from userId to contact notification message buffer 
-const userContactNotificationBuffer = new Map<string, string[]>()
+const notificationBuffer = new Map<string, string[]>()
 
 
 function setupSocketManagement(wsServer: WebSocket.Server): void {
@@ -51,9 +51,9 @@ function addUserToSocketMapAfterAuthentication(userId: string, ws: WebSocket): v
     userIDToSocketMap.set(userId, ws)
     console.log("added user ", userId, " to socket map")
     // if a new websocket connects, maybe it is a user with a pending notification
-    const userBuffer = userContactNotificationBuffer.get(userId)
+    const userBuffer = notificationBuffer.get(userId)
     if (userBuffer) {
-        userContactNotificationBuffer.delete(userId)
+        notificationBuffer.delete(userId)
         userBuffer.forEach((message) => {
             sendNotification(userId, message).catch(() => bufferMessage(userId, message))
         });
@@ -61,9 +61,9 @@ function addUserToSocketMapAfterAuthentication(userId: string, ws: WebSocket): v
 }
 
 function bufferMessage(userId: string, message: string) {
-    const buffer = userContactNotificationBuffer.get(userId)
+    const buffer = notificationBuffer.get(userId)
     if (buffer == undefined || buffer.length === 0) {
-        userContactNotificationBuffer.set(userId, [message])
+        notificationBuffer.set(userId, [message])
     } else {
         buffer.push(message)
     }
@@ -124,6 +124,34 @@ async function sendNoficationAfterOfferPost(offer: ProductOfferDocument, needs: 
     }
 }
 
+async function sendQuizGameRequest(recipient: string, gameId: string, initiatingUser: string, distance: number): Promise<void> {
+    const message = "QUIZ_NEW|" + JSON.stringify({ gameId, initiatingUser, distance })
+    return sendNotificationBuffered(recipient, message)
+}
+
+async function sendQuizGameYourTurn(userId: string, gameId: string): Promise<void> {
+    const message = "QUIZ_TURN|" + JSON.stringify({ gameId })
+    return sendNotificationBuffered(userId, message)
+}
+
+async function sendQuizGameOver(gameId: string, winnerId: string, looserId: string): Promise<void> {
+    await sendNotificationBuffered(winnerId, "QUIZ_GAMEOVER_WON|" + gameId)
+    await sendNotificationBuffered(looserId, "QUIZ_GAMEOVER_LOST|" + gameId)
+}
+
+async function sendQuizGameDraw(gameId: string, playerA: string, playerB: string): Promise<void> {
+    await sendNotificationBuffered(playerA, "QUIZ_GAMEOVER_DRAW|" + gameId)
+    await sendNotificationBuffered(playerB, "QUIZ_GAMEOVER_DRAW|" + gameId)
+}
+
+async function sendNotificationBuffered(userId: string, message: string): Promise<void> {
+    try {
+        await sendNotification(userId, message)
+    } catch (error) {
+        bufferMessage(userId, message)
+    }
+}
+
 async function sendNotification(userId: string, message: string): Promise<void> {
     const sock = userIDToSocketMap.get(userId)
     if (sock != null) {
@@ -143,4 +171,10 @@ function getConnectedUsers(): string[] {
 }
 
 export const CONTACT_NOTIFICATION_STRING = "you had contact with an infected person"
-export default { setupSocketManagement, sendInfectedContactNotifications, sendNotification, getConnectedUsers, sendMatchingProductsNotification, sendNoficationAfterOfferPost, addUserToSocketMapAfterAuthentication, sendAchievementNotification }
+export default {
+    setupSocketManagement, getConnectedUsers,
+    sendInfectedContactNotifications,
+    sendQuizGameRequest, sendQuizGameYourTurn, sendQuizGameOver, sendQuizGameDraw,
+    sendNotification, sendNoficationAfterOfferPost, sendMatchingProductsNotification,
+    addUserToSocketMapAfterAuthentication, sendAchievementNotification,
+}

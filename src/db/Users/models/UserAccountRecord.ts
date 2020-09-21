@@ -19,12 +19,14 @@ const UserAccountRecordSchema: Schema = new Schema({
   }
 })
 
-export interface IUserAccountRecord extends Document {
+export interface LeanUserAccount {
   timeCreated: Date;
   passwordHash: string;
   isAdmin: boolean;
   isRootAdmin: boolean;
 }
+
+export interface IUserAccountRecord extends Document, LeanUserAccount { }
 
 export interface UserAccountPatch {
   isAdmin: boolean;

@@ -1,7 +1,7 @@
 openapi: 3.0.2
 info:
   title: Viva Coronia Backend API
-  version: 0.1.0
+  version: 1.0.0
 servers:
   - url: "https://vivacoronia.herokuapp.com"
     description: Production server
@@ -16,6 +16,8 @@ tags:
     description: Retrieve information about contact with infected persons
   - name: Trading
     description: Manage product offers, needs, supermarket inventories and available categories
+  - name: Quiz
+    description: Manage questions and participate in quiz games
   - name: Authentication
     description: User Creation and Authentication
 
@@ -43,10 +45,10 @@ paths:
               schema:
                 type: object
                 items:
-                  $ref: "#/components/schemas/UserId"
+                  $ref: "#/components/schemas/User"
               examples:
                 newUser:
-                  $ref: "#/components/examples/newUserId"
+                  $ref: "#/components/examples/newUserExample"
 
   /user/{userId}/login/:
     post:
@@ -69,7 +71,7 @@ paths:
             application/json:
               schema:
                 type: string
-                items: 
+                items:
                   $ref: "#/components/schemas/JWT"
               examples:
                 newJWT:
@@ -126,7 +128,7 @@ paths:
             application/json:
               schema:
                 type: object
-                items: 
+                items:
                   $ref: "#/components/schemas/AdminStatus"
               examples:
                 adminStatus:
@@ -483,11 +485,11 @@ paths:
       description: Update an already existing offer, i.e. change or delete it. Only provide the properties to change
       requestBody:
         required: true
+        description: Only the changed properties need to be provided
         content:
           application/json:
             schema:
               $ref: "#/components/schemas/ProductOfferRecord"
-              description: Only the properties to change need to be provided
       responses:
         "200":
           description: Returns the complete succesfully changed offer
@@ -694,7 +696,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Supermarket"
-    
+
   /trading/supermarket/{supermarketId}/:
     get:
       tags: [Trading]
@@ -740,7 +742,7 @@ paths:
             $ref: "#/components/schemas/supermarketId"
       requestBody:
         required: true
-        content: 
+        content:
           application/json:
             schema:
               $ref: "#/components/schemas/InventoryItem"
@@ -751,7 +753,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Supermarket"
-  
+
   /trading/supermarket/{supermarketId}/{itemId}/:
     patch:
       tags: [Trading]
@@ -844,17 +846,217 @@ paths:
         - name: priceMin
           in: query
           schema:
-            type: double
+            type: number
+            format: double
         - name: priceMax
           in: query
           schema:
-            type: double
+            type: number
+            format: double
+
+  /quiz/questions/:
+    post:
+      tags: [Quiz]
+      description: Add a new quiz question
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/Question"
+      parameters:
+        - name: adminjwt
+          in: header
+          schema:
+            type: string
+          required: true
+      responses:
+        201:
+          description: Successful creation
+        400:
+          description: Invalid question
+        401:
+          description: Insufficient permissions (Admin permission required)
+
+  /quiz/game/:
+    post:
+      tags: [Quiz]
+      description: Start a new quiz game
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                location:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/lon_lat_array"
+      parameters:
+        - name: jwt
+          in: header
+          schema:
+            type: string
+          required: true
+      responses:
+        201:
+          description: Created a new game
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NewQuizGameResponse"
+        400:
+          description: Location invalid
+        404:
+          description: No other players available
+
+  /quiz/game/{gameId}:
+    parameters:
+      - name: gameId
+        in: path
+        required: true
+        description: The id of the game
+        schema:
+          type: string
+        example: 5f22c05fa920c7004af2a477
+      - name: jwt
+        in: header
+        schema:
+          type: string
+        required: true
+    get:
+      tags: [Quiz]
+      description: Retrieve quiz game info
+      responses:
+        200:
+          description: "Successful retrieval"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QuizGame"
+        404:
+          description: game with the provided gameId does not exist
+
+  /quiz/game/{gameId}/answers/:
+    parameters:
+      - name: gameId
+        in: path
+        required: true
+        description: The id of the game
+        schema:
+          type: string
+        example: 5f22c05fa920c7004af2a477
+      - name: jwt
+        in: header
+        schema:
+          type: string
+        required: true
+    post:
+      tags: [Quiz]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/QuizGameAnswerSubmission"
+      responses:
+        201:
+          description: Added the answer
+        404:
+          description: Couldn't find the game
+        400:
+          description: Answer not well formatted, or answer to wrong question, or not players turn
 
 components:
   schemas:
-    UserId:
+    QuizGame:
       type: object
-      description: Schema for user id object
+      properties:
+        players:
+          type: array
+          minLength: 2
+          items:
+            $ref: "#/components/schemas/userId"
+        questions:
+          type: array
+          items:
+            $ref: "#/components/schemas/Question"
+          minLength: 4
+          maxLength: 4
+        answers:
+          description: The answers of the players to the question denoted by the property questionIndex
+          type: array
+          items:
+            $ref: "#/components/schemas/QuizGameAnswer"
+
+    QuizGameAnswer:
+      type: object
+      properties:
+        userId:
+          $ref: "#/components/schemas/userId"
+        questionIndex:
+          type: integer
+          minimum: 0
+        answer:
+          type: string
+        isCorrect:
+          type: boolean
+
+    QuizGameAnswerSubmission:
+      type: object
+      properties:
+        userId:
+          $ref: "#/components/schemas/userId"
+        questionIndex:
+          type: integer
+          minimum: 0
+        answer:
+          type: string
+
+    NewQuizGameResponse:
+      type: object
+      properties:
+        game:
+          $ref: "#/components/schemas/QuizGame"
+        opponentInfo:
+          properties:
+            userId:
+              $ref: "#/components/schemas/userId"
+            distance:
+              $ref: "#/components/schemas/distance"
+
+    Question:
+      type: object
+      description: Quiz Question
+      required:
+        - "question"
+        - "answers"
+        - "correctAnswer"
+      properties:
+        question:
+          type: string
+        answers:
+          type: array
+          items:
+            type: string
+            minLength: 4
+            maxLength: 4
+        correctAnswer:
+          type: string
+      example:
+        - question: "1+1"
+        - answers:
+            - "3"
+            - "2"
+            - "1"
+            - "4"
+        - correctAnswer: "2"
+
+    User:
+      type: object
+      description: Schema for user representation
       example:
         userId: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
         time: "2020-05-21T21:39:08+02:00"
@@ -867,7 +1069,7 @@ components:
 
     JWT:
       type: object
-      description: example JWT
+      description: JWT for authentication purposes
       example:
         jwt: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
       properties:
@@ -999,12 +1201,23 @@ components:
 
     userId:
       type: string
+      example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
 
     password:
       type: string
 
     isAdmin:
       type: boolean
+
+    lon_lat_array:
+      type: array
+      items:
+        $ref: "#/components/schemas/lat_long"
+      minLength: 2
+      maxLength: 2
+      example:
+        - 180
+        - 90
 
     lat_long:
       type: number
@@ -1015,7 +1228,7 @@ components:
       type: integer
       format: int64
       example: 500
-      
+
     date:
       type: string
       format: date-time
@@ -1125,10 +1338,8 @@ components:
         userId:
           $ref: "#/components/schemas/userId"
         product:
-          type: string
           $ref: "#/components/schemas/product"
         productCategory:
-          type: string
           $ref: "#/components/schemas/productCategory"
         amount:
           type: number
@@ -1160,7 +1371,7 @@ components:
     needId:
       type: string
       example: 5f22c05fa920c7004af2a477
-    
+
     Supermarket:
       description: Contains full details about a supermarket
       allOf:
@@ -1173,12 +1384,12 @@ components:
               items:
                 $ref: "#/components/schemas/InventoryItem"
                 example: TODO
-    
+
     SupermarketWithoutInventory:
       type: object
       description: Contains details about a supermarket without its inventory
       properties:
-        supermarketId: 
+        supermarketId:
           $ref: "#/components/schemas/supermarketId"
         name:
           type: string
@@ -1195,7 +1406,7 @@ components:
       type: object
       description: A shoppable item of a supermarket
       properties:
-        _id: 
+        _id:
           $ref: "#/components/schemas/inventoryItemId"
         product:
           $ref: "#/components/schemas/product"
@@ -1203,7 +1414,7 @@ components:
           $ref: "#/components/schemas/productCategory"
         availabilityLevel:
           $ref: "#/components/schemas/availabilityLevel"
-    
+
     InventoryItemWithSupermarketDetails:
       allOf:
         - $ref: "#/components/schemas/InventoryItem"
@@ -1214,7 +1425,7 @@ components:
               description: distance in km
               type: number
               example: 11.038
-    
+
     inventoryItemId:
       type: string
       example: 5f22c05fa920c7004af2a477
@@ -1224,16 +1435,16 @@ components:
       properties:
         availabilityLevel:
           $ref: "#/components/schemas/availabilityLevel"
-    
+
     availabilityLevel:
       description: any integer greater or equal to 0 and less than or equal to 3
       type: number
       example: 2
-    
+
   examples:
     locationArrayExample:
       summary: Array with two location ojects
-    newUserId:
+    newUserExample:
       summary: Json Object with the new user id and the creation time
       value:
         userId: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"

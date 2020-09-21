@@ -1,6 +1,5 @@
 import bcrypt from 'bcryptjs';
 import UserAccountRecord, { IUserAccountRecord, UserAccountPatch } from "./models/UserAccountRecord";
-import { isNull } from 'util';
 import mongoose from 'mongoose'
 import sanitize from "mongo-sanitize";
 import { createAchievementsForNewUser } from '../achievements/achievements';
@@ -27,7 +26,7 @@ export async function updateUserAccount(userId: string, patch: UserAccountPatch)
     const patchObject = sanitize(patch)
     const document = await UserAccountRecord.findOneAndUpdate({ _id: userId }, patchObject, { new: true, runValidators: true })
 
-    if (isNull(document)) {
+    if (document == null) {
       return Promise.reject('Could not update user')
     }
 
@@ -80,7 +79,7 @@ export async function getUserAccount(userId: string): Promise<IUserAccountRecord
 export async function validatePassword(userId: string, password: string): Promise<boolean> {
   const userAccount = await getUserAccount(userId)
 
-  if (!isNull(userAccount)) {
+  if (userAccount != null) {
 
     const checkPasswordHash: boolean = await bcrypt.compare(password, userAccount.passwordHash)
 
@@ -95,7 +94,7 @@ export async function validatePassword(userId: string, password: string): Promis
 export async function setupRootAdminAccount(plainTextPassword: string): Promise<IUserAccountRecord> {
   const rootAdmin = await UserAccountRecord.findOne({ isRootAdmin: true })
 
-  if (isNull(rootAdmin)) {
+  if (rootAdmin == null) {
     const passwordHash = await bcrypt.hash(plainTextPassword, 10)
 
     return await UserAccountRecord.create({

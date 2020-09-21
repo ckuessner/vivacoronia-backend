@@ -24,7 +24,7 @@ async function initRootAdmin(): Promise<void> {
     }
 
     const root = await setupRootAdminAccount(passwordPlainText)
-    console.log("Created root admin account: \n" + String(root._id))
+    console.log("Root admin account: \n" + String(root._id))
 }
 
 export default { opts, connectionString, initRootAdmin }
