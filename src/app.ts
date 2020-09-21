@@ -6,7 +6,7 @@ const app = express();
 export default app;
 
 // Load Middlewares
-app.use(bodyParser.json({ limit: '512k' }));
+app.use(bodyParser.json({ limit: '512kb' }));
 
 // Routes
 app.use('/', router);
