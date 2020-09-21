@@ -1,0 +1,75 @@
+[
+    {
+        "question": "How long is a piece of toilet paper on average?",
+        "answers": [
+            "13cm",
+            "10cm",
+            "6cm",
+            "15cm"
+        ],
+        "correctAnswer": "13cm"
+    },{
+        "question": "In which province is the city Wuhan?",
+        "answers": [
+            "Hubei",
+            "Sichuan",
+            "Henan",
+            "Hebei"
+        ],
+        "correctAnswer": "Hubei"
+    },{
+        "question": "Which test doesn't test whether I'm currently infected?",
+        "answers": [
+            "Antibody test",
+            "PCR test",
+            "Antigen test",
+            "Quick PCR test"
+        ],
+        "correctAnswer": "Antibody test"
+    },{
+        "question": "What is a common early sympton of COVID?",
+        "answers": [
+            "A sore throat",
+            "A rash on your skin",
+            "Loosing your sense of smell or taste",
+            "Feeling lonely"
+        ],
+        "correctAnswer": "Loosing your sense of smell or taste"
+    },{
+        "question": "What is not a common sympton of COVID?",
+        "answers": [
+            "Fever",
+            "Dry cough",
+            "Tiredness",
+            "Weight loss"
+        ],
+        "correctAnswer": "Weight loss"
+    },{
+        "question": "What is an effective strategy for not getting COVID?",
+        "answers": [
+            "Eating garlic",
+            "Drinking disinfectant",
+            "Avoiding 5G mobile networks",
+            "Staying the fuck at home"
+        ],
+        "correctAnswer": "Staying the fuck at home"
+    },{
+        "question": "How should you test whether you have COVID symptoms?",
+        "answers": [
+            "Trying to hold your breath for 10 seconds without coughing",
+            "Asking the Bürgerbräukeller staff while having a stout",
+            "Calling a doctor or visiting a test facility",
+            "No need for a test, probably just a flu"
+        ],
+        "correctAnswer": "Calling a doctor or visiting a test facility"
+    },{
+        "question": "Where was the toilet paper invented?",
+        "answers": [
+            "China",
+            "Japan",
+            "United Kingdom",
+            "Germany"
+        ],
+        "correctAnswer": "China"
+    }
+]
