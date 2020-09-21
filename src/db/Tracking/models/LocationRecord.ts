@@ -48,6 +48,8 @@ const LocationRecordSchema: Schema = new Schema({
     }
 })
 
+LocationRecordSchema.index({ userId: 1, time: 1 })
+
 export interface ILocationRecord extends Document, LeanLocationRecord { }
 
 export default mongoose.model<ILocationRecord>('LocationRecord', LocationRecordSchema);

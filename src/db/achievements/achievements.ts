@@ -63,14 +63,32 @@ export async function updateForeverAlone(userId: string, date: Date): Promise<vo
     // increases if the user does not have contact with infected persons over a long period of time
     // you cannot skip from none to gold or bronce to gold 
 
-    const locIds = (await ContactRecord.find({ userId: userId }, { locationRecord: 1 })).map(r => r.locationRecord)
+    //const locIds = (await ContactRecord.find({ userId: userId }, { locationRecord: 1 })).map(r => r.locationRecord)
     //console.log("locIds ", locIds)
-    const locRecs = await LocationRecord.find({ _id: { $in: locIds } }).sort({ time: -1 })
+    //const locRecs = await LocationRecord.find({ _id: { $in: locIds } }).sort({ time: -1 })
     //console.log("locRecs ", locRecs)
 
+    let locRecs = await LocationRecord.aggregate([
+        {
+            $lookup: {
+                from: "contactrecord",
+                foreignField: "userId",
+                localField: "_id",
+                as: "newDoc"
+            }
+        },
+        { $sort: { time: -1 } },
+        { $limit: 1 }
+    ])
+
+    if (locRecs.length == 0) {
+        locRecs = await LocationRecord.find({ userId: userId }).sort({ time: 1 }).limit(1)
+    }
+
     if (locRecs.length > 0) {
+        //const locRec = locRecs[0].time
         // millsecs from 1970-1-1
-        const dayDiff = date.valueOf() - new Date(locRecs[0].time).valueOf()
+        const dayDiff = date.valueOf() - new Date((locRecs[0] as ILocationRecord).time).valueOf()
         const days = Math.floor(dayDiff / 1000 / 60 / 60 / 24)
         //console.log("dayDiff ", days)
 
@@ -94,7 +112,6 @@ export async function updateZombie(userId: string, locations: ILocationRecord[])
             const sortedLocations = locations.sort((a: ILocationRecord, b: ILocationRecord) => a.time < b.time ? -1 : 1)
 
             // get last location record to concat from db
-            // TODO: make this more efficient since with time there are a lots of location records...
             const lastLocRecord = await LocationRecord.find(
                 {
                     $and: [

@@ -1273,11 +1273,11 @@ components:
           howmany: 30
         - name: "superspreader"
           badge: "gold"
-          remaining: -1
+          remaining: 0
           howmany: 1
         - name: "quizmaster"
           badge: "gold"
-          remaining: -1
+          remaining: 0
           howmany: 3
 
     geoJsonPoint2DArrayExample:

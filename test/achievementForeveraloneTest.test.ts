@@ -9,7 +9,7 @@ import { expect } from 'chai';
 
 describe("foreveralone achievement", function () {
     let testAccount: Record<string, string>
-    // MIT DIESEN TEST FUNKTIONIEREN DIE TRACING TESTS NICHT - KEINE AHNUNG WARUM
+
     const locTestRecords = [
         { userId: "0", time: "2020-09-20T19:39:08.000Z", location: { type: "Point", coordinates: [-122.96, 50.114] } },
         { userId: "0", time: "2020-09-21T21:50:42.000Z", location: { type: "Point", coordinates: [-8.454, 50.225] } },
