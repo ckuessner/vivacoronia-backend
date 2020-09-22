@@ -154,7 +154,7 @@ function sendGameOverNotification(game: QuizGameDocument) {
 
     if (countP1 === countP2) {
         void notifications.sendQuizGameDraw(game._id, game.players[0], game.players[1])
-    } else if (countP1 <= countP2) {
+    } else if (countP1 > countP2) {
         void notifications.sendQuizGameOver(game._id, game.players[0], game.players[1])
     } else {
         void notifications.sendQuizGameOver(game._id, game.players[1], game.players[0])
