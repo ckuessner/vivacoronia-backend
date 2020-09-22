@@ -67,52 +67,20 @@ export async function updateForeverAlone(userId: string, date: Date): Promise<vo
     // increases if the user does not have contact with infected persons over a long period of time
     // you cannot skip from none to gold or bronce to gold 
 
-    //const locIds = (await ContactRecord.find({ userId: userId }, { locationRecord: 1 })).map(r => r.locationRecord)
+    const locIds = (await ContactRecord.find({ userId: userId }, { locationRecord: 1 })).map(r => r.locationRecord)
     //console.log("locIds ", locIds)
-    //const locRecs = await LocationRecord.find({ _id: { $in: locIds } }).sort({ time: -1 })
+    let locRecs = await LocationRecord.find({ _id: { $in: locIds } }).sort({ time: -1 })
     //console.log("locRecs ", locRecs)
 
-    type Res = {
-        maxTime: Date
-    }
-
-    let locRecs: Res[] = await ContactRecord.aggregate([
-        {
-            // Join locationrecords on contactrecord with the locationrecord id
-            $lookup: {
-                from: 'locationrecords',
-                localField: 'locationRecord',
-                foreignField: '_id',
-                as: 'location'
-            }
-        },
-        {
-            // get the maximum time of each location in array from join
-            $project: {
-                maxTime: { $max: "$location.time" }
-            }
-        },
-        {
-            // sort contacts by max time
-            $sort: { "maxTime": -1 }
-        },
-        {
-            $limit: 1
-        }
-    ])
-
-    if (locRecs.length >= 1 && locRecs[0].maxTime === null) {
-        const loc = await LocationRecord.find({ userId: userId }).sort({ time: 1 }).limit(1)
-
-        if (loc.length !== 0) {
-            locRecs = [{ maxTime: loc[0].time }]
-        }
+    // if no contact records exist we need the oldest location record to compare it to the newest
+    if (locRecs.length == 0) {
+        locRecs = await LocationRecord.find({ userId: userId }).sort({ time: 1 }).limit(1)
     }
 
     if (locRecs.length > 0) {
         //const locRec = locRecs[0].time
         // millsecs from 1970-1-1
-        const dayDiff = date.valueOf() - new Date(locRecs[0].maxTime).valueOf()
+        const dayDiff = date.valueOf() - new Date(locRecs[0].time).valueOf()
         const days = Math.floor(dayDiff / 1000 / 60 / 60 / 24)
         //console.log("dayDiff ", days)
 
