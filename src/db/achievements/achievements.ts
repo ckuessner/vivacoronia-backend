@@ -38,12 +38,13 @@ export async function calculateInfectionScore(userId: string): Promise<number> {
     // compute a score
     // if user has more contact with infected contacts this should weight most
     let score = (sumInfectedContacts * 5 + infectedUsers * 0.3) / (sumInfectedContacts + infectedUsers + totalUsers)
+    score = score * 100
 
-    if (score >= 1) {
+    if (score >= 100) {
         score = 99
     }
 
-    return (toInteger)(score * 100)
+    return (toInteger)(score)
 }
 
 export async function createAchievementsForNewUser(userId: string): Promise<void> {
