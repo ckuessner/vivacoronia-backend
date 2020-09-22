@@ -1,10 +1,10 @@
-import WebSocket from 'ws'
 import express from 'express'
+import WebSocket from 'ws'
 import { IContactRecord } from "../db/Tracking/models/ContactRecord"
-import { ProductOfferDocument } from "../db/trading/models/ProductOffer"
 import { ProductNeedDocument } from '../db/trading/models/ProductNeed'
 import { checkUserIdForWebSockets } from '../middleware/auth'
 import { AchievementNameType, AchievementBadgeType } from '../db/achievements/models/AchievementRecord'
+import { ProductOfferDocument } from "../db/trading/models/ProductOffer"
 
 // map with userID and corresponding websocket
 export const userIDToSocketMap = new Map<string, WebSocket>()
@@ -135,13 +135,13 @@ async function sendQuizGameYourTurn(userId: string, gameId: string): Promise<voi
 }
 
 async function sendQuizGameOver(gameId: string, winnerId: string, looserId: string): Promise<void> {
-    await sendNotificationBuffered(winnerId, "QUIZ_GAMEOVER_WON|" + gameId)
-    await sendNotificationBuffered(looserId, "QUIZ_GAMEOVER_LOST|" + gameId)
+    await sendNotificationBuffered(winnerId, "QUIZ_GAMEOVER_WON|" + JSON.stringify({ gameId }))
+    await sendNotificationBuffered(looserId, "QUIZ_GAMEOVER_LOST|" + JSON.stringify({ gameId }))
 }
 
 async function sendQuizGameDraw(gameId: string, playerA: string, playerB: string): Promise<void> {
-    await sendNotificationBuffered(playerA, "QUIZ_GAMEOVER_DRAW|" + gameId)
-    await sendNotificationBuffered(playerB, "QUIZ_GAMEOVER_DRAW|" + gameId)
+    await sendNotificationBuffered(playerA, "QUIZ_GAMEOVER_DRAW|" + JSON.stringify({ gameId }))
+    await sendNotificationBuffered(playerB, "QUIZ_GAMEOVER_DRAW|" + JSON.stringify({ gameId }))
 }
 
 async function sendNotificationBuffered(userId: string, message: string): Promise<void> {
