@@ -39,7 +39,7 @@ export async function calculateInfectionScore(userId: string): Promise<number> {
     //let score = (sumInfectedContacts * 5 + infectedUsers * 0.3) / (sumInfectedContacts + infectedUsers + totalUsers)
     let score = 0
     if (sumInfectedContacts > 0) {
-        score = sumInfectedContacts / 5
+        score = (1 / (1 + Math.pow(Math.E, 0.005 * (-sumInfectedContacts + 6)))) * 100
     }
 
     if (score >= 100) {
