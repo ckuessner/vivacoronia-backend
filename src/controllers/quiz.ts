@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { countBy, filter } from "lodash";
+import { updateQuizmaster } from "../db/achievements/achievements";
 import { LeanQuizAnswer, QuizGameDocument } from "../db/Quiz/models/QuizGame";
 import * as quizDb from "../db/Quiz/quiz";
 import * as locationsDb from "../db/Tracking/locations";
@@ -139,15 +140,15 @@ export async function postAnswer(req: Request<{ gameId: string }, never, PostAns
         return
     }
 
-    // Dispatch notifications
+    // Dispatch notifications and update quizmaster achievement
     if (game.answers.length == game.players.length * game.questions.length) {
-        sendGameOverNotification(game)
+        handleGameOver(game)
     } else {
         void notifications.sendQuizGameYourTurn(otherPlayersUserId, gameId)
     }
 }
 
-function sendGameOverNotification(game: QuizGameDocument) {
+function handleGameOver(game: QuizGameDocument) {
     const counts = countBy(filter(game.answers, a => a.isCorrect), 'userId')
     const countP1 = counts[game.players[0]]
     const countP2 = counts[game.players[1]]
@@ -156,7 +157,9 @@ function sendGameOverNotification(game: QuizGameDocument) {
         void notifications.sendQuizGameDraw(game._id, game.players[0], game.players[1])
     } else if (countP1 > countP2) {
         void notifications.sendQuizGameOver(game._id, game.players[0], game.players[1])
+        void updateQuizmaster(game.players[0])
     } else {
         void notifications.sendQuizGameOver(game._id, game.players[1], game.players[0])
+        void updateQuizmaster(game.players[0])
     }
 }
