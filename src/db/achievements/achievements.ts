@@ -5,7 +5,6 @@ import LocationRecord, { ILocationRecord } from "../Tracking/models/LocationReco
 import ContactRecord from "../Tracking/models/ContactRecord"
 import { getInfectionStatusOfUser } from "../Tracking/infection"
 import notifications from "../../controllers/notifications";
-import InfectionRecord from "../Tracking/models/InfectionRecord";
 
 export async function calculateInfectionScore(userId: string): Promise<number> {
     // score / probablilty of how likely a user could be infected 
@@ -30,15 +29,18 @@ export async function calculateInfectionScore(userId: string): Promise<number> {
     })
 
     // total amount of infected users
-    const infectedUsers = await InfectionRecord.estimatedDocumentCount({})
+    //const infectedUsers = await InfectionRecord.estimatedDocumentCount({})
 
     // total amount of users
-    const totalUsers = await UserAccountRecord.estimatedDocumentCount({})
+    //const totalUsers = await UserAccountRecord.estimatedDocumentCount({})
 
     // compute a score
     // if user has more contact with infected contacts this should weight most
-    let score = (sumInfectedContacts * 5 + infectedUsers * 0.3) / (sumInfectedContacts + infectedUsers + totalUsers)
-    score = score * 100
+    //let score = (sumInfectedContacts * 5 + infectedUsers * 0.3) / (sumInfectedContacts + infectedUsers + totalUsers)
+    let score = 0
+    if (sumInfectedContacts > 0) {
+        score = sumInfectedContacts / 5
+    }
 
     if (score >= 100) {
         score = 99
