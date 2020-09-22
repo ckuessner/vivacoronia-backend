@@ -159,7 +159,8 @@ paths:
             application/json:
               schema:
                 type: array
-                items: "#/components/schemas/Achievement"
+                items:
+                  $ref: "#/components/schemas/Achievement"
               examples:
                 achievements:
                   $ref: "#/components/examples/achievements"
@@ -187,7 +188,8 @@ paths:
             application/json:
               schema: 
                 type: object
-                items: "#/components/schemas/InfectionScore"
+                items:
+                  $ref: "#/components/schemas/InfectionScore"
               examples:
                 infectionScore:
                   $ref: "#/components/examples/infectionScore"
@@ -1100,13 +1102,13 @@ components:
         howmany: 20
       properties:
         name: 
-          $ref: "#components/schemas/achievementName"
+          $ref: "#/components/schemas/achievementName"
         badge: 
-          $ref: "#components/schemas/achievementBadge"
+          $ref: "#/components/schemas/achievementBadge"
         remaining: 
-          $ref: "#components/schemas/achievementRemaining"
+          $ref: "#/components/schemas/achievementRemaining"
         howmany: 
-          $ref: "#components/schemas/achievementHowMany"
+          $ref: "#/components/schemas/achievementHowMany"
 
     InfectionScore:
       type: object
@@ -1115,7 +1117,7 @@ components:
         infectionScore: 0.4
       properties:
         infectionScore:
-          $ref: "#components/schemas/infectionScore"
+          $ref: "#/components/schemas/infectionScore"
 
     infectionScore:
       type: number
