@@ -39,10 +39,12 @@ export async function postNewGameRequest(req: Request<never, never, GameRequestB
     }
 
     const game = await quizDb.createGameWithRandomQuestions(playerA, opponentInfo.userId, opponentInfo.distance)
-    game.opponentInfo = opponentInfo
-    res.status(201).json({
-        game
-    })
+    const gameJson = JSON.stringify({ game: game },
+        (key, value) =>
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+            key === 'opponentInfo' ? { userId: opponentInfo.userId, distance: opponentInfo.distance } : value
+    )
+    res.status(201).json(gameJson)
 
     await notifications.sendQuizGameRequest(
         opponentInfo.userId,
@@ -53,7 +55,7 @@ export async function postNewGameRequest(req: Request<never, never, GameRequestB
 
 export async function getGameInfo(req: Request, res: Response): Promise<void> {
     const userId = res.locals.userId || ""
-    let game;
+    let game: QuizGameDocument | null;
     try {
         game = await quizDb.getGame(req.params.gameId)
     } catch (error) {
@@ -61,13 +63,17 @@ export async function getGameInfo(req: Request, res: Response): Promise<void> {
         console.trace(error)
         return
     }
-    if (game === null || !game.players.includes(userId)) {
+    if (game == null || !game.players.includes(userId)) {
         res.sendStatus(404)
     } else {
         const otherPlayer = game.players[0] === userId ? game.players[1] : game.players[0]
         // The userId of the opponent is not stored in the Database, as it depends on which user sends the request
-        game.opponentInfo = { distance: game.opponentInfo.distance, userId: otherPlayer } as locationsDb.UserWithDistance
-        res.json(game)
+        const gameJson = JSON.stringify(game,
+            (key, value) =>
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+                key === 'opponentInfo' ? { userId: otherPlayer, distance: game?.opponentInfo.distance } : value
+        )
+        res.status(201).json(gameJson)
     }
 }
 
