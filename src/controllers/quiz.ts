@@ -133,7 +133,7 @@ export async function postAnswer(req: Request<{ gameId: string }, never, PostAns
     }
 
     // Notify other user that the other player has answered another question
-    const otherPlayersUserId = game.players.find(userId => userId !== userId)
+    const otherPlayersUserId = game.players.find(uId => uId !== userId)
     if (!otherPlayersUserId) {
         console.error("Other player could not be notified ", game)
         return
