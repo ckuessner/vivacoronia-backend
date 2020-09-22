@@ -44,7 +44,7 @@ export async function postNewGameRequest(req: Request<never, never, GameRequestB
             // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             key === 'opponentInfo' ? { userId: opponentInfo.userId, distance: opponentInfo.distance } : value
     )
-    res.status(201).json(gameJson)
+    res.status(201).contentType('application/json').send(gameJson)
 
     await notifications.sendQuizGameRequest(
         opponentInfo.userId,
@@ -73,7 +73,7 @@ export async function getGameInfo(req: Request, res: Response): Promise<void> {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-return
                 key === 'opponentInfo' ? { userId: otherPlayer, distance: game?.opponentInfo.distance } : value
         )
-        res.status(201).json(gameJson)
+        res.status(200).contentType('application/json').send(gameJson)
     }
 }
 
