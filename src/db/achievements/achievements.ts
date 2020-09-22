@@ -9,12 +9,12 @@ import InfectionRecord from "../Tracking/models/InfectionRecord";
 
 export async function calculateInfectionScore(userId: string): Promise<number> {
     // score / probablilty of how likely a user could be infected 
-    // 1 -> if user is infected
-    // else a score between (0, 1)
+    // 100 -> if user is infected
+    // else a score between (0, 100)
 
     const status = await getInfectionStatusOfUser(userId)
     if (!isEmpty(status) && status[0].newStatus === "infected") {
-        // if user is infected his score is 1
+        // if user is infected his score is 100
         return 100
     }
     else if (!isEmpty(status) && status[0].newStatus == "recovered") {
