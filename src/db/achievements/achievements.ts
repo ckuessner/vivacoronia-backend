@@ -97,7 +97,7 @@ export async function updateForeverAlone(userId: string, date: Date): Promise<vo
         }
     ])
 
-    if (locRecs.length == 0) {
+    if (locRecs.length >= 1 && locRecs[0].maxTime === null) {
         const loc = await LocationRecord.find({ userId: userId }).sort({ time: 1 }).limit(1)
 
         if (loc.length !== 0) {
