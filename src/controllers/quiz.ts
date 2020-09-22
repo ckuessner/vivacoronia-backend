@@ -1,10 +1,10 @@
 import { Request, Response } from "express";
+import { countBy, filter } from "lodash";
 import { LeanQuizAnswer, QuizGameDocument } from "../db/Quiz/models/QuizGame";
 import * as quizDb from "../db/Quiz/quiz";
-import * as locationsDb from "../db/Tracking/locations"
+import * as locationsDb from "../db/Tracking/locations";
 import { checkCoordinatePair } from "../validators/coordinates";
 import notifications from "./notifications";
-import { countBy, filter } from "lodash"
 
 export async function postQuizQuestions(req: Request, res: Response): Promise<void> {
     if (!Array.isArray(req.body)) {
@@ -77,15 +77,15 @@ export async function getGameInfo(req: Request, res: Response): Promise<void> {
     }
 }
 
-type PostAnswerBody = { userId: string, gameId: string, answer: string, questionIndex: number }
-export async function postAnswer(req: Request<never, never, PostAnswerBody>, res: Response): Promise<void> {
+type PostAnswerBody = { userId: string, answer: string, questionIndex: number }
+export async function postAnswer(req: Request<{ gameId: string }, never, PostAnswerBody>, res: Response): Promise<void> {
     const userId = res.locals.userId
-    const gameId = req.body.gameId || ""
+    const gameId = req.params.gameId
 
     const answerObject = {
         userId,
         answer: req.body.answer,
-        questionIndex: req.body.questionIndex
+        questionIndex: +req.body.questionIndex
     }
 
     if (!(gameId && userId && answerObject.answer &&
