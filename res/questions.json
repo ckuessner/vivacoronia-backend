@@ -2,28 +2,28 @@
     {
         "question": "How long is a piece of toilet paper on average?",
         "answers": [
-            "13cm",
             "10cm",
             "6cm",
+            "13cm",
             "15cm"
         ],
         "correctAnswer": "13cm"
     },{
         "question": "In which province is the city Wuhan?",
         "answers": [
-            "Hubei",
             "Sichuan",
             "Henan",
+            "Hubei",
             "Hebei"
         ],
         "correctAnswer": "Hubei"
     },{
         "question": "Which test doesn't test whether I'm currently infected?",
         "answers": [
-            "Antibody test",
             "PCR test",
             "Antigen test",
-            "Quick PCR test"
+            "Quick PCR test",
+            "Antibody test"
         ],
         "correctAnswer": "Antibody test"
     },{
@@ -31,26 +31,26 @@
         "answers": [
             "A sore throat",
             "A rash on your skin",
-            "Loosing your sense of smell or taste",
-            "Feeling lonely"
+            "Feeling lonely",
+            "Loosing your sense of smell or taste"
         ],
         "correctAnswer": "Loosing your sense of smell or taste"
     },{
         "question": "What is not a common sympton of COVID?",
         "answers": [
+            "Weight loss",
             "Fever",
             "Dry cough",
-            "Tiredness",
-            "Weight loss"
+            "Tiredness"
         ],
         "correctAnswer": "Weight loss"
     },{
         "question": "What is an effective strategy for not getting COVID?",
         "answers": [
             "Eating garlic",
+            "Staying the fuck at home",
             "Drinking disinfectant",
-            "Avoiding 5G mobile networks",
-            "Staying the fuck at home"
+            "Avoiding 5G mobile networks"
         ],
         "correctAnswer": "Staying the fuck at home"
     },{
@@ -65,9 +65,9 @@
     },{
         "question": "Where was the toilet paper invented?",
         "answers": [
-            "China",
             "Japan",
             "United Kingdom",
+            "China",
             "Germany"
         ],
         "correctAnswer": "China"
