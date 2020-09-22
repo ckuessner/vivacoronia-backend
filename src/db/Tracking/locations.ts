@@ -77,3 +77,29 @@ export async function getClosestUser(userIds: string[], location: [number, numbe
         return null
     }
 }
+
+export async function getRandomUserWithDistance(userIds: string[], location: [number, number]): Promise<UserWithDistance | null> {
+    const results = await LocationRecord.aggregate([
+        {
+            $geoNear: {
+                near: { type: "Point", coordinates: location },
+                distanceField: "distance",
+                query: {
+                    $and: [
+                        { userId: { $in: userIds } },
+                        { time: { $gte: new Date(Date.now() - TEN_MINUTES) } } // Optimization
+                    ]
+                }
+            }
+        },
+        { $sort: { time: -1 } },
+        { $group: { _id: "$userId", distance: { $first: "$distance" }, userId: { $first: "$userId" } } },
+        { $sample: { size: 1 } }
+    ])
+
+    if (results.length > 0) {
+        return results[0] as UserWithDistance
+    } else {
+        return null
+    }
+}

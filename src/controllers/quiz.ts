@@ -32,7 +32,7 @@ export async function postNewGameRequest(req: Request<never, never, GameRequestB
     const playerA = res.locals.userId || ""
     const userLocation = req.body.location
     const online = notifications.getConnectedUsers().filter((user) => user !== playerA)
-    const opponentInfo = await locationsDb.getClosestUser(online, userLocation)
+    const opponentInfo = await locationsDb.getRandomUserWithDistance(online, userLocation)
 
     if (opponentInfo == null) {
         res.status(404).send("Could not find another user online")
