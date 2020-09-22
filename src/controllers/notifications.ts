@@ -15,21 +15,15 @@ function setupSocketManagement(wsServer: WebSocket.Server): void {
     // called when client connects
     wsServer.on('connection', function (ws: WebSocket, req: express.Request) {
 
-        // TODO: user authentication
-        console.log('New Client connected to websocket', req.headers.userid);
-        // add socket to socket map
+        // check if user can authenticate, if yes add him to socket map
         if (req.headers != null && typeof req.headers.userid === 'string' && typeof req.headers.jwt === 'string') {
             // since the function after connection event has to be synchron we first have to let the connection establish
             void checkUserIdForWebSockets(req, ws)
         } else {
-            console.error("Client connected, but no userId found. Headers: ", req.headers)
+            console.error("Client connected, but wrong header. Disconnect. Headers: ", req.headers)
             ws.close()
         }
 
-
-        ws.on('message', function (message: string) {
-            console.log(message)
-        })
 
         ws.on('ping', function () {
             ws.pong()
@@ -39,10 +33,10 @@ function setupSocketManagement(wsServer: WebSocket.Server): void {
             userIDToSocketMap.forEach(function deleteSocket(value, key) {
                 if (ws === value) {
                     userIDToSocketMap.delete(key);
+                    console.log("closing socket for user ", key)
                     return;
                 }
             });
-            console.log("closing socket")
         });
     });
 

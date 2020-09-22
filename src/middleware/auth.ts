@@ -56,7 +56,6 @@ async function checkTokenAndExtractUserId(req: Request, res: Response, next: Nex
 
 async function checkUserIdForWebSockets(req: Request, ws: WebSocket): Promise<void> {
     if (!isString(req.headers.userid) || isEmpty(req.headers.userid)) {
-        console.log("invalid userid")
         ws.close()
         return
     }
@@ -64,7 +63,6 @@ async function checkUserIdForWebSockets(req: Request, ws: WebSocket): Promise<vo
     const userId = req.headers.userid
 
     if (!isString(req.headers.jwt)) {
-        console.log("invalid jwt")
         ws.close()
         return
     }
@@ -72,7 +70,6 @@ async function checkUserIdForWebSockets(req: Request, ws: WebSocket): Promise<vo
 
     if (!await validateJWT(token, userId, "user")) {
         // invalid token
-        console.log("invalid jwt")
         ws.close()
         return
     }
