@@ -38,10 +38,10 @@ export async function postNewGameRequest(req: Request<never, never, GameRequestB
         return
     }
 
-    const game = await quizDb.createGameWithRandomQuestions(playerA, opponentInfo.userId)
+    const game = await quizDb.createGameWithRandomQuestions(playerA, opponentInfo.userId, opponentInfo.distance)
+    game.opponentInfo = opponentInfo
     res.status(201).json({
-        game,
-        opponentInfo
+        game
     })
 
     await notifications.sendQuizGameRequest(
@@ -64,6 +64,9 @@ export async function getGameInfo(req: Request, res: Response): Promise<void> {
     if (game === null || !game.players.includes(userId)) {
         res.sendStatus(404)
     } else {
+        const otherPlayer = game.players[0] === userId ? game.players[1] : game.players[0]
+        // The userId of the opponent is not stored in the Database, as it depends on which user sends the request
+        game.opponentInfo = { distance: game.opponentInfo.distance, userId: otherPlayer } as locationsDb.UserWithDistance
         res.json(game)
     }
 }

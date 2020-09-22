@@ -904,7 +904,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/NewQuizGameResponse"
+                $ref: "#/components/schemas/QuizGame"
         400:
           description: Location invalid
         404:
@@ -977,6 +977,7 @@ components:
         players:
           type: array
           minLength: 2
+          maxLength: 2
           items:
             $ref: "#/components/schemas/userId"
         questions:
@@ -990,6 +991,12 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/QuizGameAnswer"
+        opponentInfo:
+          properties:
+            userId:
+              $ref: "#/components/schemas/userId"
+            distance:
+              $ref: "#/components/schemas/distance"
 
     QuizGameAnswer:
       type: object
@@ -1001,6 +1008,7 @@ components:
           minimum: 0
         answer:
           type: string
+          example: "2"
         isCorrect:
           type: boolean
 
@@ -1014,18 +1022,6 @@ components:
           minimum: 0
         answer:
           type: string
-
-    NewQuizGameResponse:
-      type: object
-      properties:
-        game:
-          $ref: "#/components/schemas/QuizGame"
-        opponentInfo:
-          properties:
-            userId:
-              $ref: "#/components/schemas/userId"
-            distance:
-              $ref: "#/components/schemas/distance"
 
     Question:
       type: object
@@ -1387,7 +1383,6 @@ components:
               type: array
               items:
                 $ref: "#/components/schemas/InventoryItem"
-                example: TODO
 
     SupermarketWithoutInventory:
       type: object

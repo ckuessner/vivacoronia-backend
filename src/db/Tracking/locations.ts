@@ -50,7 +50,7 @@ export async function getAllLocationRecords(location: [number, number], distance
 }
 
 
-interface UserWithDistance { userId: string, distance: number }
+export interface UserWithDistance { userId: string, distance: number }
 export async function getClosestUser(userIds: string[], location: [number, number]): Promise<UserWithDistance | null> {
     const results = await LocationRecord.aggregate([
         {

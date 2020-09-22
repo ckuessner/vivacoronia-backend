@@ -6,7 +6,7 @@ export async function addQuizQuestions(questions: QuizQuestionDocument[]): Promi
     return QuizQuestion.create(questions)
 }
 
-export async function createGameWithRandomQuestions(userA: string, userB: string): Promise<QuizGameDocument> {
+export async function createGameWithRandomQuestions(userA: string, userB: string, distance: number): Promise<QuizGameDocument> {
     const questions = await QuizQuestion.aggregate([{
         $sample: { size: 4 }
     }])
@@ -14,6 +14,9 @@ export async function createGameWithRandomQuestions(userA: string, userB: string
         players: [userA, userB],
         questions,
         answers: [],
+        opponentInfo: {
+            distance
+        }
     })
     return await doc.populate('questions').execPopulate()
 }

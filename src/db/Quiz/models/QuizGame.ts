@@ -30,12 +30,21 @@ const QuizGameSchema: Schema = new Schema({
             required: true,
         }
     }],
+    opponentInfo: {
+        distance: {
+            type: Schema.Types.Number,
+            required: true
+        }
+    }
 })
 
 export interface LeanQuizGame {
     players: string[];
     questions: LeanQuizQuestion[];
     answers: LeanQuizAnswer[];
+    opponentInfo: {
+        distance: number
+    }
 }
 
 export interface LeanQuizAnswer {
