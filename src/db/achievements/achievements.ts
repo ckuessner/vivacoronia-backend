@@ -15,7 +15,10 @@ export async function calculateInfectionScore(userId: string): Promise<number> {
     const status = await getInfectionStatusOfUser(userId)
     if (!isEmpty(status) && status[0].newStatus === "infected") {
         // if user is infected his score is 1
-        return 1.0
+        return 100
+    }
+    else if (!isEmpty(status) && status[0].newStatus == "recovered") {
+        return 0
     }
 
     // amount of infected contacts of user
@@ -37,10 +40,10 @@ export async function calculateInfectionScore(userId: string): Promise<number> {
     let score = (sumInfectedContacts * 5 + infectedUsers * 0.3) / (sumInfectedContacts + infectedUsers + totalUsers)
 
     if (score >= 1) {
-        score = 0.99
+        score = 99
     }
 
-    return score
+    return (toInteger)(score * 100)
 }
 
 export async function createAchievementsForNewUser(userId: string): Promise<void> {
@@ -320,8 +323,8 @@ export async function getAchievementStatus(userId: string): Promise<AchievementS
         ret.push({
             name: record.name,
             badge: record.badge,
-            remaining: record.remaining,
-            howmany: fraction
+            remaining: Math.floor(record.remaining),
+            howmany: Math.floor(fraction)
         })
     }
 
