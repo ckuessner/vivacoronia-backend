@@ -688,7 +688,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/supermarket"
+              $ref: "#/components/schemas/Supermarket"
       responses:
         "201":
           description: Successfully created new supermarket
@@ -891,9 +891,7 @@ paths:
             schema:
               properties:
                 location:
-                  type: array
-                  items:
-                    $ref: "#/components/schemas/lon_lat_array"
+                  $ref: "#/components/schemas/lon_lat_array"
       parameters:
         - name: jwt
           in: header
