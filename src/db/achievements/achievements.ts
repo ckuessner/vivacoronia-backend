@@ -68,27 +68,47 @@ export async function updateForeverAlone(userId: string, date: Date): Promise<vo
     //const locRecs = await LocationRecord.find({ _id: { $in: locIds } }).sort({ time: -1 })
     //console.log("locRecs ", locRecs)
 
-    let locRecs = await LocationRecord.aggregate([
+    type Res = {
+        maxTime: Date
+    }
+
+    let locRecs: Res[] = await ContactRecord.aggregate([
         {
+            // Join locationrecords on contactrecord with the locationrecord id
             $lookup: {
-                from: "contactrecord",
-                foreignField: "userId",
-                localField: "_id",
-                as: "newDoc"
+                from: 'locationrecords',
+                localField: 'locationRecord',
+                foreignField: '_id',
+                as: 'location'
             }
         },
-        { $sort: { time: -1 } },
-        { $limit: 1 }
+        {
+            // get the maximum time of each location in array from join
+            $project: {
+                maxTime: { $max: "$location.time" }
+            }
+        },
+        {
+            // sort contacts by max time
+            $sort: { "maxTime": -1 }
+        },
+        {
+            $limit: 1
+        }
     ])
 
     if (locRecs.length == 0) {
-        locRecs = await LocationRecord.find({ userId: userId }).sort({ time: 1 }).limit(1)
+        const loc = await LocationRecord.find({ userId: userId }).sort({ time: 1 }).limit(1)
+
+        if (loc.length !== 0) {
+            locRecs = [{ maxTime: loc[0].time }]
+        }
     }
 
     if (locRecs.length > 0) {
         //const locRec = locRecs[0].time
         // millsecs from 1970-1-1
-        const dayDiff = date.valueOf() - new Date((locRecs[0] as ILocationRecord).time).valueOf()
+        const dayDiff = date.valueOf() - new Date(locRecs[0].maxTime).valueOf()
         const days = Math.floor(dayDiff / 1000 / 60 / 60 / 24)
         //console.log("dayDiff ", days)
 
@@ -187,10 +207,8 @@ export async function updateSuperspreader(newInfectedUser: string, dateOfTest: D
 
 }
 
-//eslint-disable-next-line
-export async function updateQuizmaster(): Promise<void> {
-    // TODO
-    console.log("quizmaster")
+export async function updateQuizmaster(userId: string): Promise<void> {
+    await updateAchievement(userId, "quizmaster", 1)
 }
 
 async function updateAchievement(userId: string, achievement: AchievementNameType, updateRemaining: number): Promise<void> {
