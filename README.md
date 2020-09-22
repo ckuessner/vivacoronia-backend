@@ -7,7 +7,7 @@ To start the application in production mode run:
 npm run prod
 ```
 
-The OpenAPI documentation (aka. Swagger) is available at `/swagger/` and the
+The OpenAPI documentation (aka. Swagger) is available at https://vivacoronia.herokuapp.com/swagger/ and the
 server is listening on port 3000 (HTTP) and 3443 (HTTPS) both can be overriden
 via environment variables: `$PORT` / `$HTTPS_PORT`. If `$HTTPS_PORT` is "-1", the
 HTTPS server is disabled.
